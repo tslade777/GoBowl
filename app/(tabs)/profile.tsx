@@ -3,12 +3,12 @@ import React from 'react'
 import "../../global.css";
 
 // MUST CHANGE TO HOME PAGE. 
-const Bookmark = () => {
+const Profile = () => {
   return (
     <View>
-      <Text>Bookmark</Text>
+      <Text>Profile</Text>
     </View>
   )
 }
 
-export default Bookmark
+export default Profile

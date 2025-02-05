@@ -20,6 +20,9 @@ module.exports = {
         gray: {
           100: "#CDCDE0",
         },
+        orange: "#F24804",
+        teal: "#57FFFF",
+
       },
       fontFamily: {
         pthin: ["Poppins-Thin", "sans-serif"],

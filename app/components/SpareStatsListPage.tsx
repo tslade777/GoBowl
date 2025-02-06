@@ -4,14 +4,17 @@ import StatTile from './StatTile';
 const SpareStatsList = () => {
     return (
         <ScrollView>
-            <StatTile title="Number of games played" value={20}/>
-            <StatTile title="Average score per frame" value={7.8}/>
-            <StatTile title="Average score per game" value={78}/>
-            <StatTile title="Highest game score in a game" value={213}/>
-            <StatTile title="Average number of strikes per game" value={1}/>
-            <StatTile title="Average number of spares per game" value={3}/>
-            <StatTile title="Highest number of strikes in a game" value={5}/>
-            <StatTile title="Longest strike streak" value={4}/>
+            <StatTile title="Games played" value={20}/>
+            <StatTile title="Total spares" value={23}/>
+            <StatTile title="Average spares per game" value={2.3}/>
+            <StatTile title="Single pin spare conversion rate:" value="70%"/>
+            <StatTile title="Single pin spare miss rate:" value="30%"/>
+            <StatTile title="Corner pin spare conversion rate:" value="10%"/>
+            <StatTile title="Corner pin spare miss rate:" value="90%"/>
+            <StatTile title="Hard spare conversion rate:" value="16%"/>
+            <StatTile title="Hard spare miss rate:" value="84%"/>
+            <StatTile title="Split spare conversion rate:" value="1%"/>
+            <StatTile title="Split spare miss rate:" value="99%"/>
         </ScrollView>
     )
 }

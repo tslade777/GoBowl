@@ -2,7 +2,7 @@ import { StyleSheet, Text, View } from 'react-native'
 import React from 'react'
 import "../global.css";
 import { SafeAreaView } from 'react-native-safe-area-context';
-import SpareStatsList from './components/PracticeStatsListPage';
+import SpareStatsList from './components/SpareStatsListPage';
 
 const Stats = () => {
   return (

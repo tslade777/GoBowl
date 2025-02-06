@@ -5,13 +5,10 @@ const BallStatsList = () => {
     return (
         <ScrollView>
             <StatTile title="Number of games played" value={20}/>
-            <StatTile title="Average score per frame" value={7.8}/>
-            <StatTile title="Average score per game" value={78}/>
-            <StatTile title="Highest game score in a game" value={213}/>
-            <StatTile title="Average number of strikes per game" value={1}/>
-            <StatTile title="Average number of spares per game" value={3}/>
-            <StatTile title="Highest number of strikes in a game" value={5}/>
-            <StatTile title="Longest strike streak" value={4}/>
+            <StatTile title="Average score per frame with Equinox ball" value={7.3}/>
+            <StatTile title="Average score per frame with Ion Pro ball" value={8.2}/>
+            <StatTile title="Average score per frame with Ion Max ball" value={6.4}/>
+            <StatTile title="Average score per frame with house balls" value={5.7}/>
         </ScrollView>
     )
 }

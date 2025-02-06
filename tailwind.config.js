@@ -22,6 +22,7 @@ module.exports = {
         },
         orange: "#F24804",
         teal: "#57FFFF",
+        blue: "#07064a",
 
       },
       fontFamily: {

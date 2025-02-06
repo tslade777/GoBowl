@@ -1,15 +1,16 @@
-import { StyleSheet, Text, View } from 'react-native'
+import { View, Text } from 'react-native'
 import React from 'react'
-import "../global.css";
-import { SafeAreaView } from 'react-native-safe-area-context';
-import BowlingGame from './components/BowlingGame';
+import { SafeAreaView } from 'react-native-safe-area-context'
+import BowlingGame from './components/BowlingGame'
 
-const NewGame = () => {
+const game = () => {
   return (
-      <View className='items-center flex-1 bg-gray-100 pt-2'>
+    <SafeAreaView className="flex-1 bg-primary h-full">
+      <View className="items-center">
         <BowlingGame />
       </View>
+    </SafeAreaView>
   )
 }
 
-export default NewGame
+export default game

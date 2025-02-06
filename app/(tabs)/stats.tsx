@@ -15,24 +15,21 @@ const Stats = () => {
             />
         <BowlingGameButton
               title="League stats"
-              handlePress={() => router.push("/(tabs)/home")}
+              handlePress={() => router.push("/league_stats")}
             />
         <BowlingGameButton
               title="Tournament stats"
-              handlePress={() => router.push("/(tabs)/home")}
+              handlePress={() => router.push("/tournament_stats")}
             />
         <BowlingGameButton
               title="Ball stats"
-              handlePress={() => router.push("/(tabs)/home")}
+              handlePress={() => router.push("/ball_stats")}
             />
         <BowlingGameButton
               title="Spare stats"
-              handlePress={() => router.push("/(tabs)/home")}
+              handlePress={() => router.push("/spare_stats")}
             />
-        <BowlingGameButton
-              title="Combine stats"
-              handlePress={() => router.push("/(tabs)/home")}
-            />
+        
       </View>
     </SafeAreaView>
   )

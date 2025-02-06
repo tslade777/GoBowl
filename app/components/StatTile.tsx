@@ -5,7 +5,7 @@ const StatTile = ({title, value}:
 
   return (
     <View>
-      <Text>{title}: {value}</Text>
+      <Text className="text-xl font-plight text-black-100 mt-5 text-start">{title}: <Text style={{fontWeight: "bold"}}>{value}</Text></Text>
     </View>
   )
 }

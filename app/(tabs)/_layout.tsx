@@ -1,7 +1,7 @@
 import { View, Text, Image } from 'react-native'
 import React from 'react'
 import "../../global.css";
-import { Tabs, Redirect} from 'expo-router'
+import { Tabs, Redirect, Stack} from 'expo-router'
 import {icons} from '../../constants'
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 
@@ -20,8 +20,10 @@ const TabIcon = ({icon, color, focused}:{icon:any, color:any, focused:any}) => {
 const TabsLayout = () => {
   return (
     <>
+      <Stack.Screen name="index" options={{headerShown:false}}/>
       <Tabs
         screenOptions={{
+          headerShown: false,
           tabBarShowLabel: true,
           tabBarActiveTintColor: '#F24804',
           tabBarInactiveTintColor: '#CDCDE0',
@@ -36,8 +38,8 @@ const TabsLayout = () => {
         <Tabs.Screen
           name="home"
           options={{ 
-            title: "Home",
             headerShown: false,
+            title: "Home",
             tabBarIcon: ({color, focused}) => (
               <TabIcon 
                 icon={icons.home}

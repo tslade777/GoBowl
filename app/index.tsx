@@ -1,21 +1,22 @@
 import { StatusBar } from "expo-status-bar";
-import {SafeAreaView, ScrollView, Text, View, Image } from "react-native";
+import { ScrollView, Text, View, Image } from "react-native";
 import { Redirect, router, Tabs } from "expo-router";
 import "../global.css";
 import { images } from '../constants'
 import CustomButton from "./components/CustomButton";
+import { SafeAreaView } from "react-native-safe-area-context";
 
 export default function RootLayout() {
   return (
   <SafeAreaView className="bg-primary h-full">
     <ScrollView contentContainerStyle={{height: '100%'}}>
-      <View className="w-full justify-center items-center h-full px-4">
+      <View className="w-full justify-center items-center min-h-full px-4">
         <Image source={images.logo}
         className="w-[400px] h-[400]"
         resizeMode="contain"/>
 
         <View className="relative mt-5">
-          <Text className="text-3xl text-white font-pblack text-center">
+          <Text className="text-3xl text-white text-center">
             Know Your Game with {' '}
             <Text className="text-orange">GoBowl</Text>
           </Text>

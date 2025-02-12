@@ -5,7 +5,9 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import {images} from '../../constants'
 import FormField from '../components/FormField';
 import CustomButton from '../components/CustomButton';
-import { Link } from 'expo-router';
+import { Link, router } from 'expo-router';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { FIREBASE_AUTH } from '@/firebase.config';
 
 
 
@@ -17,9 +19,17 @@ const SignIn = () => {
   })
 
 const [isSubmitting, setSubmitting] = useState(false)
+const [failedSignin, setFailed] = useState(false)
 
-const Submit = () => {
-
+const Submit = async () => {
+  setSubmitting(true)
+  try{
+    const response = await signInWithEmailAndPassword(FIREBASE_AUTH, form.email, form.password)
+    router.replace('/home')
+  } catch (error){
+    setFailed(true)
+    console.log(`Failed to log in. Error: ${error}`)
+  }
 }
 
   return (
@@ -40,9 +50,12 @@ const Submit = () => {
           <FormField
             title="Password"
             value={form.password}
-            handleChangeText={(e:any)=> setForm({...form,password: e})}
+            handleChangeText={(e:any)=> {
+              setFailed(false)
+              setForm({...form,password: e})}}
             oatherstyles="mt-7"
             placeholder=''/>
+            <Text className='text-lg text-red-700 font-pregular'>{failedSignin ? 'Sign-in failed, try again.': ''}</Text>
             <CustomButton 
               title="Sign In"
               handlePress={Submit}

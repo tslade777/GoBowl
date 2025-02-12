@@ -6,8 +6,9 @@ import {images} from '../../constants'
 import FormField from '../components/FormField';
 import CustomButton from '../components/CustomButton';
 import { Link, router } from 'expo-router';
-import { FIREBASE_AUTH } from '../../firebase.config'
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from 'firebase/auth';
+import { FIREBASE_AUTH, FIREBASE_DB } from '../../firebase.config'
+import { createUserWithEmailAndPassword} from 'firebase/auth';
+import { doc, setDoc} from "firebase/firestore"
 
 
 const SignUP = () => {
@@ -25,6 +26,12 @@ const Submit = async () => {
   if (!passwordsMatch) return
   try{
     const response = await createUserWithEmailAndPassword(FIREBASE_AUTH, form.email, form.password)
+
+    await setDoc(doc(FIREBASE_DB, "users", response.user.uid),{
+      username: form.username,
+      email: form.email,
+      id: response.user.uid
+    });
     router.replace('/home')
   } catch (error){
     setSubmitting(false)
@@ -69,7 +76,8 @@ const Submit = async () => {
               oatherstyles="mt-5"
               placeholder=''
             />
-            <Text className='text-lg text-red-700 font-pregular'>{passwordsMatch ? '': 'Passwords don\'t match'}</Text>
+            <Text className='text-lg text-red-700 font-pregular'>
+              {passwordsMatch ? '': 'Passwords don\'t match'}</Text>
             <CustomButton 
               title="Sign Up"
               handlePress={Submit}

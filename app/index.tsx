@@ -5,11 +5,22 @@ import "../global.css";
 import { images } from '../constants'
 import CustomButton from "./components/CustomButton";
 import { SafeAreaView } from "react-native-safe-area-context";
+import {onAuthStateChanged, User} from "firebase/auth"
+import { useEffect, useState } from "react";
+import { FIREBASE_AUTH } from "@/firebase.config";
 
 export default function RootLayout() {
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() =>{
+    onAuthStateChanged(FIREBASE_AUTH, (user)=>{
+      setUser(user);
+    })
+  }, [])
   return (
   <SafeAreaView className="bg-primary h-full">
     <ScrollView contentContainerStyle={{height: '100%'}}>
+    
       <View className="w-full justify-center items-center min-h-full px-4">
         <Image source={images.logo}
         className="w-[400px] h-[400]"
@@ -23,7 +34,12 @@ export default function RootLayout() {
           <Text className="text-sm font-plight text-gray-100 mb-5 mt-5 text-center">Statistics made simple</Text>
           <CustomButton
             title="Get Started"
-            handlePress={() => router.push("/(tabs)/home")}
+            handlePress={() => {
+              user? (router.push("/(tabs)/home")) : (router.push("/(auth)/sign-in"))
+              }}
+            isLoading={false}
+            containerStyles={null}
+            
           />
         </View>
       </View>

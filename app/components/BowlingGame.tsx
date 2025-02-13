@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, TextInput, Alert } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, PanResponder  } from 'react-native';
 import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Frame from './Frame';
@@ -12,13 +12,14 @@ const INPROGRESS = 'gameInProgress'
 
 const BowlingGame = () => {
   const [frames, setFrames] = useState(
-    Array(10).fill(null).map(() => ({ roll1: '', roll2: '', roll3: '' }))
+    Array(10).fill(null).map(() => ({ roll1: '', roll2: '', roll3: '', pins: Array(10).fill(false) }))
   );
   const [currentFrame, setCurrentFrame] = useState(0);
   const [isFirstRoll, setIsFirstRoll] = useState(true);
   const [inputRoll, setInputRoll] = useState('');
   const [isFrameComplete, setIsFrameComplete] = useState(false);
   const [gameComplete, setGameComplete] = useState(false)
+  const [pins, setPins] = useState(Array(10).fill(false)); // Track knocked-down pins
 
   
   // Load saved game on startup
@@ -51,7 +52,6 @@ const BowlingGame = () => {
       if (FIREBASE_AUTH.currentUser != null){
         let result = FIREBASE_AUTH.currentUser.uid
         await updateDoc(doc(db,"users", result),{
-          active: true,
           currentGame: {
             currentFrame,
             frames,
@@ -96,6 +96,7 @@ const BowlingGame = () => {
     try{
       // Update firebase and local storage for game started/active
       updateFirebaseCurrentGame();
+      setFirebaseActive();
       await AsyncStorage.setItem(INPROGRESS, JSON.stringify(true));
     }
     catch (error) {
@@ -127,7 +128,7 @@ const BowlingGame = () => {
   // Clear the game to be ready for another set of inputs
   const clearGame = async () => {
     setFirebaseInActive()
-    setFrames(Array(10).fill(null).map(() => ({ roll1: '', roll2: '', roll3: '' })))
+    setFrames(Array(10).fill(null).map(() => ({ roll1: '', roll2: '', roll3: '',pins: Array(10).fill(false) })));
     setCurrentFrame(0)
     setGameComplete(false)
     setInputRoll('')
@@ -139,6 +140,46 @@ const BowlingGame = () => {
     }
   }
 
+  const handlePinToggle = (index: number) => {
+    let updatedPins = [...pins];
+    updatedPins[index] = !updatedPins[index];
+
+    // Count the number of pins knocked down
+    let count = updatedPins.filter(x => x==true).length
+    setInputRoll(count.toString())
+    setPins(updatedPins);
+  };
+  
+  // Detect swipes over pins using PanResponder
+  const panResponder = PanResponder.create({
+    onStartShouldSetPanResponder: () => true,
+    onMoveShouldSetPanResponder: () => true,
+    onPanResponderMove: (_, gestureState) => {
+      const { moveX, moveY } = gestureState;
+      handlePinSwipe(moveX, moveY);
+    },
+  });
+
+  const handlePinSwipe = (x: number, y: number) => {
+    // Get the index of the pin being touched
+    const pinPositions = [ [6, 7, 8, 9], [3, 4, 5], [1, 2], [0] ];
+    let updatedPins = [...pins];
+
+    pinPositions.forEach((row, rowIndex) => {
+      row.forEach((index) => {
+        // Simple hit detection (approximate based on coordinates)
+        if (
+          x > index * 30 && x < (index + 1) * 50 && 
+          y > rowIndex * 30 && y < (rowIndex + 1) * 50
+        ) {
+          updatedPins[index] = true; // Mark pin as knocked down
+        }
+      });
+    });
+
+    setPins(updatedPins);
+  };
+  
   const handleManualInput = () => {
     let rollValue = parseInt(inputRoll);
 
@@ -171,7 +212,7 @@ const BowlingGame = () => {
   };
   
     return (
-      <View className="items-center p-1 bg-gray-200 rounded-lg">
+      <View className="items-center p-1 bg-gray-200 rounded-lg " >
         <Text className="text-lg font-bold mb-2">Bowling Scoreboard</Text>
   
         {/* Frames Display */}
@@ -195,19 +236,31 @@ const BowlingGame = () => {
           total={frames[9].roll1 && frames[9].roll2 ? (frames[9].roll1 === 'X' ? '10' : frames[9].roll1 + frames[9].roll2) : ''} 
         />
         </View>
-  
-        {/* Manual Input Controls (Only for Frame 1) */}
+
+        <Text className="text-lg font-bold">Frame {currentFrame+1}</Text>
         
+        {/* Select Pins - Arranged in Triangle Formation */}
+      <View className="mt-6 items-center">
+        {[ [6, 7, 8, 9], [3, 4, 5], [1, 2], [0] ].map((row, rowIndex) => (
+          <View key={rowIndex} className="flex-row justify-center">
+            {row.map((index) => (
+              <TouchableOpacity 
+                key={index} 
+                onPress={() => handlePinToggle(index)} 
+                className={`m-2 w-14 h-14 rounded-full items-center justify-center border-2 shadow-lg ${
+                  pins[index] ? 'bg-gray-500 border-black-100' : 'bg-white border-gray-500'
+                }`}
+              >
+                <Text className={`${pins[index] ? "text-white" : "text-black"} font-pbold`}>{index + 1}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        ))}
+      </View>
+
+        {/* Manual Input Controls */}
         <View className="mt-4 items-center">
-          <Text className="text-lg font-bold">Enter Rolls for Frame {currentFrame+1}</Text>
-          <TextInput 
-            className="border border-gray-500 px-4 py-2 w-20 text-center rounded-lg bg-white" 
-            keyboardType="numeric" 
-            maxLength={2} 
-            value={inputRoll} 
-            onChangeText={setInputRoll} 
-            placeholder="0-10" 
-          />
+          
           <View className='flex-row' >
             <TouchableOpacity 
               onPress={handleManualInput} 

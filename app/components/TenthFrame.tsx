@@ -16,7 +16,7 @@ const TenthFrame = ({
       <Text className="text-lg font-bold mb-1">10</Text>
 
       {/* Bowling Frame with Three Roll Sections */}
-      <View className={`border ${borderColor} bg-white ms-0.5`} style={{ width, height, borderWidth }}>
+      <View className={`rounded-md border ${borderColor} bg-white ms-0.5`} style={{ width, height, borderWidth }}>
         {/* Top section for three rolls */}
         <View className="flex-row">
           <View className="flex-1 items-center justify-center border-r border-black">

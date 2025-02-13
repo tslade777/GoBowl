@@ -31,7 +31,6 @@ const Submit = async () => {
     console.log(`Failed to log in. Error: ${error}`)
   }
 }
-
   return (
     <SafeAreaView className='bg-primary h-full '>
       <ScrollView>

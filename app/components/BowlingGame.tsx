@@ -3,6 +3,8 @@ import { useEffect, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Frame from './Frame';
 import TenthFrame from './TenthFrame';
+import { FIREBASE_AUTH, db } from '../../firebase.config'
+import { collection, query, where, doc, getDoc, updateDoc } from 'firebase/firestore';
 
 const BOWLINGSTATE = 'bowlingGameState';
 const INPROGRESS = 'gameInProgress'
@@ -37,16 +39,63 @@ const BowlingGame = () => {
         currentFrame,
         isFirstRoll,
       };
-
+      updateFirebaseCurrentGame()
       await AsyncStorage.setItem(BOWLINGSTATE, JSON.stringify(gameState));
     } catch (error) {
       console.error('Error saving game:', error);
     }
   };
 
+  const updateFirebaseCurrentGame = async () =>{
+    try{
+      if (FIREBASE_AUTH.currentUser != null){
+        let result = FIREBASE_AUTH.currentUser.uid
+        await updateDoc(doc(db,"users", result),{
+          active: true,
+          currentGame: {
+            currentFrame,
+            frames,
+            isFirstRoll
+          }
+        })
+      }
+    }catch(e){
+      console.error(e)
+    }
+  }
+  // Tell firebase that the current user is active
+  const setFirebaseActive = async () =>{
+    try{
+      if (FIREBASE_AUTH.currentUser != null){
+        let result = FIREBASE_AUTH.currentUser.uid
+        await updateDoc(doc(db,"users", result),{
+          active: true
+        })
+      }
+    }catch(e){
+      console.error(e)
+    }
+  }
+
+  // Tell firebase that the current user is No longer active
+  const setFirebaseInActive = async () =>{
+    try{
+      if (FIREBASE_AUTH.currentUser != null){
+        let result = FIREBASE_AUTH.currentUser.uid
+        await updateDoc(doc(db,"users", result),{
+          active: false
+        })
+      }
+    }catch(e){
+      console.error(e)
+    }
+  }
+
   // Tell AsyncStorage a game is in progress.
   const gameStarted = async () =>{
     try{
+      // Update firebase and local storage for game started/active
+      updateFirebaseCurrentGame();
       await AsyncStorage.setItem(INPROGRESS, JSON.stringify(true));
     }
     catch (error) {
@@ -59,11 +108,11 @@ const BowlingGame = () => {
     try {
       const savedGame = await AsyncStorage.getItem(BOWLINGSTATE);
       const inProgress = await AsyncStorage.getItem(INPROGRESS);
-      if(inProgress && !JSON.parse(inProgress)){
-        console.log('Game not in progress');
-        return;
-      }
 
+      // If the game is not in progress, Nothing to load, do nothing.
+      if(inProgress && !JSON.parse(inProgress)) return;
+       
+      // Load the saved game. 
       if (savedGame) {
         const { frames, currentFrame, isFirstRoll } = JSON.parse(savedGame);
         setFrames(frames);
@@ -75,7 +124,9 @@ const BowlingGame = () => {
     }
   };
 
+  // Clear the game to be ready for another set of inputs
   const clearGame = async () => {
+    setFirebaseInActive()
     setFrames(Array(10).fill(null).map(() => ({ roll1: '', roll2: '', roll3: '' })))
     setCurrentFrame(0)
     setGameComplete(false)

@@ -6,7 +6,7 @@ import {images} from '../../constants'
 import FormField from '../components/FormField';
 import CustomButton from '../components/CustomButton';
 import { Link, router } from 'expo-router';
-import { FIREBASE_AUTH, FIREBASE_DB } from '../../firebase.config'
+import { FIREBASE_AUTH, db } from '../../firebase.config'
 import { createUserWithEmailAndPassword} from 'firebase/auth';
 import { doc, setDoc} from "firebase/firestore"
 
@@ -21,16 +21,24 @@ const SignUP = () => {
 
 const [passwordsMatch, setPasswordsMatch] = useState(true)
 const [isSubmitting, setSubmitting] = useState(false)
+const gameState = {
+  frames: Array(10).fill(null).map(() => ({ roll1: '', roll2: '', roll3: '' })),
+  currentFrame: 0,
+  isFirstRoll: true
+};
 const Submit = async () => {
   setSubmitting(true)
   if (!passwordsMatch) return
   try{
     const response = await createUserWithEmailAndPassword(FIREBASE_AUTH, form.email, form.password)
 
-    await setDoc(doc(FIREBASE_DB, "users", response.user.uid),{
+
+    await setDoc(doc(db, "users", response.user.uid),{
       username: form.username,
       email: form.email,
-      id: response.user.uid
+      id: response.user.uid,
+      active: false,
+      currentGame: gameState
     });
     router.replace('/home')
   } catch (error){

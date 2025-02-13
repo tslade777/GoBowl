@@ -14,7 +14,7 @@ const Frame = ({
 
         <View className="items-center">
         {/* Frame Number Label */}
-        <Text className="text-lg font-bold mb-1">{frameNumber}</Text>
+        <Text className="text-2xl text-orange font-bold mb-1">{frameNumber}</Text>
         
         {/* Bowling Frame */}
         <View className={`rounded-md border ${borderColor} bg-white ms-0.5`} style={{ width, height, borderWidth }}>

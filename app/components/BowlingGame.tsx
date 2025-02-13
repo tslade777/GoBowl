@@ -6,6 +6,8 @@ import TenthFrame from './TenthFrame';
 import { FIREBASE_AUTH, db } from '../../firebase.config'
 import { collection, query, where, doc, getDoc, updateDoc } from 'firebase/firestore';
 
+
+
 const BOWLINGSTATE = 'bowlingGameState';
 const INPROGRESS = 'gameInProgress'
 
@@ -157,6 +159,7 @@ const BowlingGame = () => {
     onPanResponderMove: (_, gestureState) => {
       const { moveX, moveY } = gestureState;
       handlePinSwipe(moveX, moveY);
+      console.log("Moves: ", moveX, moveY)
     },
   });
 
@@ -212,8 +215,8 @@ const BowlingGame = () => {
   };
   
     return (
-      <View className="items-center p-1 bg-gray-200 rounded-lg " >
-        <Text className="text-lg font-bold mb-2">Bowling Scoreboard</Text>
+      <View className="items-center p-1  rounded-lg " >
+        <Text className="text-xl text-orange font-bold mb-2" >Bowling Scoreboard</Text>
   
         {/* Frames Display */}
         <View className="flex-row space-x-1">
@@ -237,18 +240,19 @@ const BowlingGame = () => {
         />
         </View>
 
-        <Text className="text-lg font-bold">Frame {currentFrame+1}</Text>
+        <Text className="text-lg text-orange font-bold">Frame {currentFrame+1}</Text>
         
         {/* Select Pins - Arranged in Triangle Formation */}
-      <View className="mt-6 items-center">
+      <View className="mt-6 items-center" >
         {[ [6, 7, 8, 9], [3, 4, 5], [1, 2], [0] ].map((row, rowIndex) => (
-          <View key={rowIndex} className="flex-row justify-center">
+          <View key={rowIndex} className="flex-row justify-center" >
             {row.map((index) => (
               <TouchableOpacity 
                 key={index} 
+                activeOpacity={0}
                 onPress={() => handlePinToggle(index)} 
                 className={`m-2 w-14 h-14 rounded-full items-center justify-center border-2 shadow-lg ${
-                  pins[index] ? 'bg-gray-500 border-black-100' : 'bg-white border-gray-500'
+                  pins[index] ? 'bg-gray-600 border-black-100' : 'bg-white border-black-100'
                 }`}
               >
                 <Text className={`${pins[index] ? "text-white" : "text-black"} font-pbold`}>{index + 1}</Text>

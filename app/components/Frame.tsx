@@ -8,16 +8,17 @@ const Frame = ({
     borderWidth = 2, 
     roll1 = '', 
     roll2 = '', 
-    total = '' 
+    total = '',
+    isSelected = false 
   }) => {
     return (
 
         <View className="items-center">
         {/* Frame Number Label */}
-        <Text className="text-2xl text-orange font-bold mb-1">{frameNumber}</Text>
+        <Text className={`text-2xl ${isSelected ? "text-orange" : "text-white"} font-bold mb-1`}>{frameNumber}</Text>
         
         {/* Bowling Frame */}
-        <View className={`rounded-md border ${borderColor} bg-white ms-0.5`} style={{ width, height, borderWidth }}>
+        <View className={`rounded-md border ${isSelected ? "border-orange" : "border-black"} bg-white ms-0.5`} style={{ width, height, borderWidth }}>
           {/* Top section for rolls with divider */}
           <View className="flex-row">
             <View className="flex-1 items-center justify-center border-r border-black">

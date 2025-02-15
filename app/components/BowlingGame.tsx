@@ -17,8 +17,9 @@ const BowlingGame = () => {
     Array(10).fill(null).map(() => ({ roll1: '', roll2: '', roll3: '', pins: Array(10).fill(false) }))
   );
   const [currentFrame, setCurrentFrame] = useState(0);
+  const [farthestFrame, setFarthestFrame] = useState(0);
   const [isFirstRoll, setIsFirstRoll] = useState(true);
-  const [inputRoll, setInputRoll] = useState('');
+  const [inputRoll, setInputRoll] = useState('0');
   const [isFrameComplete, setIsFrameComplete] = useState(false);
   const [gameComplete, setGameComplete] = useState(false)
   const [pins, setPins] = useState(Array(10).fill(false)); // Track knocked-down pins
@@ -158,11 +159,12 @@ const BowlingGame = () => {
     onMoveShouldSetPanResponder: () => true,
     onPanResponderMove: (_, gestureState) => {
       const { moveX, moveY } = gestureState;
-      handlePinSwipe(moveX, moveY);
-      console.log("Moves: ", moveX, moveY)
+      //handlePinSwipe(moveX, moveY);
+      //console.log("Moves: ", moveX, moveY)
     },
   });
 
+  // Later in life
   const handlePinSwipe = (x: number, y: number) => {
     // Get the index of the pin being touched
     const pinPositions = [ [6, 7, 8, 9], [3, 4, 5], [1, 2], [0] ];
@@ -183,6 +185,13 @@ const BowlingGame = () => {
     setPins(updatedPins);
   };
   
+  // Update frame selection. Call back for frame touch event.
+  // Only update if 
+  const handleFrameTouch = (index: number) => {
+    if (farthestFrame >= index && currentFrame!= 0) setCurrentFrame(index);
+  }
+
+  // This will hold game logic like moving to the next frame on a strike or spare. 
   const handleManualInput = () => {
     let rollValue = parseInt(inputRoll);
 
@@ -206,28 +215,31 @@ const BowlingGame = () => {
 
     if (currentFrame < 9){
       setCurrentFrame(currentFrame+1);
+      if (currentFrame >= farthestFrame)setFarthestFrame(currentFrame+1)
       saveGame();
     }
     else{
+      setCurrentFrame(10)
       setGameComplete(true)
-      console.log(`Current Frame: ${currentFrame}`)
     }
   };
   
     return (
       <View className="items-center p-1  rounded-lg " >
-        <Text className="text-xl text-orange font-bold mb-2" >Bowling Scoreboard</Text>
   
         {/* Frames Display */}
         <View className="flex-row space-x-1">
         {frames.slice(0, 9).map((frame, index) => (
-          <Frame 
+          <TouchableOpacity key={index} onPress={() => handleFrameTouch(index)}>
+            <Frame 
             key={index} 
             frameNumber={index + 1} 
             roll1={frame.roll1 == '10' ? 'X' : frame.roll1} 
             roll2={frame.roll2} 
-            total={frame.roll1} 
-          />
+            total={frame.roll1}
+            isSelected= {currentFrame==index} 
+            />      
+          </TouchableOpacity>
         ))}
           
   
@@ -236,11 +248,13 @@ const BowlingGame = () => {
           roll1={frames[9].roll1} 
           roll2={frames[9].roll2} 
           roll3={frames[9].roll3} 
-          total={frames[9].roll1 && frames[9].roll2 ? (frames[9].roll1 === 'X' ? '10' : frames[9].roll1 + frames[9].roll2) : ''} 
+          total={frames[9].roll1 && frames[9].roll2 ? (frames[9].roll1 === 'X' ? '10' : frames[9].roll1 + frames[9].roll2) : ''}
+          isSelected= {currentFrame==9}  
         />
         </View>
 
-        <Text className="text-lg text-orange font-bold">Frame {currentFrame+1}</Text>
+        <Text className="text-lg text-orange font-bold">
+          {gameComplete ? "Game Complete" : `Frame ${currentFrame+1}` }</Text>
         
         {/* Select Pins - Arranged in Triangle Formation */}
       <View className="mt-6 items-center" >

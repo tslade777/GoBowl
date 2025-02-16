@@ -8,7 +8,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Create = () => {
   useEffect(()=>{
-      //clearAll()
+      clearAll()
     },[])
   const clearAll = async () => {
     try{

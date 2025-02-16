@@ -9,7 +9,7 @@ const Frame = ({
     roll1 = '', 
     roll2 = '', 
     total = '',
-    isSelected = false 
+    isSelected = false
   }) => {
     return (
 

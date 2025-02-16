@@ -14,15 +14,18 @@ const INPROGRESS = 'gameInProgress'
 
 const BowlingGame = () => {
   const [frames, setFrames] = useState(
-    Array(10).fill(null).map(() => ({ roll1: '', roll2: '', roll3: '', pins: Array(10).fill(false) }))
+    Array(10).fill(null).map(() => ({ roll1: '', roll2: '', roll3: '', score: 0 ,
+      firstBallPins: Array(10).fill(false),secondBallPins:Array(10).fill(false), isSpare: false, isStrike: false }))
   );
   const [currentFrame, setCurrentFrame] = useState(0);
   const [farthestFrame, setFarthestFrame] = useState(0);
   const [isFirstRoll, setIsFirstRoll] = useState(true);
+  const [isFinalRoll, setIsFinalRoll] = useState(false)
   const [inputRoll, setInputRoll] = useState('0');
   const [isFrameComplete, setIsFrameComplete] = useState(false);
   const [gameComplete, setGameComplete] = useState(false)
   const [pins, setPins] = useState(Array(10).fill(false)); // Track knocked-down pins
+  const [edited, setEdited] = useState(false);
 
   
   // Load saved game on startup
@@ -35,20 +38,6 @@ const BowlingGame = () => {
     saveGame();
   }, [frames, currentFrame])
 
-  // Save game to AsyncStorage
-  const saveGame = async () => {
-    try {
-      const gameState = {
-        frames,
-        currentFrame,
-        isFirstRoll,
-      };
-      updateFirebaseCurrentGame()
-      await AsyncStorage.setItem(BOWLINGSTATE, JSON.stringify(gameState));
-    } catch (error) {
-      console.error('Error saving game:', error);
-    }
-  };
 
   const updateFirebaseCurrentGame = async () =>{
     try{
@@ -65,7 +54,7 @@ const BowlingGame = () => {
     }catch(e){
       console.error(e)
     }
-  }
+  };
   // Tell firebase that the current user is active
   const setFirebaseActive = async () =>{
     try{
@@ -78,7 +67,7 @@ const BowlingGame = () => {
     }catch(e){
       console.error(e)
     }
-  }
+  };
 
   // Tell firebase that the current user is No longer active
   const setFirebaseInActive = async () =>{
@@ -92,7 +81,7 @@ const BowlingGame = () => {
     }catch(e){
       console.error(e)
     }
-  }
+  };
 
   // Tell AsyncStorage a game is in progress.
   const gameStarted = async () =>{
@@ -105,7 +94,23 @@ const BowlingGame = () => {
     catch (error) {
       console.error('Error setting game in progress:', error);
     }
-  }
+  };
+
+  // Save game to AsyncStorage
+  const saveGame = async () => {
+    try {
+      const gameState = {
+        frames,
+        currentFrame,
+        isFirstRoll,
+        farthestFrame
+      };
+      updateFirebaseCurrentGame()
+      await AsyncStorage.setItem(BOWLINGSTATE, JSON.stringify(gameState));
+    } catch (error) {
+      console.error('Error saving game:', error);
+    }
+  };
 
   // Load game from AsyncStorage
   const loadGame = async () => {
@@ -118,10 +123,12 @@ const BowlingGame = () => {
        
       // Load the saved game. 
       if (savedGame) {
-        const { frames, currentFrame, isFirstRoll } = JSON.parse(savedGame);
+        const { frames, currentFrame, isFirstRoll, farthestFrame } = JSON.parse(savedGame);
         setFrames(frames);
         setCurrentFrame(currentFrame);
         setIsFirstRoll(isFirstRoll);
+        setPins(frames[currentFrame].pins)
+        setFarthestFrame(farthestFrame)
       }
     } catch (error) {
       console.error('Error loading game:', error);
@@ -131,26 +138,68 @@ const BowlingGame = () => {
   // Clear the game to be ready for another set of inputs
   const clearGame = async () => {
     setFirebaseInActive()
-    setFrames(Array(10).fill(null).map(() => ({ roll1: '', roll2: '', roll3: '',pins: Array(10).fill(false) })));
+    setFrames(Array(10).fill(null).map(() => ({ roll1: '', roll2: '', roll3: '', score: 0, 
+      firstBallPins: Array(10).fill(false),secondBallPins: Array(10).fill(false), isSpare: false, isStrike: false })));
     setCurrentFrame(0)
+    setPins(Array(10).fill(false))
+    setFarthestFrame(0)
     setGameComplete(false)
-    setInputRoll('')
+    setInputRoll('0')
+    setEdited(false)
+    setIsFirstRoll(true)
     try{
+      saveGame()
       await AsyncStorage.setItem(INPROGRESS, JSON.stringify(false));
     }
     catch (error) {
       console.error('Error setting game in progress:', error);
     }
+  };
+
+  const calculateScore = () => {
+    var totalScore = 0
+    let updatedFrames = [...frames]
+    for (var i = 0; i < 10; i++){
+      let frame = { ...updatedFrames[i] };
+      totalScore += parseInt(frame.roll1)
+      frame.score = totalScore;
+      updatedFrames[i] = frame;
+      
+    }
+    setFrames(updatedFrames)
+  }
+
+  const frameComplete = () =>{
+    setPins(Array(10).fill(false))
+    setInputRoll("0")
+    setCurrentFrame(currentFrame+1);
+    setIsFirstRoll(true)
+    if (currentFrame >= farthestFrame)setFarthestFrame(currentFrame+1)
   }
 
   const handlePinToggle = (index: number) => {
     let updatedPins = [...pins];
-    updatedPins[index] = !updatedPins[index];
+    if (isFirstRoll){
+      
+      updatedPins[index] = !updatedPins[index];
 
-    // Count the number of pins knocked down
-    let count = updatedPins.filter(x => x==true).length
-    setInputRoll(count.toString())
-    setPins(updatedPins);
+      // Count the number of pins knocked down
+      let count = updatedPins.filter(x => x==true).length
+      setInputRoll(count.toString())
+      setPins(updatedPins);
+    }
+    else{
+      const firstBallPins = frames[currentFrame].firstBallPins
+      const firstBallCount = firstBallPins.filter(x => x==true).length
+      if (firstBallPins[index]) return;
+      else{
+        updatedPins[index] = !updatedPins[index];
+        let count = (updatedPins.filter(x => x==true).length-firstBallCount)
+        setInputRoll(count.toString())
+        setPins(updatedPins)
+      }
+    }
+    
   };
   
   // Detect swipes over pins using PanResponder
@@ -188,42 +237,83 @@ const BowlingGame = () => {
   // Update frame selection. Call back for frame touch event.
   // Only update if 
   const handleFrameTouch = (index: number) => {
-    if (farthestFrame >= index && currentFrame!= 0) setCurrentFrame(index);
+    if (farthestFrame >= index) {
+      setCurrentFrame(index);
+      setIsFirstRoll(true)
+      setPins(frames[index].firstBallPins)
+      setEdited(true)
+    }
   }
 
   // This will hold game logic like moving to the next frame on a strike or spare. 
   const handleManualInput = () => {
+
+    // Don't edit unless first ball has been thrown. 
+    if (frames[0].roll1 == '' && currentFrame != 0) return
+ 
     let rollValue = parseInt(inputRoll);
 
     // Validate input
-    if (isNaN(rollValue) || rollValue < 0 || rollValue > 10) return; 
+    if (isNaN(rollValue) || rollValue < 0 || rollValue > 10) {
+      console.log(rollValue)
+      return};
+
     
     // Get frame
     let updatedFrames = [...frames];
     let frame = { ...updatedFrames[currentFrame] };
     
-    // Set the throw.
-    frame.roll1 = rollValue.toString();
+    if(isFirstRoll){
+      // Set the throw.
+      frame.roll1 = rollValue.toString();
+      frame.firstBallPins = pins;
+      frame.isStrike = rollValue == 10;
+      frame.score = currentFrame != 0 ? rollValue + updatedFrames[currentFrame-1].score : rollValue;
+      updatedFrames[currentFrame] = frame;
+      setFrames(updatedFrames);
 
-    // Update frames
-    updatedFrames[currentFrame] = frame;
-    setFrames(updatedFrames);
+      // Game has been started after successful first throw. 
+      if (currentFrame == 0) gameStarted();
 
-    // Game has been started after successful first throw. 
-    if (currentFrame == 0) gameStarted();
-    //setInputRoll('');
+      setIsFirstRoll(false);
 
-    if (currentFrame < 9){
-      setCurrentFrame(currentFrame+1);
-      if (currentFrame >= farthestFrame)setFarthestFrame(currentFrame+1)
-      saveGame();
+      if (rollValue == 10 && currentFrame != 9) {
+        frameComplete();
+      }
     }
     else{
-      setCurrentFrame(10)
-      setGameComplete(true)
+      if (isFinalRoll){
+        frame.roll3 = rollValue.toString()
+        frame.firstBallPins = pins;
+        
+        frame.score = frame.score + rollValue ;
+        updatedFrames[currentFrame] = frame;
+        setFrames(updatedFrames);
+        setGameComplete(true)
+      }
+      frame.roll2 = rollValue.toString()
+      //frame.secondBallPins = pins
+      frame.isSpare = (parseInt(frame.roll1) + parseInt(frame.roll2) == 10)
+      frame.score = frame.score + rollValue;
+      updatedFrames[currentFrame] = frame;
+      setFrames(updatedFrames);
+      
+
+      // Frame completion
+      if (currentFrame < 9){
+        // Reset pins and pin count
+        frameComplete()
+      }
+      else{
+        if (parseInt(frame.roll1) + parseInt(frame.roll2) >= 10){
+          setIsFinalRoll(true)
+          saveGame(); 
+          return;
+        }
+      }
     }
+    saveGame();  
   };
-  
     return (
       <View className="items-center p-1  rounded-lg " >
   
@@ -234,9 +324,9 @@ const BowlingGame = () => {
             <Frame 
             key={index} 
             frameNumber={index + 1} 
-            roll1={frame.roll1 == '10' ? 'X' : frame.roll1} 
-            roll2={frame.roll2} 
-            total={frame.roll1}
+            roll1={frame.isStrike ? 'X' : frame.roll1} 
+            roll2={frame.isSpare ? '/' : frame.roll2} 
+            total={farthestFrame > index ? frame.score.toString() : ''}
             isSelected= {currentFrame==index} 
             />      
           </TouchableOpacity>
@@ -292,6 +382,12 @@ const BowlingGame = () => {
               disabled={!gameComplete}
             >
               <Text className="text-white font-bold">Next Game</Text>
+            </TouchableOpacity>
+            <TouchableOpacity 
+              onPress={clearGame}
+              className={"m-2 bg-orange px-4 py-2 rounded-lg"}
+            >
+              <Text className="text-white font-bold">Reset Game</Text>
             </TouchableOpacity>
           </View>
           

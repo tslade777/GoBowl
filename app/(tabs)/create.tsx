@@ -8,11 +8,11 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Create = () => {
   useEffect(()=>{
-      clearAll()
+      //clearAll()
     },[])
   const clearAll = async () => {
     try{
-      await AsyncStorage.clear()
+      await AsyncStorage.removeItem("BOWLINGSTATE")
     } catch(e){
       console.error(e);
     }

@@ -15,7 +15,8 @@ const INPROGRESS = 'gameInProgress'
 const BowlingGame = () => {
   const [frames, setFrames] = useState(
     Array(10).fill(null).map(() => ({ roll1: '', roll2: '', roll3: '', score: 0 ,
-      firstBallPins: Array(10).fill(false),secondBallPins:Array(10).fill(false), isSpare: false, isStrike: false }))
+      firstBallPins: Array(10).fill(false),secondBallPins:Array(10).fill(false), 
+      isSpare: false, isStrike: false }))
   );
   const [currentFrame, setCurrentFrame] = useState(0);
   const [farthestFrame, setFarthestFrame] = useState(0);
@@ -103,7 +104,10 @@ const BowlingGame = () => {
         frames,
         currentFrame,
         isFirstRoll,
-        farthestFrame
+        farthestFrame,
+        pins,
+        edited,
+        gameComplete,
       };
       updateFirebaseCurrentGame()
       await AsyncStorage.setItem(BOWLINGSTATE, JSON.stringify(gameState));
@@ -123,12 +127,14 @@ const BowlingGame = () => {
        
       // Load the saved game. 
       if (savedGame) {
-        const { frames, currentFrame, isFirstRoll, farthestFrame } = JSON.parse(savedGame);
+        const { frames, currentFrame, isFirstRoll, farthestFrame, pins, edited, gameComplete  } = JSON.parse(savedGame);
         setFrames(frames);
         setCurrentFrame(currentFrame);
         setIsFirstRoll(isFirstRoll);
-        setPins(frames[currentFrame].pins)
+        setPins(pins)
         setFarthestFrame(farthestFrame)
+        setEdited(edited)
+        setGameComplete(gameComplete)
       }
     } catch (error) {
       console.error('Error loading game:', error);
@@ -156,17 +162,19 @@ const BowlingGame = () => {
     }
   };
 
-  const calculateScore = () => {
+  const calculateScore = (frames:any) => {
     var totalScore = 0
-    let updatedFrames = [...frames]
-    for (var i = 0; i < 10; i++){
-      let frame = { ...updatedFrames[i] };
-      totalScore += parseInt(frame.roll1)
+    let upToFrame = (gameComplete? 10: farthestFrame)
+    for (var i = 0; i < upToFrame; i++){
+      let frame = { ...frames[i] };
+      let firstThrowScore = parseInt(frame.roll1)
+      let secondThrowScore = ((firstThrowScore == 10 || frame.roll2 == '')? 0 : parseInt(frame.roll2))
+      let thirdThrowScore = ((i==9 && frame.roll3 != '')? parseInt(frame.roll3): 0)
+      totalScore += (firstThrowScore + secondThrowScore + thirdThrowScore)
       frame.score = totalScore;
-      updatedFrames[i] = frame;
-      
+      frames[i] = frame;
     }
-    setFrames(updatedFrames)
+    return frames
   }
 
   const frameComplete = () =>{
@@ -177,6 +185,7 @@ const BowlingGame = () => {
     if (currentFrame >= farthestFrame)setFarthestFrame(currentFrame+1)
   }
 
+  // It's important to only toggle pins that are still standing after the first throw.
   const handlePinToggle = (index: number) => {
     let updatedPins = [...pins];
     if (isFirstRoll){
@@ -199,7 +208,6 @@ const BowlingGame = () => {
         setPins(updatedPins)
       }
     }
-    
   };
   
   // Detect swipes over pins using PanResponder
@@ -245,6 +253,47 @@ const BowlingGame = () => {
     }
   }
 
+  // Complete the edit a previous frame
+  const completeEdit = () => {
+    
+    setCurrentFrame(gameComplete? 10:farthestFrame);
+    setPins(Array(10).fill(false));
+    setInputRoll("0");
+    setIsFirstRoll(true);
+    setEdited(false);
+  }
+  // Handle editing a previous frame.
+  const handleEdit = () =>{
+    // Get information for first ball
+    let rollValue = parseInt(inputRoll)
+    let updatedFrames = [...frames];
+    let frame = { ...updatedFrames[currentFrame] };
+    
+    // Modify Frame for first and second ball
+    if(isFirstRoll){
+      frame.firstBallPins = pins;
+      frame.isStrike = rollValue == 10;
+      frame.roll1 = inputRoll
+      setIsFirstRoll(false)
+    }else{
+      frame.roll2 = inputRoll
+      frame.isSpare = rollValue + parseInt(frame.roll1) == 10;
+      frame.secondBallPins = pins;
+      completeEdit()
+    }
+    // On strike, clear second ball and pins, mark frame complete.
+    if (frame.isStrike){
+      frame.roll2 = '';
+      frame.secondBallPins = (Array(10).fill(true));
+      completeEdit()
+    }
+    
+    // Update frame and future scores. 
+    updatedFrames[currentFrame] = frame;
+    setFrames(calculateScore(updatedFrames));
+    //calculateScore()
+    return
+  }
   // This will hold game logic like moving to the next frame on a strike or spare. 
   const handleManualInput = () => {
 
@@ -258,7 +307,6 @@ const BowlingGame = () => {
       console.log(rollValue)
       return};
 
-    
     // Get frame
     let updatedFrames = [...frames];
     let frame = { ...updatedFrames[currentFrame] };
@@ -271,7 +319,8 @@ const BowlingGame = () => {
       frame.score = currentFrame != 0 ? rollValue + updatedFrames[currentFrame-1].score : rollValue;
       updatedFrames[currentFrame] = frame;
       setFrames(updatedFrames);
-
+      setInputRoll('0')
+ 
       // Game has been started after successful first throw. 
       if (currentFrame == 0) gameStarted();
 
@@ -292,11 +341,12 @@ const BowlingGame = () => {
         setGameComplete(true)
       }
       frame.roll2 = rollValue.toString()
-      //frame.secondBallPins = pins
+      frame.secondBallPins = pins
       frame.isSpare = (parseInt(frame.roll1) + parseInt(frame.roll2) == 10)
       frame.score = frame.score + rollValue;
       updatedFrames[currentFrame] = frame;
       setFrames(updatedFrames);
+      if(currentFrame == 9 && !frame.isSpare) setGameComplete(true)
       
 
       // Frame completion
@@ -338,7 +388,7 @@ const BowlingGame = () => {
           roll1={frames[9].roll1} 
           roll2={frames[9].roll2} 
           roll3={frames[9].roll3} 
-          total={frames[9].roll1 && frames[9].roll2 ? (frames[9].roll1 === 'X' ? '10' : frames[9].roll1 + frames[9].roll2) : ''}
+          total={(!gameComplete) ? '' : frames[9].score.toString()}
           isSelected= {currentFrame==9}  
         />
         </View>
@@ -371,7 +421,7 @@ const BowlingGame = () => {
           
           <View className='flex-row' >
             <TouchableOpacity 
-              onPress={handleManualInput} 
+              onPress={edited?handleEdit:handleManualInput} 
               className="m-2 bg-green-500 px-4 py-2 rounded-lg"
             >
               <Text className="text-white font-bold">Enter Roll</Text>

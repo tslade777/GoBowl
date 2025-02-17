@@ -153,6 +153,7 @@ const BowlingGame = () => {
     setInputRoll('0')
     setEdited(false)
     setIsFirstRoll(true)
+    setIsFinalRoll(false)
     try{
       saveGame()
       await AsyncStorage.setItem(INPROGRESS, JSON.stringify(false));
@@ -189,7 +190,6 @@ const BowlingGame = () => {
   const handlePinToggle = (index: number) => {
     let updatedPins = [...pins];
     if (isFirstRoll){
-      
       updatedPins[index] = !updatedPins[index];
 
       // Count the number of pins knocked down
@@ -210,6 +210,54 @@ const BowlingGame = () => {
     }
   };
   
+  // Handle unique pin toggle of tenth frame
+  function tenthFramePinToggle(index: number){
+    let updatedPins = [...pins];
+
+    if (isFirstRoll){
+      updatedPins[index] = !updatedPins[index];
+
+      // Count the number of pins knocked down
+      let count = updatedPins.filter(x => x==true).length
+      setInputRoll(count.toString())
+      setPins(updatedPins);
+    }
+    else{
+      if(!frames[9].isStrike && !isFinalRoll){
+        const firstPins = frames[9].firstBallPins
+        const firstBallCount = firstPins.filter(x => x==true).length
+        if (firstPins[index]) return;
+        else{
+          updatedPins[index] = !updatedPins[index];
+          let count = (updatedPins.filter(x => x==true).length-firstBallCount)
+          setInputRoll(count.toString())
+          setPins(updatedPins)
+        }
+      }
+      else{
+        if (isFinalRoll && frames[9].roll2 != '10' && !frames[9].isSpare){
+          const secondPins = frames[9].secondBallPins
+          const secondBallCount = secondPins.filter(x => x==true).length
+          if (secondPins[index]) return;
+          else{
+            updatedPins[index] = !updatedPins[index];
+            let count = (updatedPins.filter(x => x==true).length-secondBallCount)
+            setInputRoll(count.toString())
+            setPins(updatedPins)
+          }
+        }
+        else{
+          updatedPins[index] = !updatedPins[index];
+
+          // Count the number of pins knocked down
+          let count = updatedPins.filter(x => x==true).length
+          setInputRoll(count.toString())
+          setPins(updatedPins);
+        }
+      }
+    }
+  }
+
   // Detect swipes over pins using PanResponder
   const panResponder = PanResponder.create({
     onStartShouldSetPanResponder: () => true,
@@ -294,6 +342,64 @@ const BowlingGame = () => {
     //calculateScore()
     return
   }
+
+  // Handle Tenth Frame Unique frame scoring and visuals.
+  function handleLastFrame() {
+    let rollValue = parseInt(inputRoll);
+
+    // Validate input
+    if (isNaN(rollValue) || rollValue < 0 || rollValue > 10 || gameComplete) {
+      return};
+
+    // Get frame
+    let updatedFrames = [...frames];
+    let frame = { ...updatedFrames[currentFrame] };
+    
+    if(isFinalRoll){
+      frame.roll3 = rollValue.toString();
+      frame.score = rollValue + frame.score;
+      updatedFrames[currentFrame] = frame;
+      setFrames(updatedFrames);
+      setGameComplete(true)
+      return
+    }
+
+    if(isFirstRoll){
+      // Set the throw.
+      frame.roll1 = rollValue.toString();
+      frame.firstBallPins = pins;
+      frame.isStrike = rollValue == 10;
+      frame.score = rollValue + updatedFrames[currentFrame-1].score;
+      updatedFrames[currentFrame] = frame;
+      if (frame.isStrike) setPins(Array(10).fill(false))
+      setFrames(updatedFrames);
+      setInputRoll('0')
+      setIsFirstRoll(false);
+    }
+    // Second shot of tenth frame
+    else{
+      frame.roll2 = rollValue.toString()
+      frame.secondBallPins = pins
+      frame.isSpare = (parseInt(frame.roll1) + parseInt(frame.roll2) == 10 && (!frame.isStrike))
+      frame.score = frame.score + rollValue;
+      updatedFrames[currentFrame] = frame;
+      setFrames(updatedFrames);
+      // User gets an extra shot if spare or strike
+      if(frame.isSpare || frame.roll2 == '10'){
+        setIsFinalRoll(true)
+        setPins(Array(10).fill(false))
+        setInputRoll("0")
+      }
+      else if(frame.isStrike){
+        setIsFinalRoll(true)
+        setInputRoll("0")
+      }
+      else{
+        setGameComplete(true)
+      }
+    }
+  }
+
   // This will hold game logic like moving to the next frame on a strike or spare. 
   const handleManualInput = () => {
 
@@ -331,39 +437,17 @@ const BowlingGame = () => {
       }
     }
     else{
-      if (isFinalRoll){
-        frame.roll3 = rollValue.toString()
-        frame.firstBallPins = pins;
-        
-        frame.score = frame.score + rollValue ;
-        updatedFrames[currentFrame] = frame;
-        setFrames(updatedFrames);
-        setGameComplete(true)
-      }
       frame.roll2 = rollValue.toString()
       frame.secondBallPins = pins
       frame.isSpare = (parseInt(frame.roll1) + parseInt(frame.roll2) == 10)
       frame.score = frame.score + rollValue;
       updatedFrames[currentFrame] = frame;
       setFrames(updatedFrames);
-      if(currentFrame == 9 && !frame.isSpare) setGameComplete(true)
-      
-
-      // Frame completion
-      if (currentFrame < 9){
-        // Reset pins and pin count
-        frameComplete()
-      }
-      else{
-        if (parseInt(frame.roll1) + parseInt(frame.roll2) >= 10){
-          setIsFinalRoll(true)
-          saveGame(); 
-          return;
-        }
-      }
+      frameComplete()
     }
     saveGame();  
   };
+
     return (
       <View className="items-center p-1  rounded-lg " >
   
@@ -374,8 +458,8 @@ const BowlingGame = () => {
             <Frame 
             key={index} 
             frameNumber={index + 1} 
-            roll1={frame.isStrike ? 'X' : frame.roll1} 
-            roll2={frame.isSpare ? '/' : frame.roll2} 
+            roll1={frame.isStrike ? 'X' : frame.roll1 == '0' ? '-' : frame.roll1} 
+            roll2={frame.isSpare ? '/' : frame.roll2 == '0' ? '-' : frame.roll2} 
             total={farthestFrame > index ? frame.score.toString() : ''}
             isSelected= {currentFrame==index} 
             />      
@@ -385,9 +469,12 @@ const BowlingGame = () => {
   
           {/* 10th Frame (Only Displayed, Not Editable) */}
           <TenthFrame 
-          roll1={frames[9].roll1} 
-          roll2={frames[9].roll2} 
-          roll3={frames[9].roll3} 
+          roll1={frames[9].isStrike ? 'X': frames[9].roll1 == '0' ? '-' : frames[9].roll1} 
+          roll2={(frames[9].roll1 == '10' && frames[9].roll2 == '10') ? 'X' : 
+            frames[9].isSpare ? '/': frames[9].roll2 == '0' ? '-' :frames[9].roll2} 
+          roll3={frames[9].roll3 == '10' ? 'X': (frames[9].roll1 == '10' && frames[9].roll2 != '10'
+            && (parseInt(frames[9].roll2) + parseInt(frames[9].roll3)==10)) ? '/':
+            frames[9].roll3 == '0' ? '-' : frames[9].roll3} 
           total={(!gameComplete) ? '' : frames[9].score.toString()}
           isSelected= {currentFrame==9}  
         />
@@ -404,7 +491,7 @@ const BowlingGame = () => {
               <TouchableOpacity 
                 key={index} 
                 activeOpacity={0}
-                onPress={() => handlePinToggle(index)} 
+                onPress={() => currentFrame==9 ? tenthFramePinToggle(index) : handlePinToggle(index)} 
                 className={`m-2 w-14 h-14 rounded-full items-center justify-center border-2 shadow-lg ${
                   pins[index] ? 'bg-gray-600 border-black-100' : 'bg-white border-black-100'
                 }`}
@@ -421,7 +508,7 @@ const BowlingGame = () => {
           
           <View className='flex-row' >
             <TouchableOpacity 
-              onPress={edited?handleEdit:handleManualInput} 
+              onPress={edited?handleEdit:(currentFrame==9)?handleLastFrame:handleManualInput} 
               className="m-2 bg-green-500 px-4 py-2 rounded-lg"
             >
               <Text className="text-white font-bold">Enter Roll</Text>

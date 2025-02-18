@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, TextInput, PanResponder  } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, PanResponder, Animated  } from 'react-native';
 import { useEffect, useRef, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Frame from './Frame';
@@ -22,11 +22,12 @@ const BowlingGame = () => {
   const [farthestFrame, setFarthestFrame] = useState(0);
   const [isFirstRoll, setIsFirstRoll] = useState(true);
   const [isFinalRoll, setIsFinalRoll] = useState(false)
-  const [inputRoll, setInputRoll] = useState('0');
+  const [inputRoll, setInputRoll] = useState(0);
   const [isFrameComplete, setIsFrameComplete] = useState(false);
   const [gameComplete, setGameComplete] = useState(false)
   const [pins, setPins] = useState(Array(10).fill(false)); // Track knocked-down pins
   const [edited, setEdited] = useState(false);
+  const [quickSelection, setQuickSelection] = useState('');
 
   const pinRefs = useRef<(View | null)[]>([]); // Fix the TypeScript issue
   const [pinPositions, setPinPositions] = useState<{ [key: number]: { x: number; y: number } }>({});
@@ -37,6 +38,24 @@ const BowlingGame = () => {
   useEffect(() => {
     loadGame();
   }, []);
+
+  useEffect(() => {
+    if(quickSelection == 'X'){
+      setQuickSelection('')
+      console.log("input roll set by STRIKE quick select: ", inputRoll)
+      quickSelect();
+    }
+    else if(quickSelection == '/'){
+      setQuickSelection('')
+      console.log("input roll set by SPARE quick select: ", inputRoll)
+      quickSelect();
+    }
+    else if(quickSelection == '/'){
+      setQuickSelection('')
+      console.log("input roll set by ZERO quick select: ", inputRoll)
+      quickSelect();
+    }
+  }, [inputRoll]);
 
   // Save game 
   useEffect(()=>{
@@ -166,7 +185,7 @@ const BowlingGame = () => {
     setPins(Array(10).fill(false))
     setFarthestFrame(0)
     setGameComplete(false)
-    setInputRoll('0')
+    setInputRoll(0)
     setEdited(false)
     setIsFirstRoll(true)
     setIsFinalRoll(false)
@@ -196,22 +215,38 @@ const BowlingGame = () => {
 
   const frameComplete = () =>{
     setPins(Array(10).fill(false))
-    setInputRoll("0")
+    setInputRoll(0)
     setCurrentFrame(currentFrame+1);
     setIsFirstRoll(true)
     if (currentFrame >= farthestFrame)setFarthestFrame(currentFrame+1)
   }
 
+  const instantSpareToggle = () =>{
+    let updatedPins = [...pins];
+    const firstBallPins = frames[currentFrame].firstBallPins;
+    const firstBallCount = firstBallPins.filter(x => x==true).length;
+    for (let i = 0; i <=9; i++){
+      if (firstBallPins[i]) continue;
+      else{
+        updatedPins[i] = !updatedPins[i];
+      }
+      
+    }
+    let count = (updatedPins.filter(x => x==true).length-firstBallCount)
+    setInputRoll(count)
+    console.log(`Spare count: ${count}\nActual input: ${inputRoll}`)
+    setPins(updatedPins)
+    
+  }
   // It's important to only toggle pins that are still standing after the first throw.
   const handlePinToggle = (index: number) => {
     let updatedPins = [...pins];
     if (isFirstRoll){
       updatedPins[index] = !updatedPins[index];
-      //console.log(`Pin: ${index+1} is being toggled`)
-
+      
       // Count the number of pins knocked down
       let count = updatedPins.filter(x => x==true).length
-      setInputRoll(count.toString())
+      setInputRoll(count)
       setPins(updatedPins);
     }
     else{
@@ -221,7 +256,7 @@ const BowlingGame = () => {
       else{
         updatedPins[index] = !updatedPins[index];
         let count = (updatedPins.filter(x => x==true).length-firstBallCount)
-        setInputRoll(count.toString())
+        setInputRoll(count)
         setPins(updatedPins)
       }
     }
@@ -236,7 +271,7 @@ const BowlingGame = () => {
 
       // Count the number of pins knocked down
       let count = updatedPins.filter(x => x==true).length
-      setInputRoll(count.toString())
+      setInputRoll(count)
       setPins(updatedPins);
     }
     else{
@@ -247,7 +282,7 @@ const BowlingGame = () => {
         else{
           updatedPins[index] = !updatedPins[index];
           let count = (updatedPins.filter(x => x==true).length-firstBallCount)
-          setInputRoll(count.toString())
+          setInputRoll(count)
           setPins(updatedPins)
         }
       }
@@ -259,7 +294,7 @@ const BowlingGame = () => {
           else{
             updatedPins[index] = !updatedPins[index];
             let count = (updatedPins.filter(x => x==true).length-secondBallCount)
-            setInputRoll(count.toString())
+            setInputRoll(count)
             setPins(updatedPins)
           }
         }
@@ -268,7 +303,7 @@ const BowlingGame = () => {
 
           // Count the number of pins knocked down
           let count = updatedPins.filter(x => x==true).length
-          setInputRoll(count.toString())
+          setInputRoll(count)
           setPins(updatedPins);
         }
       }
@@ -334,14 +369,14 @@ const BowlingGame = () => {
     
     setCurrentFrame(gameComplete? 10:farthestFrame);
     setPins(Array(10).fill(false));
-    setInputRoll("0");
+    setInputRoll(0);
     setIsFirstRoll(true);
     setEdited(false);
   }
   // Handle editing a previous frame.
   const handleEdit = () =>{
     // Get information for first ball
-    let rollValue = parseInt(inputRoll)
+    let rollValue = inputRoll
     let updatedFrames = [...frames];
     let frame = { ...updatedFrames[currentFrame] };
     
@@ -349,10 +384,10 @@ const BowlingGame = () => {
     if(isFirstRoll){
       frame.firstBallPins = pins;
       frame.isStrike = rollValue == 10;
-      frame.roll1 = inputRoll
+      frame.roll1 = inputRoll.toString()
       setIsFirstRoll(false)
     }else{
-      frame.roll2 = inputRoll
+      frame.roll2 = inputRoll.toString()
       frame.isSpare = rollValue + parseInt(frame.roll1) == 10;
       frame.secondBallPins = pins;
       completeEdit()
@@ -373,7 +408,7 @@ const BowlingGame = () => {
 
   // Handle Tenth Frame Unique frame scoring and visuals.
   function handleLastFrame() {
-    let rollValue = parseInt(inputRoll);
+    let rollValue = inputRoll;
 
     // Validate input
     if (isNaN(rollValue) || rollValue < 0 || rollValue > 10 || gameComplete) {
@@ -401,7 +436,7 @@ const BowlingGame = () => {
       updatedFrames[currentFrame] = frame;
       if (frame.isStrike) setPins(Array(10).fill(false))
       setFrames(updatedFrames);
-      setInputRoll('0')
+      setInputRoll(0)
       setIsFirstRoll(false);
     }
     // Second shot of tenth frame
@@ -416,15 +451,25 @@ const BowlingGame = () => {
       if(frame.isSpare || frame.roll2 == '10'){
         setIsFinalRoll(true)
         setPins(Array(10).fill(false))
-        setInputRoll("0")
+        setInputRoll(0)
       }
       else if(frame.isStrike){
         setIsFinalRoll(true)
-        setInputRoll("0")
+        setInputRoll(0)
       }
       else{
         setGameComplete(true)
       }
+    }
+  }
+
+  const quickSelect = ()=>{
+    if (edited)
+      handleEdit();
+    else if(currentFrame == 9)
+      handleLastFrame();
+    else{
+      handleManualInput();
     }
   }
 
@@ -433,7 +478,8 @@ const BowlingGame = () => {
     // Don't edit unless first ball has been thrown. 
     if (frames[0].roll1 == '' && currentFrame != 0) return
  
-    let rollValue = parseInt(inputRoll);
+    let rollValue = inputRoll;
+    //console.log("Roll value: ",inputRoll)
 
     // Validate input
     if (isNaN(rollValue) || rollValue < 0 || rollValue > 10) {
@@ -452,7 +498,7 @@ const BowlingGame = () => {
       frame.score = currentFrame != 0 ? rollValue + updatedFrames[currentFrame-1].score : rollValue;
       updatedFrames[currentFrame] = frame;
       setFrames(updatedFrames);
-      setInputRoll('0')
+      setInputRoll(0)
  
       // Game has been started after successful first throw. 
       if (currentFrame == 0) gameStarted();
@@ -476,10 +522,9 @@ const BowlingGame = () => {
   };
 
     return (
-      <View className="items-center p-1  rounded-lg " {...panResponder.panHandlers} >
-  
+      <Animated.View className="items-center p-1  rounded-lg "  >
         {/* Frames Display */}
-        <View className="flex-row space-x-1">
+        <View className="flex-row space-x-1" >
         {frames.slice(0, 9).map((frame, index) => (
           <TouchableOpacity key={index} onPress={() => handleFrameTouch(index)}>
             <Frame 
@@ -511,15 +556,17 @@ const BowlingGame = () => {
           {gameComplete ? "Game Complete" : `Frame ${currentFrame+1}` }</Text>
         
         {/* Select Pins - Arranged in Triangle Formation */}
-      <View className="mt-6 items-center" >
-        {[ [6, 7, 8, 9], [3, 4, 5], [1, 2], [0] ].map((row, rowIndex) => (
-          <View key={rowIndex} className="flex-row justify-center" >
+        <View className="flex-row ">
+          <View className="mt-6 items-center " >
+          {[ [6, 7, 8, 9], [3, 4, 5], [1, 2], [0] ].map((row, rowIndex) => (
+          <View key={rowIndex}  className="flex-row justify-center" >
             {row.map((index) => (
               <TouchableOpacity 
                 key={index} 
                 activeOpacity={0}
                 ref={(el) => (pinRefs.current[index] = el)}
                 onPress={() => currentFrame==9 ? tenthFramePinToggle(index) : handlePinToggle(index)} 
+                
                 className={`m-2 w-14 h-14 rounded-full items-center justify-center border-2 shadow-lg ${
                   pins[index] ? 'bg-gray-600 border-black-100' : 'bg-white border-black-100'
                 }`}
@@ -530,37 +577,63 @@ const BowlingGame = () => {
             ))}
           </View>
         ))}
-      </View>
-
-        {/* Manual Input Controls */}
-        <View className="mt-4 items-center">
-          
-          <View className='flex-row' >
-            <TouchableOpacity 
-              onPress={edited?handleEdit:(currentFrame==9)?handleLastFrame:handleManualInput} 
-              className="m-2 bg-green-500 px-4 py-2 rounded-lg"
-            >
-              <Text className="text-white font-bold">Enter Roll</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              onPress={gameComplete ? clearGame : ()=>{}}
-              className={`m-2 ${gameComplete ? 'bg-green-950' : 'bg-red-600'} px-4 py-2 rounded-lg `}
-              disabled={!gameComplete}
-            >
-              <Text className="text-white font-bold">Next Game</Text>
-            </TouchableOpacity>
-            <TouchableOpacity 
-              onPress={clearGame}
-              className={"m-2 bg-orange px-4 py-2 rounded-lg"}
-            >
-              <Text className="text-white font-bold">Reset Game</Text>
-            </TouchableOpacity>
-          </View>
-          
         </View>
-        
+        {/* Quick Select Buttons */}
+        <View className="flex-col mt-10 items-center ">
+          <TouchableOpacity 
+            onPress={()=>{setInputRoll(10); setQuickSelection('X');
+              }}
+            className="mx-5 pr-4 pl-2 py-2 rounded-lg items-center"
+          >
+            <Text className="text-5xl text-white font-pextrabold">X</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            onPress={()=>{instantSpareToggle(); setQuickSelection('/');}} 
+            className="mx-5 mt-4 pr-4 pl-2 py-2 rounded-lg items-center"
+          >
+            <Text className="text-5xl text-white font-pextrabold">/</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            onPress={quickSelect} 
+            className="mx-5 mt-5 pr-4 pl-2 py-2 rounded-lg items-center"
+          >
+            <Text className="text-5xl text-white font-pextrabold">-</Text>
+          </TouchableOpacity>
+        </View>
       </View>
-    );
+      
+
+
+      {/* Manual Input Controls */}
+      <View className="mt-4 items-center">
+          
+      <View className='flex-row' >
+        <TouchableOpacity 
+          onPress={edited?handleEdit:(currentFrame==9)?handleLastFrame:handleManualInput} 
+          className="m-2 bg-green-500 px-4 py-2 rounded-lg"
+        >
+          <Text className="text-white font-bold">Enter Roll</Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          onPress={gameComplete ? clearGame : ()=>{}}
+          className={`m-2 ${gameComplete ? 'bg-green-950' : 'bg-red-600'} px-4 py-2 rounded-lg `}
+          disabled={!gameComplete}
+        >
+          <Text className="text-white font-bold">Next Game</Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          onPress={clearGame}
+          className={"m-2 bg-orange px-4 py-2 rounded-lg"}
+        >
+          <Text className="text-white font-bold">Reset Game</Text>
+        </TouchableOpacity>
+      </View>
+      
+    </View>
+      </Animated.View>
+    
+  
+  );
   };
   
   export default BowlingGame;

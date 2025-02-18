@@ -12,7 +12,7 @@ const Create = () => {
     },[])
   const clearAll = async () => {
     try{
-      await AsyncStorage.removeItem("BOWLINGSTATE")
+      await AsyncStorage.clear()
     } catch(e){
       console.error(e);
     }

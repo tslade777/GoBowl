@@ -30,6 +30,7 @@ const BowlingGame = () => {
 
   const pinRefs = useRef<(View | null)[]>([]); // Fix the TypeScript issue
   const [pinPositions, setPinPositions] = useState<{ [key: number]: { x: number; y: number } }>({});
+  const [pinSwipedOn, setPinSwipedOn] = useState(-1)
 
   
   // Load saved game on startup
@@ -206,6 +207,7 @@ const BowlingGame = () => {
     let updatedPins = [...pins];
     if (isFirstRoll){
       updatedPins[index] = !updatedPins[index];
+      //console.log(`Pin: ${index+1} is being toggled`)
 
       // Count the number of pins knocked down
       let count = updatedPins.filter(x => x==true).length
@@ -287,12 +289,31 @@ const BowlingGame = () => {
   // Later in life
   const handlePinSwipe = (swipe_x: number, swipe_y: number) => {
     const padding = 14;
+
+    // Check each pin to see if pin has been swiped on
     for (var i = 0; i <10; i++){
       const x = pinPositions[i].x
       const y = pinPositions[i].y
-
+      
+      // Enters if a pin has been swipped on. 
       if(swipe_x < x +padding && swipe_x > x-padding && swipe_y < (y + padding) && swipe_y > (y-padding)){
-        console.log(`Pin: ${i+1} has been hit`)
+        // No pin has previously been swipped on. 
+        if(pinSwipedOn == -1){
+          setPinSwipedOn(i)
+          if(currentFrame == 9) {tenthFramePinToggle(i)}
+          else {
+            //console.log(`Pin: ${i+1} has been hit`)
+            handlePinToggle(i)}
+        }
+        // Pin has already been swipped on. Don't do anything. 
+        // This avoids flickering of pins
+        else if(pinSwipedOn == i){
+          return;
+        }
+      }
+      // This marks a swipe exiting a pin
+      else if(pinSwipedOn == i){
+        setPinSwipedOn(-1)
       }
     }
   };

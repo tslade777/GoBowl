@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity, TextInput, PanResponder  } from 'react-native';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Frame from './Frame';
 import TenthFrame from './TenthFrame';
@@ -28,6 +28,9 @@ const BowlingGame = () => {
   const [pins, setPins] = useState(Array(10).fill(false)); // Track knocked-down pins
   const [edited, setEdited] = useState(false);
 
+  const pinRefs = useRef<(View | null)[]>([]); // Fix the TypeScript issue
+  const [pinPositions, setPinPositions] = useState<{ [key: number]: { x: number; y: number } }>({});
+
   
   // Load saved game on startup
   useEffect(() => {
@@ -39,6 +42,17 @@ const BowlingGame = () => {
     saveGame();
   }, [frames, currentFrame])
 
+  useEffect(() => {
+    setTimeout(() => {
+      pinRefs.current.forEach((ref, index) => {
+        if (ref) {
+          ref.measure((x, y, width, height, pageX, pageY) => {
+            setPinPositions((prev) => ({ ...prev, [index]: { x: pageX+width/2, y: pageY+height/2 } }));
+          });
+        }
+      });
+    }, 500); // Delay to ensure rendering is complete
+  }, []);
 
   const updateFirebaseCurrentGame = async () =>{
     try{
@@ -145,7 +159,8 @@ const BowlingGame = () => {
   const clearGame = async () => {
     setFirebaseInActive()
     setFrames(Array(10).fill(null).map(() => ({ roll1: '', roll2: '', roll3: '', score: 0, 
-      firstBallPins: Array(10).fill(false),secondBallPins: Array(10).fill(false), isSpare: false, isStrike: false })));
+      firstBallPins: Array(10).fill(false),secondBallPins: Array(10).fill(false), 
+      isSpare: false, isStrike: false })));
     setCurrentFrame(0)
     setPins(Array(10).fill(false))
     setFarthestFrame(0)
@@ -264,30 +279,22 @@ const BowlingGame = () => {
     onMoveShouldSetPanResponder: () => true,
     onPanResponderMove: (_, gestureState) => {
       const { moveX, moveY } = gestureState;
-      //handlePinSwipe(moveX, moveY);
+      handlePinSwipe(moveX, moveY);
       //console.log("Moves: ", moveX, moveY)
     },
   });
 
   // Later in life
-  const handlePinSwipe = (x: number, y: number) => {
-    // Get the index of the pin being touched
-    const pinPositions = [ [6, 7, 8, 9], [3, 4, 5], [1, 2], [0] ];
-    let updatedPins = [...pins];
+  const handlePinSwipe = (swipe_x: number, swipe_y: number) => {
+    const padding = 14;
+    for (var i = 0; i <10; i++){
+      const x = pinPositions[i].x
+      const y = pinPositions[i].y
 
-    pinPositions.forEach((row, rowIndex) => {
-      row.forEach((index) => {
-        // Simple hit detection (approximate based on coordinates)
-        if (
-          x > index * 30 && x < (index + 1) * 50 && 
-          y > rowIndex * 30 && y < (rowIndex + 1) * 50
-        ) {
-          updatedPins[index] = true; // Mark pin as knocked down
-        }
-      });
-    });
-
-    setPins(updatedPins);
+      if(swipe_x < x +padding && swipe_x > x-padding && swipe_y < (y + padding) && swipe_y > (y-padding)){
+        console.log(`Pin: ${i+1} has been hit`)
+      }
+    }
   };
   
   // Update frame selection. Call back for frame touch event.
@@ -402,7 +409,6 @@ const BowlingGame = () => {
 
   // This will hold game logic like moving to the next frame on a strike or spare. 
   const handleManualInput = () => {
-
     // Don't edit unless first ball has been thrown. 
     if (frames[0].roll1 == '' && currentFrame != 0) return
  
@@ -449,7 +455,7 @@ const BowlingGame = () => {
   };
 
     return (
-      <View className="items-center p-1  rounded-lg " >
+      <View className="items-center p-1  rounded-lg " {...panResponder.panHandlers} >
   
         {/* Frames Display */}
         <View className="flex-row space-x-1">
@@ -491,12 +497,14 @@ const BowlingGame = () => {
               <TouchableOpacity 
                 key={index} 
                 activeOpacity={0}
+                ref={(el) => (pinRefs.current[index] = el)}
                 onPress={() => currentFrame==9 ? tenthFramePinToggle(index) : handlePinToggle(index)} 
                 className={`m-2 w-14 h-14 rounded-full items-center justify-center border-2 shadow-lg ${
                   pins[index] ? 'bg-gray-600 border-black-100' : 'bg-white border-black-100'
                 }`}
               >
-                <Text className={`${pins[index] ? "text-white" : "text-black"} font-pbold`}>{index + 1}</Text>
+                <Text className={`${pins[index] ? "text-white" : "text-black"} font-pbold`}>
+                  {index + 1}</Text>
               </TouchableOpacity>
             ))}
           </View>

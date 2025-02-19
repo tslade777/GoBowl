@@ -1,5 +1,5 @@
-import { View, Text, Image } from 'react-native'
-import React from 'react'
+import { View, Text, Image, Keyboard } from 'react-native'
+import React, { useEffect, useState } from 'react'
 import "../../global.css";
 import { Tabs, Redirect, Stack} from 'expo-router'
 import {icons} from '../../constants'
@@ -18,6 +18,22 @@ const TabIcon = ({icon, color, focused}:{icon:any, color:any, focused:any}) => {
   )
 }
 const TabsLayout = () => {
+
+  const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+
+  useEffect(() => {
+    const showSubscription = Keyboard.addListener("keyboardDidShow", () => {
+      setKeyboardVisible(true);
+    });
+    const hideSubscription = Keyboard.addListener("keyboardDidHide", () => {
+      setKeyboardVisible(false);
+    });
+
+    return () => {
+      showSubscription.remove();
+      hideSubscription.remove();
+    };
+  }, []);
   return (
     <>
       <Stack.Screen name="index" options={{headerShown:false}}/>
@@ -31,7 +47,8 @@ const TabsLayout = () => {
             backgroundColor: '#161622',
             height: 60,
             borderTopColor: '#232533',
-            justifyContent: 'center'
+            justifyContent: 'center',
+            display: isKeyboardVisible ? "none" : "flex"
           },
         }}
       >

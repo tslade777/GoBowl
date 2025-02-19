@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { View, TextInput, FlatList, Text, TouchableOpacity, Pressable } from "react-native";
+import { View, TextInput, FlatList, Text, TouchableOpacity, TouchableWithoutFeedback, Keyboard } from "react-native";
 import "react-native-gesture-handler";
 
 interface SearchBarProps {
@@ -12,6 +12,22 @@ const SearchBar: React.FC<SearchBarProps> = ({ data, onSelect }) => {
   const [query, setQuery] = useState("");
   const [filteredData, setFilteredData] = useState<string[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
+
+  useEffect(()=>{
+    setShowDropdown(false)
+    setQuery("")
+  },[]);
+  
+  useEffect(() => {
+    const keyboardHideListener = Keyboard.addListener("keyboardDidHide", () => {
+      setShowDropdown(false)
+      setQuery("")
+    });
+  
+    return () => {
+      keyboardHideListener.remove(); // Cleanup event listener on unmount
+    };
+  }, []);
 
   const handleSearch = (text: string) => {
     setQuery(text);
@@ -28,10 +44,10 @@ const SearchBar: React.FC<SearchBarProps> = ({ data, onSelect }) => {
   };
 
   const handleSelect = (item: string) => {
-    console.log("Selected Item:", item); // ✅ Debugging log
-    setQuery(item); // ✅ Update the input field with the selected item
-    setShowDropdown(false); // ✅ Hide the dropdown
-    onSelect(item); // ✅ Pass the selected item to parent component
+    console.log("Selected Item:", item); 
+    setQuery(item); 
+    setShowDropdown(false); 
+    onSelect(item); 
   };
 
   return (
@@ -41,11 +57,13 @@ const SearchBar: React.FC<SearchBarProps> = ({ data, onSelect }) => {
         placeholder="Search new friends by username..."
         value={query}
         onChangeText={handleSearch}
+        onFocus={()=>setShowDropdown(true)}
       />
       {/* Dropdown List with zIndex Fix */}
       {showDropdown && (
         <View className="absolute top-12 left-0 right-0 bg-white border border-gray-300 rounded-lg max-h-40 z-50">
           <FlatList
+          keyboardShouldPersistTaps="handled"
             data={filteredData}
             keyExtractor={(item, index) => index.toString()}
             renderItem={({ item }) => (

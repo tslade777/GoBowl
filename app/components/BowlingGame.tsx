@@ -26,7 +26,6 @@ const BowlingGame = () => {
   const [inputRoll, setInputRoll] = useState(0);
 
   const [striking, setStriking] = useState(false);
-  const [spare, setSpare] = useState(false);
 
   const [gameComplete, setGameComplete] = useState(false)
   const [pins, setPins] = useState(Array(10).fill(false)); // Track knocked-down pins
@@ -199,70 +198,61 @@ const BowlingGame = () => {
     }
   };
 
-  const calculateScore = (frames:any) => {
-    var totalScore = 0
-    let upToFrame = (gameComplete? 10: farthestFrame)
-    for (var i = 0; i < upToFrame; i++){
-      let frame = { ...frames[i] };
-      let firstThrowScore = parseInt(frame.roll1)
-      let secondThrowScore = ((firstThrowScore == 10 || frame.roll2 == '')? 0 : parseInt(frame.roll2))
-      let thirdThrowScore = ((i==9 && frame.roll3 != '')? parseInt(frame.roll3): 0)
-      totalScore += (firstThrowScore + secondThrowScore + thirdThrowScore)
-      frame.score = totalScore;
-      frames[i] = frame;
-    }
-    return frames
-  }
   // Calculate and return the total score that will go into the frame provided.
   const calculateTotalScore = (frames:any) => {
-    let upToFrame = (gameComplete? 10: farthestFrame)
     let totalScore = 0;
-    for (var i = 0; i < upToFrame; i++){
+    for (var i = 0; i < 10; i++){
       let frame = { ...frames[i] };
-      let firstThrowScore = parseInt(frame.roll1)
-      let secondThrowScore = ((firstThrowScore == 10 || frame.roll2 == '')? 0 : parseInt(frame.roll2))
+      let firstThrowScore = frame.roll1 == '' ? 0 : parseInt(frame.roll1);
+      let secondThrowScore = ((firstThrowScore == 10 || frame.roll2 == '')? 0 : parseInt(frame.roll2));
 
       // The 9th frame will always depend solely on the tenth frame.
       if(i==8){
         totalScore += firstThrowScore + secondThrowScore;
+        // BONUS: Use the first two rolls of the tenth frame.
         if (frame.isStrike){
           let bonus = frames[9].roll1 == '' ? 0 : parseInt(frames[9].roll1);
           bonus += frames[9].roll2 == '' ? 0 : parseInt(frames[9].roll2);
           totalScore += bonus;
-        } 
+        }
+        // BONUS: Use the first roll of the tenth frame
         else if(frame.isSpare){
           totalScore += frames[9].roll1 == '' ? 0 : parseInt(frames[9].roll1);
         }
+        // Score is just total plus current frame. NO BONUS
         else totalScore += firstThrowScore + secondThrowScore
       }
-      // Tenth frame will only depend on itself.
+      // Tenth frame will only depend on itself. NO BONUS
       else if (i==9){
         totalScore += frames[9].roll1 == '' ? 0 : parseInt(frames[9].roll1);
         totalScore += frames[9].roll2 == '' ? 0 : parseInt(frames[9].roll2);
         totalScore += frames[9].roll3 == '' ? 0 : parseInt(frames[9].roll3);
       }
-      // Each Frame score can depend on next two frames only if it's a strike
-      else if(i+1 < 8 && frame.isStrike){
+      // Case when current shot is a strike
+      else if(frame.isStrike){
         totalScore +=10;
-        // If next shot is strike, take the first ball from two frames ahead
+        // BONUS: If next shot is strike, take the first ball from two frames ahead
         if (frames[i+1].isStrike){
-          totalScore += 10;
-          if (i+2 < farthestFrame) 
-            totalScore += parseInt(frames[i+1].roll1);
+          totalScore += 10; 
+          totalScore += frames[i+2].roll1 == '' ? 0:parseInt(frames[i+2].roll1);
         }
-        // Next frame is not a strike but current is
+        // BONUS: Next frame is not a strike but current is
         else {
-          totalScore += (parseInt(frames[i+1].roll1) + parseInt(frames[i+1].roll2)) 
-          + firstThrowScore + secondThrowScore;
+          let nextRoll1 = frames[i+1].roll1 == '' ? 0 : parseInt(frames[i+1].roll1);
+          let nextRoll2 = frames[i+1].roll2 == '' ? 0 : parseInt(frames[i+1].roll2);
+          totalScore += (nextRoll1 + nextRoll2);
         }
       }
-      // Current frame is a spare
-      else if (i+1 < farthestFrame && frame.isSpare){
-        totalScore += parseInt(frames[i+1].roll1) + firstThrowScore + secondThrowScore;
+      // BONUS: Current frame is a spare
+      else if (frame.isSpare){
+        let nextRoll1 = frames[i+1].roll1 == '' ? 0 : parseInt(frames[i+1].roll1);
+        totalScore += nextRoll1 + firstThrowScore + secondThrowScore;
       }
+      // Current frame is an open, just use current frame scores only. No bonus
       else{
-        totalScore+= firstThrowScore + secondThrowScore;
+        totalScore += firstThrowScore + secondThrowScore;
       }
+      // update the frame score.
       frame.score = totalScore;
       frames[i] = frame;
     }
@@ -464,7 +454,7 @@ const BowlingGame = () => {
     
     // Update frame and future scores. 
     updatedFrames[currentFrame] = frame;
-    setFrames(calculateScore(updatedFrames));
+    setFrames(calculateTotalScore(updatedFrames));
     //calculateScore()
     return
   }
@@ -499,14 +489,14 @@ const BowlingGame = () => {
       frame.isStrike = rollValue == 10;
       frame.score = rollValue + updatedFrames[currentFrame-1].score;
       updatedFrames[currentFrame] = frame;
-      setSpare(false);
+      
       if (frame.isStrike){
         setPins(Array(10).fill(false));
         setStriking(true);
       }
       else{setStriking(false);}
       
-      setFrames(updatedFrames);
+      setFrames(calculateTotalScore(updatedFrames));
       setInputRoll(0)
       setIsFirstRoll(false);
     }
@@ -517,7 +507,7 @@ const BowlingGame = () => {
       frame.isSpare = (parseInt(frame.roll1) + parseInt(frame.roll2) == 10 && (!frame.isStrike))
       frame.score = frame.score + rollValue;
       updatedFrames[currentFrame] = frame;
-      setFrames(updatedFrames);
+      setFrames(calculateTotalScore(updatedFrames));
       // User gets an extra shot if spare or strike
       if(frame.isSpare || frame.roll2 == '10'){
         setIsFinalRoll(true)
@@ -596,11 +586,11 @@ const BowlingGame = () => {
       frame.roll2 = rollValue.toString()
       frame.secondBallPins = pins
       frame.isSpare = (parseInt(frame.roll1) + parseInt(frame.roll2) == 10)
-      setSpare(frame.isSpare)
+      
       frame.visible = frame.isSpare;
       frame.score = frame.score + rollValue;
       updatedFrames[currentFrame] = frame;
-      setFrames(updatedFrames);
+      setFrames(calculateTotalScore(updatedFrames));
       frameComplete()
     }
     saveGame();  

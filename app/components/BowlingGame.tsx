@@ -221,7 +221,6 @@ const BowlingGame = () => {
       let frame = { ...frames[i] };
       let firstThrowScore = parseInt(frame.roll1)
       let secondThrowScore = ((firstThrowScore == 10 || frame.roll2 == '')? 0 : parseInt(frame.roll2))
-      let thirdThrowScore = ((i==9 && frame.roll3 != '')? parseInt(frame.roll3): 0)
 
       // The 9th frame will always depend solely on the tenth frame.
       if(i==8){

@@ -213,6 +213,62 @@ const BowlingGame = () => {
     }
     return frames
   }
+  // Calculate and return the total score that will go into the frame provided.
+  const calculateTotalScore = (frames:any) => {
+    let upToFrame = (gameComplete? 10: farthestFrame)
+    let totalScore = 0;
+    for (var i = 0; i < upToFrame; i++){
+      let frame = { ...frames[i] };
+      let firstThrowScore = parseInt(frame.roll1)
+      let secondThrowScore = ((firstThrowScore == 10 || frame.roll2 == '')? 0 : parseInt(frame.roll2))
+      let thirdThrowScore = ((i==9 && frame.roll3 != '')? parseInt(frame.roll3): 0)
+
+      // The 9th frame will always depend solely on the tenth frame.
+      if(i==8){
+        totalScore += firstThrowScore + secondThrowScore;
+        if (frame.isStrike){
+          let bonus = frames[9].roll1 == '' ? 0 : parseInt(frames[9].roll1);
+          bonus += frames[9].roll2 == '' ? 0 : parseInt(frames[9].roll2);
+          totalScore += bonus;
+        } 
+        else if(frame.isSpare){
+          totalScore += frames[9].roll1 == '' ? 0 : parseInt(frames[9].roll1);
+        }
+        else totalScore += firstThrowScore + secondThrowScore
+      }
+      // Tenth frame will only depend on itself.
+      else if (i==9){
+        totalScore += frames[9].roll1 == '' ? 0 : parseInt(frames[9].roll1);
+        totalScore += frames[9].roll2 == '' ? 0 : parseInt(frames[9].roll2);
+        totalScore += frames[9].roll3 == '' ? 0 : parseInt(frames[9].roll3);
+      }
+      // Each Frame score can depend on next two frames only if it's a strike
+      else if(i+1 < 8 && frame.isStrike){
+        totalScore +=10;
+        // If next shot is strike, take the first ball from two frames ahead
+        if (frames[i+1].isStrike){
+          totalScore += 10;
+          if (i+2 < farthestFrame) 
+            totalScore += parseInt(frames[i+1].roll1);
+        }
+        // Next frame is not a strike but current is
+        else {
+          totalScore += (parseInt(frames[i+1].roll1) + parseInt(frames[i+1].roll2)) 
+          + firstThrowScore + secondThrowScore;
+        }
+      }
+      // Current frame is a spare
+      else if (i+1 < farthestFrame && frame.isSpare){
+        totalScore += parseInt(frames[i+1].roll1) + firstThrowScore + secondThrowScore;
+      }
+      else{
+        totalScore+= firstThrowScore + secondThrowScore;
+      }
+      frame.score = totalScore;
+      frames[i] = frame;
+    }
+    return frames
+  }
 
   const frameComplete = () =>{
     setPins(Array(10).fill(false))
@@ -221,7 +277,7 @@ const BowlingGame = () => {
     setIsFirstRoll(true)
     if (currentFrame >= farthestFrame)setFarthestFrame(currentFrame+1)
   }
-
+  //
   const showFrames = (frames:any) => {
     let upToFrame = (gameComplete? 10: farthestFrame)
     for (var i = 0; i < upToFrame; i++){
@@ -231,6 +287,7 @@ const BowlingGame = () => {
     }
     return frames
   }
+  //
   const instantSpareToggle = () =>{
     let updatedPins = [...pins];
     const firstBallPins = frames[currentFrame].firstBallPins;
@@ -511,8 +568,8 @@ const BowlingGame = () => {
       frame.roll1 = rollValue.toString();
       frame.firstBallPins = pins;
       frame.isStrike = rollValue == 10;
-      frame.score = currentFrame != 0 ? rollValue + updatedFrames[currentFrame-1].score : rollValue;
       updatedFrames[currentFrame] = frame;
+      updatedFrames = calculateTotalScore(updatedFrames)
       if(rollValue!=10 && (striking)) {
         // Show scores of previous frames.
         updatedFrames = showFrames(updatedFrames) 

@@ -16,14 +16,18 @@ const BowlingGame = () => {
   const [frames, setFrames] = useState(
     Array(10).fill(null).map(() => ({ roll1: '', roll2: '', roll3: '', score: 0 ,
       firstBallPins: Array(10).fill(false),secondBallPins:Array(10).fill(false), 
-      isSpare: false, isStrike: false }))
+      isSpare: false, isStrike: false, visible: true }))
   );
   const [currentFrame, setCurrentFrame] = useState(0);
   const [farthestFrame, setFarthestFrame] = useState(0);
+
   const [isFirstRoll, setIsFirstRoll] = useState(true);
   const [isFinalRoll, setIsFinalRoll] = useState(false)
   const [inputRoll, setInputRoll] = useState(0);
-  const [isFrameComplete, setIsFrameComplete] = useState(false);
+
+  const [striking, setStriking] = useState(false);
+  const [spare, setSpare] = useState(false);
+
   const [gameComplete, setGameComplete] = useState(false)
   const [pins, setPins] = useState(Array(10).fill(false)); // Track knocked-down pins
   const [edited, setEdited] = useState(false);
@@ -42,17 +46,14 @@ const BowlingGame = () => {
   useEffect(() => {
     if(quickSelection == 'X'){
       setQuickSelection('')
-      console.log("input roll set by STRIKE quick select: ", inputRoll)
       quickSelect();
     }
     else if(quickSelection == '/'){
       setQuickSelection('')
-      console.log("input roll set by SPARE quick select: ", inputRoll)
       quickSelect();
     }
     else if(quickSelection == '/'){
       setQuickSelection('')
-      console.log("input roll set by ZERO quick select: ", inputRoll)
       quickSelect();
     }
   }, [inputRoll]);
@@ -180,7 +181,7 @@ const BowlingGame = () => {
     setFirebaseInActive()
     setFrames(Array(10).fill(null).map(() => ({ roll1: '', roll2: '', roll3: '', score: 0, 
       firstBallPins: Array(10).fill(false),secondBallPins: Array(10).fill(false), 
-      isSpare: false, isStrike: false })));
+      isSpare: false, isStrike: false, visible: true })));
     setCurrentFrame(0)
     setPins(Array(10).fill(false))
     setFarthestFrame(0)
@@ -221,6 +222,15 @@ const BowlingGame = () => {
     if (currentFrame >= farthestFrame)setFarthestFrame(currentFrame+1)
   }
 
+  const showFrames = (frames:any) => {
+    let upToFrame = (gameComplete? 10: farthestFrame)
+    for (var i = 0; i < upToFrame; i++){
+      let frame = { ...frames[i] };
+      frame.visible = frame.visble ? true: false
+      frames[i] = frame;
+    }
+    return frames
+  }
   const instantSpareToggle = () =>{
     let updatedPins = [...pins];
     const firstBallPins = frames[currentFrame].firstBallPins;
@@ -234,7 +244,6 @@ const BowlingGame = () => {
     }
     let count = (updatedPins.filter(x => x==true).length-firstBallCount)
     setInputRoll(count)
-    console.log(`Spare count: ${count}\nActual input: ${inputRoll}`)
     setPins(updatedPins)
     
   }
@@ -317,7 +326,6 @@ const BowlingGame = () => {
     onPanResponderMove: (_, gestureState) => {
       const { moveX, moveY } = gestureState;
       handlePinSwipe(moveX, moveY);
-      //console.log("Moves: ", moveX, moveY)
     },
   });
 
@@ -337,7 +345,6 @@ const BowlingGame = () => {
           setPinSwipedOn(i)
           if(currentFrame == 9) {tenthFramePinToggle(i)}
           else {
-            //console.log(`Pin: ${i+1} has been hit`)
             handlePinToggle(i)}
         }
         // Pin has already been swipped on. Don't do anything. 
@@ -422,8 +429,10 @@ const BowlingGame = () => {
       frame.roll3 = rollValue.toString();
       frame.score = rollValue + frame.score;
       updatedFrames[currentFrame] = frame;
+      updatedFrames = showFrames(updatedFrames)
       setFrames(updatedFrames);
       setGameComplete(true)
+      setStriking(false)
       return
     }
 
@@ -434,7 +443,13 @@ const BowlingGame = () => {
       frame.isStrike = rollValue == 10;
       frame.score = rollValue + updatedFrames[currentFrame-1].score;
       updatedFrames[currentFrame] = frame;
-      if (frame.isStrike) setPins(Array(10).fill(false))
+      setSpare(false);
+      if (frame.isStrike){
+        setPins(Array(10).fill(false));
+        setStriking(true);
+      }
+      else{setStriking(false);}
+      
       setFrames(updatedFrames);
       setInputRoll(0)
       setIsFirstRoll(false);
@@ -452,6 +467,7 @@ const BowlingGame = () => {
         setIsFinalRoll(true)
         setPins(Array(10).fill(false))
         setInputRoll(0)
+        setStriking(frame.roll2 == '10');
       }
       else if(frame.isStrike){
         setIsFinalRoll(true)
@@ -459,6 +475,7 @@ const BowlingGame = () => {
       }
       else{
         setGameComplete(true)
+        setStriking(false);
       }
     }
   }
@@ -479,7 +496,6 @@ const BowlingGame = () => {
     if (frames[0].roll1 == '' && currentFrame != 0) return
  
     let rollValue = inputRoll;
-    //console.log("Roll value: ",inputRoll)
 
     // Validate input
     if (isNaN(rollValue) || rollValue < 0 || rollValue > 10) {
@@ -497,6 +513,16 @@ const BowlingGame = () => {
       frame.isStrike = rollValue == 10;
       frame.score = currentFrame != 0 ? rollValue + updatedFrames[currentFrame-1].score : rollValue;
       updatedFrames[currentFrame] = frame;
+      if(rollValue!=10 && (striking)) {
+        // Show scores of previous frames.
+        updatedFrames = showFrames(updatedFrames) 
+        setStriking(false)
+      }
+      if (currentFrame != 0 && updatedFrames[currentFrame-1].isSpare){
+        updatedFrames = showFrames(updatedFrames) 
+      }
+    
+      frame.visible = frame.isStrike; // Frames with strikes shouldn't show score
       setFrames(updatedFrames);
       setInputRoll(0)
  
@@ -507,12 +533,15 @@ const BowlingGame = () => {
 
       if (rollValue == 10 && currentFrame != 9) {
         frameComplete();
+        setStriking(true);
       }
     }
     else{
       frame.roll2 = rollValue.toString()
       frame.secondBallPins = pins
       frame.isSpare = (parseInt(frame.roll1) + parseInt(frame.roll2) == 10)
+      setSpare(frame.isSpare)
+      frame.visible = frame.isSpare;
       frame.score = frame.score + rollValue;
       updatedFrames[currentFrame] = frame;
       setFrames(updatedFrames);
@@ -532,7 +561,7 @@ const BowlingGame = () => {
             frameNumber={index + 1} 
             roll1={frame.isStrike ? 'X' : frame.roll1 == '0' ? '-' : frame.roll1} 
             roll2={frame.isSpare ? '/' : frame.roll2 == '0' ? '-' : frame.roll2} 
-            total={farthestFrame > index ? frame.score.toString() : ''}
+            total={frame.visible ? '' : farthestFrame > index ? frame.score.toString() : ''}
             isSelected= {currentFrame==index} 
             />      
           </TouchableOpacity>

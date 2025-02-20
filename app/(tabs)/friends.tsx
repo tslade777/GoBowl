@@ -1,9 +1,9 @@
 import { View, Text, FlatList, ActivityIndicator,  } from 'react-native';
-import React, { useEffect, useState } from 'react';
-import { useNavigation } from '@react-navigation/native';
+import React, { useCallback, useEffect, useState } from 'react';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import "../../global.css";
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { collection, doc, getDoc, getDocs, query, setDoc, updateDoc, where } from 'firebase/firestore';
+import { collection, doc, getDoc, getDocs, onSnapshot, query, setDoc, updateDoc, where } from 'firebase/firestore';
 import { FIREBASE_AUTH, db } from '@/firebase.config';
 import SearchBar from "../components/SearchBar";
 import "react-native-gesture-handler";
@@ -22,9 +22,18 @@ const Friends = () => {
   const [loading, setLoading] = useState(true);
   const currentUser = FIREBASE_AUTH.currentUser;
 
+  useFocusEffect(
+    useCallback(() => {
+      fetchUserData();
+      showFriends();
+
+      return () => {
+        console.log("❌ Screen unfocused! Cleanup if needed.");
+      };
+    }, []))
+
   useEffect(() => {
-    fetchUserData();
-    showFriends();
+    
     }, []);
     
     // Retrieve list of possible users to add
@@ -75,13 +84,19 @@ const Friends = () => {
       const userID = currentUser == null ? '' : currentUser.uid
         
       const docRef = doc(db,'userFriends', userID)
-      const docSnap = await getDoc(docRef);
-      if(docSnap.exists()){
-        setFriends(docSnap.data().friendsList)
+      const subscribe = onSnapshot(docRef,(docSnap) =>{
+        if(docSnap.exists()){
+        const list = docSnap.data().friendsList;
+        const sorted = list.sort((a:User,b:User)=>{
+          return Number(b.active) - Number(a.active);
+        });
+        setFriends(sorted)
       }
       else{
         console.log("No such document!");
       }
+      });
+      
     }
     catch(e){// Assign the data
       console.error(e)
@@ -93,23 +108,30 @@ const Friends = () => {
       <Text className='text-3xl text-center text-white mb-4 font-psemibold'>My Friends</Text>
       <View className='flex flex-row flex-wrap mt-4 items-center justify-center'>
       <SearchBar data={usersData} onSelect={handleSelection} />
-      {selectedItem  && (
-            <Text className="text-4xl mt-4">Selected: {selectedItem.username}</Text>
-          )}
       </View>
       {loading ? (
         <ActivityIndicator size='large' color='#F24804' />
       ) : (
         <FlatList
+          className='mt-10 border-t border-orange'
           data={friends}
           keyExtractor={(item) => item.id}
-          renderItem={({ item }) => (
-            <View style={{ backgroundColor: '#333', padding: 10, margin: 5, borderRadius: 5 }}>
-              <Text style={{ color: 'white', fontWeight: 'bold' }}>{item.username}</Text>
+          showsVerticalScrollIndicator = {false}
+          ItemSeparatorComponent={() => <View className="h-[2px] bg-orange m-1 " />}
+          renderItem={({ item, index }) => (
+            <View className={`flex-row bg-primary p-4 mb-3 
+            rounded-lg shadow-md w-full justify-between items-center 
+            `}>
+              {/* Left Side (Name + Price) */}
+              <View>
+                <Text className="text-2xl font-pextrabold text-white">{item.username}</Text>
+              </View>
+              {/* Right Side (Green Circle) */}
+              { item.active && <View className="w-6 h-6 bg-green-500 rounded-full" />}
             </View>
           )}
         />
-      )}
+      )} 
     </SafeAreaView>
   );
 };

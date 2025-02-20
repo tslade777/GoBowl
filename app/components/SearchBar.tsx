@@ -2,15 +2,21 @@ import React, { useEffect, useState } from "react";
 import { View, TextInput, FlatList, Text, TouchableOpacity, TouchableWithoutFeedback, Keyboard } from "react-native";
 import "react-native-gesture-handler";
 
+interface User {
+  id: string;
+  username: string;
+  active: boolean
+}
+
 interface SearchBarProps {
-  data: string[];
-  onSelect: (item: string) => void;
+  data: User[];
+  onSelect: (item: User) => void;
 }
 
   
 const SearchBar: React.FC<SearchBarProps> = ({ data, onSelect }) => {
   const [query, setQuery] = useState("");
-  const [filteredData, setFilteredData] = useState<string[]>([]);
+  const [filteredData, setFilteredData] = useState<User[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
 
   useEffect(()=>{
@@ -33,7 +39,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ data, onSelect }) => {
     setQuery(text);
     if (text.length > 0) {
       const filtered = data.filter((item) =>
-        item.toLowerCase().includes(text.toLowerCase())
+        item.username.toLowerCase().includes(text.toLowerCase())
       );
       setFilteredData(filtered);
       setShowDropdown(filtered.length > 0);
@@ -43,9 +49,9 @@ const SearchBar: React.FC<SearchBarProps> = ({ data, onSelect }) => {
     }
   };
 
-  const handleSelect = (item: string) => {
+  const handleSelect = (item: User) => {
     console.log("Selected Item:", item); 
-    setQuery(item); 
+    setQuery(item.username); 
     setShowDropdown(false); 
     onSelect(item); 
   };
@@ -73,7 +79,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ data, onSelect }) => {
                   handleSelect(item);
                 }}
               >
-                <Text className="text-black">{item}</Text>
+                <Text className="text-black">{item.username}</Text>
               </TouchableOpacity>
             )}
           />

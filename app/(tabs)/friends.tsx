@@ -1,4 +1,4 @@
-import { View, Text, FlatList, ActivityIndicator, TouchableWithoutFeedback, Keyboard,  } from 'react-native';
+import { View, Text, FlatList, ActivityIndicator, TouchableWithoutFeedback, Keyboard, TouchableOpacity,  } from 'react-native';
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import "../../global.css";
@@ -110,8 +110,16 @@ const Friends = () => {
     } catch (error) {
       console.error("❌ Error adding friend:", error);
     }
+    
   };
 
+  // Handle Friend Selection (Example: Open Profile or Show Options)
+  const handleFriendPress = (friend: User) => {
+    console.log(`👤 Friend clicked: ${friend.username}`);
+    // Example: Navigate to Friend's Profile (Replace with actual navigation)
+    // navigation.navigate('FriendProfile', { friendId: friend.id });
+  };
+  
   return (
     <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
       <SafeAreaView className='bg-primary h-full p-4'>
@@ -133,12 +141,18 @@ const Friends = () => {
             showsVerticalScrollIndicator={false}
             ItemSeparatorComponent={() => <View className="h-[2px] bg-orange m-1 " />}
             renderItem={({ item }) => (
-              <View className={`flex-row bg-primary p-4 mb-3 rounded-lg shadow-md w-full justify-between items-center`}>
+              <TouchableOpacity
+                className={`flex-row bg-primary p-4 mb-3 rounded-lg shadow-md w-full justify-between items-center`}
+                onPress={() => handleFriendPress(item)} // ✅ Now clickable!
+                activeOpacity={0.7} // ✅ Adds touch feedback
+              >
                 <View>
                   <Text className="text-2xl font-pextrabold text-white">{item.username}</Text>
                 </View>
                 {item.active && <View className="w-6 h-6 bg-green-500 rounded-full" />}
-              </View>
+
+              </TouchableOpacity>
+              
             )}
           />
         )}

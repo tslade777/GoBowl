@@ -7,17 +7,7 @@ import { Redirect, router, Tabs } from "expo-router";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Create = () => {
-  useEffect(()=>{
-      clearAll()
-    },[])
-  const clearAll = async () => {
-    try{
-      await AsyncStorage.removeItem("BOWLINGSTATE")
-    } catch(e){
-      console.error(e);
-    }
-    console.log("DONE")
-  }
+  
   return (
     <SafeAreaView className="bg-primary h-full">
       <View className='flex flex-row flex-wrap mt-20 items-center justify-center'>

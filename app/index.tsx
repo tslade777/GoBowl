@@ -8,10 +8,23 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import {onAuthStateChanged, User} from "firebase/auth"
 import { useEffect, useState } from "react";
 import { FIREBASE_AUTH } from "@/firebase.config";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 export default function RootLayout() {
   const [user, setUser] = useState<User | null>(null);
 
+  useEffect(()=>{
+    clearAll()
+  },[])
+    const clearAll = async () => {
+      try{
+        await AsyncStorage.removeItem("BOWLINGSTATE")
+        //await AsyncStorage.clear()
+      } catch(e){
+        console.error(e);
+      }
+  console.log("DONE")
+}
   useEffect(() =>{
     onAuthStateChanged(FIREBASE_AUTH, (user)=>{
       setUser(user);

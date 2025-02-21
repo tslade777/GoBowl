@@ -1,5 +1,5 @@
-import { View, Text, FlatList, ActivityIndicator,  } from 'react-native';
-import React, { useCallback, useEffect, useState } from 'react';
+import { View, Text, FlatList, ActivityIndicator, TouchableWithoutFeedback, Keyboard,  } from 'react-native';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import "../../global.css";
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -15,125 +15,137 @@ interface User {
 }
 
 const Friends = () => {
-  const navigation = useNavigation();
-  const [friends, setFriends] = useState<{ id: string; username: string; active: boolean }[]>([]);
-  const [usersData, setUsersData] = useState<User[]>([]);
-  const [selectedItem, setSelectedItem] = useState<User>();
+  const [friends, setFriends] = useState<User[]>([]);
+  const [activeFriends, setActiveFriends] = useState<string[]>([]); // Store only active friend IDs
+  const [usersData, setUsersData] = useState<User[]>([]); // Stores all users for searching
   const [loading, setLoading] = useState(true);
+  const [searchLoading, setSearchLoading] = useState(false); // Loading state for search
   const currentUser = FIREBASE_AUTH.currentUser;
 
-  useFocusEffect(
-    useCallback(() => {
-      fetchUserData();
-      showFriends();
 
-      return () => {
-        console.log("❌ Screen unfocused! Cleanup if needed.");
-      };
-    }, []))
-
+  // Load Friends List on Mount
   useEffect(() => {
-    
-    }, []);
-    
-    // Retrieve list of possible users to add
-     // We must exclude current user from search options. 
-    const fetchUserData = async () => {
-      try {
-        // Get the current userID
-        const userID = currentUser == null ? '' : currentUser.uid
-        
-        const q = query(collection(db, 'users'))
-        const querySnapshot = await getDocs(q);
-        const usersList: User[] = querySnapshot.docs.map(doc => ({
+    if (!currentUser) return;
+
+    const docRef = doc(db, 'userFriends', currentUser.uid);
+    const unsubscribe = onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const friendsList: User[] = docSnap.data().friendsList || [];
+        console.log(`📜 Friends list loaded: ${friendsList.length} friends`);
+        setFriends(friendsList);
+      } else {
+        console.log("📭 No friends list found.");
+      }
+      setLoading(false);
+    });
+
+    return () => unsubscribe(); // Cleanup listener
+  }, []);
+
+  // Listen for Active Users in Firestore
+  useEffect(() => {
+    const q = query(collection(db, 'activeUsers'), where('active', '==', true));
+
+    const unsubscribe = onSnapshot(q, (snapshot) => {
+      const activeUserIDs = snapshot.docs.map(doc => doc.data().id);
+      console.log(`🔥 Active users updated: ${activeUserIDs.length} users`);
+      setActiveFriends(activeUserIDs);
+    });
+
+    return () => unsubscribe(); // Cleanup listener
+  }, []);
+
+  // Update Friends List When Active Users Change
+  useEffect(() => {
+    setFriends(prevFriends =>
+      prevFriends.map(friend => ({
+        ...friend,
+        active: activeFriends.includes(friend.id) // Update active status
+      }))
+    );
+  }, [activeFriends]); // Runs when `activeFriends` changes
+
+  // Fetch All Users on SearchBar Focus (Prevents Unnecessary Fetches)
+  const fetchUserData = async () => {
+    try {
+      if (!currentUser || usersData.length > 0) return; // Prevent unnecessary re-fetch
+
+      setSearchLoading(true);
+      const q = query(collection(db, 'users'));
+      const querySnapshot = await getDocs(q);
+      const usersList: User[] = querySnapshot.docs
+        .map(doc => ({
           id: doc.data().id,
           username: doc.data().username,
-          active: doc.data().active
-        }));
-        setUsersData(usersList);
-      } catch (error) {
-        console.error("Error fetching userNames: ", error);
-      } finally {
-        setLoading(false);
-      }
-    };
+          active: false
+        }))
+        .filter(user => user.id !== currentUser.uid); // Exclude current user
 
-  const handleSelection = (item: User) => {
-    setSelectedItem(item);
-    addFriend(item)
-  };
-
-  const addFriend = async (item:User) =>{
-    try{
-      let updatedFriends = [...friends];
-      updatedFriends.push(item)
-      setFriends(updatedFriends)
-      if (currentUser != null){
-        await setDoc(doc(db,"userFriends", currentUser.uid),{
-        friendsList: updatedFriends
-        })
-      }
-    }
-    catch(e){
-      console.error(e)
+      setUsersData(usersList);
+      console.log(`🔍 Found ${usersList.length} users.`);
+    } catch (error) {
+      console.error("❌ Error fetching users:", error);
+    } finally {
+      setSearchLoading(false);
     }
   };
 
-  const showFriends = async () =>{
-    try{
-      const userID = currentUser == null ? '' : currentUser.uid
-        
-      const docRef = doc(db,'userFriends', userID)
-      const subscribe = onSnapshot(docRef,(docSnap) =>{
-        if(docSnap.exists()){
-        const list = docSnap.data().friendsList;
-        const sorted = list.sort((a:User,b:User)=>{
-          return Number(b.active) - Number(a.active);
-        });
-        setFriends(sorted)
+  // Add User to Friends List in Firebase
+  const addFriend = async (user: User) => {
+    try {
+      if (!currentUser) return;
+
+      // Prevent adding duplicates
+      if (friends.some(friend => friend.id === user.id)) {
+        console.log("⚠ User is already in friends list.");
+        return;
       }
-      else{
-        console.log("No such document!");
-      }
-      });
-      
+
+      const updatedFriends = [...friends, user];
+      setFriends(updatedFriends);
+
+      // Save to Firestore
+      await setDoc(doc(db, "userFriends", currentUser.uid), { friendsList: updatedFriends });
+      console.log(`✅ ${user.username} added to friends list.`);
+    } catch (error) {
+      console.error("❌ Error adding friend:", error);
     }
-    catch(e){// Assign the data
-      console.error(e)
-    }
-  }
+  };
 
   return (
-    <SafeAreaView className='bg-primary h-full p-4'>
-      <Text className='text-3xl text-center text-white mb-4 font-psemibold'>My Friends</Text>
-      <View className='flex flex-row flex-wrap mt-4 items-center justify-center'>
-      <SearchBar data={usersData} onSelect={handleSelection} />
-      </View>
-      {loading ? (
-        <ActivityIndicator size='large' color='#F24804' />
-      ) : (
-        <FlatList
-          className='mt-10 border-t border-orange'
-          data={friends}
-          keyExtractor={(item) => item.id}
-          showsVerticalScrollIndicator = {false}
-          ItemSeparatorComponent={() => <View className="h-[2px] bg-orange m-1 " />}
-          renderItem={({ item, index }) => (
-            <View className={`flex-row bg-primary p-4 mb-3 
-            rounded-lg shadow-md w-full justify-between items-center 
-            `}>
-              {/* Left Side (Name + Price) */}
-              <View>
-                <Text className="text-2xl font-pextrabold text-white">{item.username}</Text>
+    <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
+      <SafeAreaView className='bg-primary h-full p-4'>
+        <Text className='text-3xl text-center text-white mb-4 font-psemibold'>My Friends</Text>
+
+        {/* 🔍 Integrated SearchBar Component */}
+        <View className="mb-4">
+          <SearchBar data={usersData} onSelect={addFriend} onFocus={fetchUserData} />
+        </View>
+
+        {/* 👫 Friends List */}
+        {loading ? (
+          <ActivityIndicator size='large' color='#F24804' />
+        ) : (
+          <FlatList
+            className='mt-10 border-t border-orange'
+            data={friends}
+            keyExtractor={(item) => item.id}
+            showsVerticalScrollIndicator={false}
+            ItemSeparatorComponent={() => <View className="h-[2px] bg-orange m-1 " />}
+            renderItem={({ item }) => (
+              <View className={`flex-row bg-primary p-4 mb-3 rounded-lg shadow-md w-full justify-between items-center`}>
+                <View>
+                  <Text className="text-2xl font-pextrabold text-white">{item.username}</Text>
+                </View>
+                {item.active && <View className="w-6 h-6 bg-green-500 rounded-full" />}
               </View>
-              {/* Right Side (Green Circle) */}
-              { item.active && <View className="w-6 h-6 bg-green-500 rounded-full" />}
-            </View>
-          )}
-        />
-      )} 
-    </SafeAreaView>
+            )}
+          />
+        )}
+      </SafeAreaView>
+    </TouchableWithoutFeedback>
   );
 };
+
 
 export default Friends;

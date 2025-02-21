@@ -4,7 +4,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Frame from './Frame';
 import TenthFrame from './TenthFrame';
 import { FIREBASE_AUTH, db } from '../../firebase.config'
-import { collection, query, where, doc, getDoc, updateDoc } from 'firebase/firestore';
+import { collection, query, where, doc, getDoc, updateDoc, setDoc } from 'firebase/firestore';
 
 
 
@@ -95,8 +95,9 @@ const BowlingGame = () => {
     try{
       if (FIREBASE_AUTH.currentUser != null){
         let result = FIREBASE_AUTH.currentUser.uid
-        await updateDoc(doc(db,"users", result),{
-          active: true
+        await setDoc(doc(db,"activeUsers", result),{
+          active: true,
+          id: result
         })
       }
     }catch(e){
@@ -109,8 +110,9 @@ const BowlingGame = () => {
     try{
       if (FIREBASE_AUTH.currentUser != null){
         let result = FIREBASE_AUTH.currentUser.uid
-        await updateDoc(doc(db,"users", result),{
-          active: false
+        await updateDoc(doc(db,"activeUsers", result),{
+          active: false,
+          id: result
         })
       }
     }catch(e){

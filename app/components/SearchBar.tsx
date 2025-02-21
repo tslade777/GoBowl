@@ -1,35 +1,30 @@
 import React, { useEffect, useState } from "react";
-import { View, TextInput, FlatList, Text, TouchableOpacity, TouchableWithoutFeedback, Keyboard } from "react-native";
+import { View, TextInput, FlatList, Text, TouchableOpacity, Keyboard } from "react-native";
 import "react-native-gesture-handler";
 
 interface User {
   id: string;
   username: string;
-  active: boolean
+  active: boolean;
 }
 
 interface SearchBarProps {
   data: User[];
   onSelect: (item: User) => void;
+  onFocus: () => void; // Fix: onFocus should be a function (no parameters)
 }
 
-  
-const SearchBar: React.FC<SearchBarProps> = ({ data, onSelect }) => {
+const SearchBar: React.FC<SearchBarProps> = ({ data, onFocus, onSelect }) => {
   const [query, setQuery] = useState("");
   const [filteredData, setFilteredData] = useState<User[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
 
-  useEffect(()=>{
-    setShowDropdown(false)
-    setQuery("")
-  },[]);
-  
   useEffect(() => {
     const keyboardHideListener = Keyboard.addListener("keyboardDidHide", () => {
-      setShowDropdown(false)
-      setQuery("")
+      setShowDropdown(false);
+      setQuery("");
     });
-  
+
     return () => {
       keyboardHideListener.remove(); // Cleanup event listener on unmount
     };
@@ -50,10 +45,10 @@ const SearchBar: React.FC<SearchBarProps> = ({ data, onSelect }) => {
   };
 
   const handleSelect = (item: User) => {
-    console.log("Selected Item:", item); 
-    setQuery(item.username); 
-    setShowDropdown(false); 
-    onSelect(item); 
+    console.log("Selected Item:", item);
+    setQuery(""); // Clear the input
+    setShowDropdown(false); // Hide dropdown
+    onSelect(item);
   };
 
   return (
@@ -63,21 +58,22 @@ const SearchBar: React.FC<SearchBarProps> = ({ data, onSelect }) => {
         placeholder="Search new friends by username..."
         value={query}
         onChangeText={handleSearch}
-        onFocus={()=>setShowDropdown(true)}
+        onFocus={() => {
+          onFocus(); // Call the onFocus function correctly
+          setShowDropdown(true); // Show dropdown when clicked
+        }}
       />
-      {/* Dropdown List with zIndex Fix */}
+      {/* Ensure Dropdown Appears Correctly */}
       {showDropdown && (
-        <View className="absolute top-12 left-0 right-0 bg-white border border-gray-300 rounded-lg max-h-40 z-50">
+        <View className="absolute top-14 left-0 right-0 bg-white border border-gray-300 rounded-lg max-h-40 z-50 shadow-lg">
           <FlatList
-          keyboardShouldPersistTaps="handled"
+            keyboardShouldPersistTaps="handled"
             data={filteredData}
-            keyExtractor={(item, index) => index.toString()}
+            keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
               <TouchableOpacity
                 className="px-3 py-2 border-b border-gray-200 bg-white"
-                onPress={() => {
-                  handleSelect(item);
-                }}
+                onPress={() => handleSelect(item)}
               >
                 <Text className="text-black">{item.username}</Text>
               </TouchableOpacity>

@@ -3,7 +3,7 @@ import { ScrollView, Text, View, Image } from "react-native";
 import { Redirect, router, Tabs } from "expo-router";
 import "../global.css";
 import { images } from '../constants'
-import CustomButton from "./components/CustomButton";
+import CustomButton from "./components/buttons/CustomButton";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {onAuthStateChanged, User} from "firebase/auth"
 import { useEffect, useState } from "react";
@@ -18,12 +18,12 @@ export default function RootLayout() {
   },[])
     const clearAll = async () => {
       try{
-        await AsyncStorage.removeItem("BOWLINGSTATE")
+        //await AsyncStorage.removeItem("BOWLINGSTATE")
         //await AsyncStorage.clear()
       } catch(e){
         console.error(e);
       }
-  console.log("DONE")
+  //console.log("DONE")
 }
   useEffect(() =>{
     onAuthStateChanged(FIREBASE_AUTH, (user)=>{

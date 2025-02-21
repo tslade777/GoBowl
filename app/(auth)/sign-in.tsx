@@ -4,7 +4,7 @@ import "../../global.css";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import {images} from '../../constants'
 import FormField from '../components/FormField';
-import CustomButton from '../components/CustomButton';
+import CustomButton from '../components/buttons/CustomButton';
 import { Link, router } from 'expo-router';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { FIREBASE_AUTH } from '@/firebase.config';

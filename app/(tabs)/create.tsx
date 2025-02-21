@@ -2,7 +2,7 @@ import { View, Text, StyleSheet } from 'react-native'
 import React, { useEffect } from 'react'
 import "../../global.css";
 import { SafeAreaView } from 'react-native-safe-area-context';
-import BowlingGameButton from "../components/BowlingGameButton";
+import BowlingGameButton from "../components/buttons/BowlingGameButton";
 import { Redirect, router, Tabs } from "expo-router";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 

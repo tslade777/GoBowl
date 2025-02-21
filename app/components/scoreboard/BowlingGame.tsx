@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Frame from './Frame';
 import TenthFrame from './TenthFrame';
-import { FIREBASE_AUTH, db } from '../../firebase.config'
+import { FIREBASE_AUTH, db } from '../../../firebase.config'
 import { collection, query, where, doc, getDoc, updateDoc, setDoc } from 'firebase/firestore';
 
 
@@ -81,8 +81,9 @@ const BowlingGame = () => {
         await updateDoc(doc(db,"users", result),{
           currentGame: {
             currentFrame,
+            gameComplete,
             frames,
-            isFirstRoll
+            isFirstRoll,
           }
         })
       }

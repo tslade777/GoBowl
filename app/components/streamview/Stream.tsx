@@ -122,10 +122,8 @@ const Stream: React.FC<FriendProps> = ({id,username,active}) => {
   // Update frame selection. Call back for frame touch event.
   // Only update if 
   const handleFrameTouch = (index: number) => {
-    if (farthestFrame >= index) {
-      setCurrentFrame(index);
-      setPins(frames[index].firstBallPins)
-    }
+    setCurrentFrame(index);
+    setPins(frames[index].firstBallPins)
   }
     return (
       <Animated.View className="items-center p-1  rounded-lg "  >

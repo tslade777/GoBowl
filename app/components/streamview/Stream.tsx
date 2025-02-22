@@ -130,33 +130,31 @@ const Stream: React.FC<FriendProps> = ({id,username,active}) => {
         {/* Frames Display */}
         {loading ?<ActivityIndicator size='large' color='#F24804' /> : <View className="flex-row space-x-1" >
 
-{frames.slice(0, 9).map((frame, index) => (
-  <TouchableOpacity key={index} onPress={() => handleFrameTouch(index)}>
-    <Frame 
-    key={index} 
-    frameNumber={index + 1} 
-    roll1={frame.isStrike ? 'X' : frame.roll1 == '0' ? '-' : frame.roll1} 
-    roll2={frame.isSpare ? '/' : frame.roll2 == '0' ? '-' : frame.roll2} 
-    total={frame.visible ? '' : currentFrame > index ? frame.score.toString() : ''}
-    isSelected= {currentFrame==index} 
-    />      
-  </TouchableOpacity>
-))}
+          {frames.slice(0, 9).map((frame, index) => (
+            <TouchableOpacity key={index} onPress={() => handleFrameTouch(index)}>
+              <Frame 
+              key={index} 
+              frameNumber={index + 1} 
+              roll1={frame.isStrike ? 'X' : frame.roll1 == '0' ? '-' : frame.roll1} 
+              roll2={frame.isSpare ? '/' : frame.roll2 == '0' ? '-' : frame.roll2} 
+              total={frame.visible ? '' : currentFrame > index ? frame.score.toString() : ''}
+              isSelected= {currentFrame==index} 
+              />      
+            </TouchableOpacity>
+          ))}
 
-{/* 10th Frame */}
-<TenthFrame 
-roll1={frames[9].isStrike ? 'X': frames[9].roll1 == '0' ? '-' : frames[9].roll1} 
-roll2={(frames[9].roll1 == '10' && frames[9].roll2 == '10') ? 'X' : 
-  frames[9].isSpare ? '/': frames[9].roll2 == '0' ? '-' :frames[9].roll2} 
-roll3={frames[9].roll3 == '10' ? 'X': (frames[9].roll1 == '10' && frames[9].roll2 != '10'
-  && (parseInt(frames[9].roll2) + parseInt(frames[9].roll3)==10)) ? '/':
-  frames[9].roll3 == '0' ? '-' : frames[9].roll3} 
-  total={(!gameComplete) ? '' : frames[9].score.toString()}
-isSelected= {currentFrame==9}  
-/>
-</View>}
-        
-        
+          {/* 10th Frame */}
+          <TenthFrame 
+          roll1={frames[9].isStrike ? 'X': frames[9].roll1 == '0' ? '-' : frames[9].roll1} 
+          roll2={(frames[9].roll1 == '10' && frames[9].roll2 == '10') ? 'X' : 
+            frames[9].isSpare ? '/': frames[9].roll2 == '0' ? '-' :frames[9].roll2} 
+          roll3={frames[9].roll3 == '10' ? 'X': (frames[9].roll1 == '10' && frames[9].roll2 != '10'
+            && (parseInt(frames[9].roll2) + parseInt(frames[9].roll3)==10)) ? '/':
+            frames[9].roll3 == '0' ? '-' : frames[9].roll3} 
+            total={(!gameComplete) ? '' : frames[9].score.toString()}
+          isSelected= {currentFrame==9}  
+          />
+          </View>}
          
         <Text className="text-lg text-orange font-bold">
           {gameComplete ? "Game Complete" : `Frame ${currentFrame+1}` }</Text>

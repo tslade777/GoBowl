@@ -117,7 +117,7 @@ const animatedStyle = useAnimatedStyle(() => {
     const id = await startFirebaseSession();
     console.log(`❄️ID: ${id}❄️`)
     router.push({
-            pathname: "/game",
+            pathname: "../screens/game",
             params: {
               name: sessionName,
               id: id,

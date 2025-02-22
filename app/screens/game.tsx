@@ -1,7 +1,7 @@
 import { View, Text, TouchableOpacity } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import BowlingGame from './components/scoreboard/BowlingGame'
+import BowlingGame from '../components/scoreboard/BowlingGame'
 import { arrayUnion, doc, setDoc, updateDoc } from 'firebase/firestore';
 import { db } from '@/firebase.config';
 import { useLocalSearchParams } from 'expo-router/build/hooks';

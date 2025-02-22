@@ -79,6 +79,11 @@ const animatedStyle = useAnimatedStyle(() => {
     setIsRendered(false);
   };
 
+  /**
+   * Start a firebase session either for practice or for open play.
+   * 
+   * @returns The document id of the session that was just started
+   */
   const startFirebaseSession = async (): Promise<string> =>{
     console.log("📤 Session started on firebase")
     try{
@@ -104,8 +109,6 @@ const animatedStyle = useAnimatedStyle(() => {
 
   /**
    * Either start a practice session or open session depending on the Session type
-   * 
-   * The 
    *
    */
   const startSession = async () =>{
@@ -117,9 +120,11 @@ const animatedStyle = useAnimatedStyle(() => {
             pathname: "/game",
             params: {
               name: sessionName,
-              id: id
+              id: id,
+              type: sessionType
             }
     })
+    setSessionName('')
   }
   
   return (
@@ -131,7 +136,7 @@ const animatedStyle = useAnimatedStyle(() => {
           />
       <BowlingGameButton
             title="Open"
-            handlePress={() => router.push("/(tabs)/home")}
+            handlePress={() => showOptions("open")}
           />
       <BowlingGameButton
             title="League"

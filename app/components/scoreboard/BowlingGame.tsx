@@ -8,35 +8,39 @@ import { collection, query, where, doc, getDoc, updateDoc, setDoc, arrayUnion } 
 
 type ChildComponentProps = {
   sendDataToParent: (data: any) => void; // Define the function type
+  toggleBowling: (inProgress: boolean) => void;
 };
 
 const BOWLINGSTATE = 'bowlingGameState';
 const INPROGRESS = 'gameInProgress'
 
 
-const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent}) => {
+const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent, toggleBowling}) => {
   const [frames, setFrames] = useState(
     Array(10).fill(null).map(() => ({ roll1: '', roll2: '', roll3: '', score: 0 ,
       firstBallPins: Array(10).fill(false),secondBallPins:Array(10).fill(false), 
       isSpare: false, isStrike: false, visible: true }))
   );
+
+  // Game state
   const [currentFrame, setCurrentFrame] = useState(0);
   const [farthestFrame, setFarthestFrame] = useState(0);
-
   const [isFirstRoll, setIsFirstRoll] = useState(true);
   const [isFinalRoll, setIsFinalRoll] = useState(false)
   const [inputRoll, setInputRoll] = useState(0);
-
   const [striking, setStriking] = useState(false);
-
   const [gameComplete, setGameComplete] = useState(false)
   const [pins, setPins] = useState(Array(10).fill(false)); // Track knocked-down pins
   const [edited, setEdited] = useState(false);
   const [quickSelection, setQuickSelection] = useState('');
 
+  // Swiping feature
   const pinRefs = useRef<(View | null)[]>([]); // Fix the TypeScript issue
   const [pinPositions, setPinPositions] = useState<{ [key: number]: { x: number; y: number } }>({});
   const [pinSwipedOn, setPinSwipedOn] = useState(-1)
+
+  // Number of games
+  const [numGames, setNumGames] = useState(1);
 
   
   // Load saved game on startup
@@ -132,6 +136,7 @@ const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent}) => {
   const gameStarted = async () =>{
     try{
       // Update firebase and local storage for game started/active
+      toggleBowling(true);
       updateFirebaseCurrentGame();
       setFirebaseActive();
       await AsyncStorage.setItem(INPROGRESS, JSON.stringify(true));
@@ -187,7 +192,11 @@ const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent}) => {
 
   // Clear the game to be ready for another set of inputs
   const clearGame = async () => {
-    if (gameComplete)sendDataToParent({game: frames})
+    if (gameComplete){
+      sendDataToParent({game: frames});
+      toggleBowling(false);
+      setNumGames(numGames+1)
+    }
     setFirebaseInActive()
     setFrames(Array(10).fill(null).map(() => ({ roll1: '', roll2: '', roll3: '', score: 0, 
       firstBallPins: Array(10).fill(false),secondBallPins: Array(10).fill(false), 
@@ -639,9 +648,13 @@ const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent}) => {
           isSelected= {currentFrame==9}  
         />
         </View>
-
-        <Text className="text-lg text-orange font-bold">
-          {gameComplete ? "Game Complete" : `Frame ${currentFrame+1}` }</Text>
+        <View className=" flex-row  px-4">
+          <Text className="text-2xl text-orange pr-10 justify-between font-bold">
+          {gameComplete ? "Game Complete" : `Frame ${currentFrame+1}` }
+          </Text>
+          <Text className="text-teal pl-10 text-2xl font-bold ">Game: {numGames}</Text>
+        </View>
+        
         
         {/* Select Pins - Arranged in Triangle Formation */}
         <View className="flex-row ">
@@ -688,35 +701,34 @@ const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent}) => {
             <Text className="text-5xl text-white font-pextrabold">-</Text>
           </TouchableOpacity>
         </View>
-      </View>
+        </View>
       
 
 
       {/* Manual Input Controls */}
-      <View className="mt-4 items-center">
+      <View className="flex-col mt-4 items-center">
           
-      <View className='flex-row' >
-        <TouchableOpacity 
-          onPress={edited?handleEdit:(currentFrame==9)?handleLastFrame:handleManualInput} 
-          className="m-2 bg-green-500 px-4 py-2 rounded-lg"
-        >
-          <Text className="text-white font-bold">Enter Roll</Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          onPress={gameComplete ? clearGame : ()=>{}}
-          className={`m-2 ${gameComplete ? 'bg-green-950' : 'bg-red-600'} px-4 py-2 rounded-lg `}
-          disabled={!gameComplete}
-        >
-          <Text className="text-white font-bold">Next Game</Text>
-        </TouchableOpacity>
-        <TouchableOpacity 
-          onPress={clearGame}
-          className={"m-2 bg-orange px-4 py-2 rounded-lg"}
-        >
-          <Text className="text-white font-bold">Reset Game</Text>
-        </TouchableOpacity>
-      </View>
-      
+        <View className='flex-row items-center' >
+          <TouchableOpacity 
+            onPress={edited?handleEdit:(currentFrame==9)?handleLastFrame:handleManualInput} 
+            className="m-2 bg-green-500 px-4 py-2 rounded-lg"
+          >
+            <Text className="text-white font-bold">Enter Roll</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            onPress={gameComplete ? clearGame : ()=>{}}
+            className={`m-2 ${gameComplete ? 'bg-green-950' : 'bg-red-600'} px-4 py-2 rounded-lg `}
+            disabled={!gameComplete}
+          >
+            <Text className="text-white font-bold">Next Game</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            onPress={clearGame}
+            className={"m-2 bg-orange px-4 py-2 rounded-lg"}
+          >
+            <Text className="text-white font-bold">Reset Game</Text>
+          </TouchableOpacity>
+        </View>
     </View>
       </Animated.View>
     

@@ -4,15 +4,17 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Frame from './Frame';
 import TenthFrame from './TenthFrame';
 import { FIREBASE_AUTH, db } from '../../../firebase.config'
-import { collection, query, where, doc, getDoc, updateDoc, setDoc } from 'firebase/firestore';
+import { collection, query, where, doc, getDoc, updateDoc, setDoc, arrayUnion } from 'firebase/firestore';
 
-
+type ChildComponentProps = {
+  sendDataToParent: (data: any) => void; // Define the function type
+};
 
 const BOWLINGSTATE = 'bowlingGameState';
 const INPROGRESS = 'gameInProgress'
 
 
-const BowlingGame = () => {
+const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent}) => {
   const [frames, setFrames] = useState(
     Array(10).fill(null).map(() => ({ roll1: '', roll2: '', roll3: '', score: 0 ,
       firstBallPins: Array(10).fill(false),secondBallPins:Array(10).fill(false), 
@@ -91,6 +93,11 @@ const BowlingGame = () => {
       console.error(e)
     }
   };
+
+  /**
+   * 
+   */
+  
   // Tell firebase that the current user is active
   const setFirebaseActive = async () =>{
     try{
@@ -180,6 +187,7 @@ const BowlingGame = () => {
 
   // Clear the game to be ready for another set of inputs
   const clearGame = async () => {
+    if (gameComplete)sendDataToParent({game: frames})
     setFirebaseInActive()
     setFrames(Array(10).fill(null).map(() => ({ roll1: '', roll2: '', roll3: '', score: 0, 
       firstBallPins: Array(10).fill(false),secondBallPins: Array(10).fill(false), 
@@ -192,6 +200,8 @@ const BowlingGame = () => {
     setEdited(false)
     setIsFirstRoll(true)
     setIsFinalRoll(false)
+    
+    
     try{
       saveGame()
       await AsyncStorage.setItem(INPROGRESS, JSON.stringify(false));
@@ -659,7 +669,7 @@ const BowlingGame = () => {
         {/* Quick Select Buttons */}
         <View className="flex-col mt-10 items-center ">
           <TouchableOpacity 
-            onPress={()=>{setInputRoll(10); setQuickSelection('X');
+            onPress={()=>{setInputRoll(10); setPins(Array(10).fill(true)); setQuickSelection('X');
               }}
             className="mx-5 pr-4 pl-2 py-2 rounded-lg items-center"
           >

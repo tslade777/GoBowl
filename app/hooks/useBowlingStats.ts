@@ -16,9 +16,14 @@ interface Frame {
     totalStrikes: number;
     strikePercentage: number;
     totalSpares: number;
+    totalShots: number;
     sparePercentage: number;
     singlePinSparePercentage: number;
     openFramePercentage: number;
+    singlePinSpares: number;
+    singlePinAttempts: number;
+    spareOpportunities: number;
+    openFrames: number
   }
   
   const calculateBowlingStats = (frames: Frame[]): BowlingStats => {
@@ -28,9 +33,14 @@ interface Frame {
         totalStrikes: 0,
         strikePercentage: 0,
         totalSpares: 0,
+        singlePinSpares: 0,
+        singlePinAttempts: 0,
         sparePercentage: 0,
         singlePinSparePercentage: 0,
         openFramePercentage: 0,
+        totalShots: 0,
+        spareOpportunities: 0,
+        openFrames: 0,
       };
     }
   
@@ -73,11 +83,16 @@ interface Frame {
     return {
       finalScore,
       totalStrikes,
-      strikePercentage: totalShots > 0 ? (totalStrikes / totalShots) * 100 : 0,
+      totalShots,
+      spareOpportunities,
+      singlePinAttempts,
+      singlePinSpares,
       totalSpares,
+      strikePercentage: totalShots > 0 ? (totalStrikes / totalShots) * 100 : 0,
       sparePercentage: spareOpportunities > 0 ? (totalSpares / spareOpportunities) * 100 : 0,
       singlePinSparePercentage: singlePinAttempts > 0 ? (singlePinSpares / singlePinAttempts) * 100 : 0,
       openFramePercentage: frames.length > 0 ? (openFrames / frames.length) * 100 : 0,
+      openFrames,
     };
   };
   

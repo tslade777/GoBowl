@@ -8,10 +8,17 @@ import { useLocalSearchParams } from 'expo-router/build/hooks';
 import { router } from 'expo-router';
 import useBowlingStats from '../hooks/useBowlingStats';
 
-interface SessionProps {
-  name: string;
-  id: string;
-  type: string;
+interface Frame {
+  roll1: string;
+  roll2: string;
+  roll3: string;
+  score: number;
+  firstBallPins: boolean[];
+  secondBallPins: boolean[];
+  thirdBallPins: boolean[];
+  isSpare: boolean;
+  isStrike: boolean;
+  visible: boolean;
 }
 
 const game = () => {
@@ -34,11 +41,23 @@ const game = () => {
    * @param data The game data for the recently bowled game. 
    */
   const handleDataFromChild = (data: any) =>{
-    //const stats = useBowlingStats(data);
-    //console.log(`Final score: ${stats.finalScore}`)
-    //console.log(`Final score: ${stats.strikePercentage}`)
+    if (!data || !Array.isArray(data)) {
+      console.error("❌ Invalid data received from child:", data);
+      return;
+    }
+    const stats = useBowlingStats(data);
+
+    const statsList = [{
+      finalScore: stats.finalScore,
+      totalStrikes: stats.totalStrikes,
+      strikePercentage: stats.strikePercentage,
+      totalSpares: stats.totalSpares,
+      sparePercentage: stats.sparePercentage,
+      singlePinSparePercentage: stats.singlePinSparePercentage,
+      openFramePercentage: stats.openFramePercentage,
+    }]
     setNumGames(numGames+1)
-    setGamesData([...gamesData, {game: data, stats: [{}]}])
+    setGamesData([...gamesData, {game: data, stats: statsList}])
   }
   
   /**

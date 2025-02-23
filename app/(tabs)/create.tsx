@@ -85,7 +85,6 @@ const animatedStyle = useAnimatedStyle(() => {
    * @returns The document id of the session that was just started
    */
   const startFirebaseSession = async (): Promise<string> =>{
-    console.log("📤 Session started on firebase")
     try{
       if (FIREBASE_AUTH.currentUser != null){
         let uID = FIREBASE_AUTH.currentUser.uid
@@ -97,7 +96,6 @@ const animatedStyle = useAnimatedStyle(() => {
           stats:[],
           notes: "",
         })
-        console.log(`🔴ID: ${docRef.id}🔴`)
         return docRef.id
       }
     }catch(e){
@@ -113,7 +111,6 @@ const animatedStyle = useAnimatedStyle(() => {
    */
   const startSession = async () =>{
     closeModal();
-    console.log(`🎳 Going bowling! Session name=${sessionName}`)
     const id = await startFirebaseSession();
     console.log(`❄️ID: ${id}❄️`)
     router.push({

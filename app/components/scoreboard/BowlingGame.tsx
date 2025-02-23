@@ -6,7 +6,6 @@ import TenthFrame from './TenthFrame';
 import { FIREBASE_AUTH, db } from '../../../firebase.config'
 import { collection, query, where, doc, getDoc, updateDoc, setDoc, arrayUnion } from 'firebase/firestore';
 import useBowlingStats from '@/app/hooks/useBowlingStats';
-import { GameState } from '@/app/src/types';
 
 type ChildComponentProps = {
   sendDataToParent: (data: any) => void; // Define the function type
@@ -19,9 +18,11 @@ const INPROGRESS = 'gameInProgress'
 
 const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent, toggleBowling}) => {
   const [frames, setFrames] = useState(
-    Array(10).fill(null).map(() => ({ roll1: '', roll2: '', roll3: '', score: 0 ,
-      firstBallPins: Array(10).fill(false),secondBallPins:Array(10).fill(false), 
-      isSpare: false, isStrike: false, visible: true }))
+    Array.from({ length: 10 }, () => ({
+      roll1: "", roll2: "", roll3: "", score: 0,
+      firstBallPins: Array(10).fill(false),
+      secondBallPins: Array(10).fill(false),
+      isSpare: false, isStrike: false, visible: true, }))
   );
 
   // Game state
@@ -102,8 +103,6 @@ const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent, toggleBow
   /**
    * 
    */
-  
-  // Tell firebase that the current user is active
   const setFirebaseActive = async () =>{
     try{
       if (FIREBASE_AUTH.currentUser != null){
@@ -194,8 +193,7 @@ const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent, toggleBow
   // Clear the game to be ready for another set of inputs
   const clearGame = async () => {
     if (gameComplete){
-      console.log("failing here?")
-      sendDataToParent({game: frames});
+      sendDataToParent(frames);
       toggleBowling(false);
       setNumGames(numGames+1)
     }

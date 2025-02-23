@@ -5,6 +5,8 @@ import Frame from './Frame';
 import TenthFrame from './TenthFrame';
 import { FIREBASE_AUTH, db } from '../../../firebase.config'
 import { collection, query, where, doc, getDoc, updateDoc, setDoc, arrayUnion } from 'firebase/firestore';
+import useBowlingStats from '@/app/hooks/useBowlingStats';
+import { GameState } from '@/app/src/types';
 
 type ChildComponentProps = {
   sendDataToParent: (data: any) => void; // Define the function type
@@ -41,7 +43,6 @@ const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent, toggleBow
 
   // Number of games
   const [numGames, setNumGames] = useState(1);
-
   
   // Load saved game on startup
   useEffect(() => {

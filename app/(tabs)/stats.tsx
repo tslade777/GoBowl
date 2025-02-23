@@ -11,7 +11,7 @@ const Stats = () => {
       <View className='flex flex-row flex-wrap mt-20 items-center justify-center'>
         <BowlingGameButton
               title="Practice stats"
-              handlePress={() => router.push("/practice_stats")}
+              handlePress={() => router.push("/screens/statsScreen")}
             />
         <BowlingGameButton
               title="League stats"

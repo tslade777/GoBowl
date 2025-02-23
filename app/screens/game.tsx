@@ -6,6 +6,7 @@ import { arrayUnion, doc, setDoc, updateDoc } from 'firebase/firestore';
 import { db } from '@/firebase.config';
 import { useLocalSearchParams } from 'expo-router/build/hooks';
 import { router } from 'expo-router';
+import useBowlingStats from '../hooks/useBowlingStats';
 
 interface SessionProps {
   name: string;
@@ -33,6 +34,9 @@ const game = () => {
    * @param data The game data for the recently bowled game. 
    */
   const handleDataFromChild = (data: any) =>{
+    //const stats = useBowlingStats(data);
+    //console.log(`Final score: ${stats.finalScore}`)
+    //console.log(`Final score: ${stats.strikePercentage}`)
     setNumGames(numGames+1)
     setGamesData([...gamesData, {game: data, stats: [{}]}])
   }

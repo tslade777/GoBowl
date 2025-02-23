@@ -194,6 +194,7 @@ const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent, toggleBow
   // Clear the game to be ready for another set of inputs
   const clearGame = async () => {
     if (gameComplete){
+      console.log("failing here?")
       sendDataToParent({game: frames});
       toggleBowling(false);
       setNumGames(numGames+1)

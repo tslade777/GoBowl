@@ -1,4 +1,4 @@
-import { Series } from '@/app/src/types';
+import { Series } from "../src/types";
 
 interface SeriesStats {
     seriesScore: number;
@@ -18,7 +18,7 @@ interface SeriesStats {
   }
 
 
-  const parseTotalSessionStats = (sessionData: Series[]): SeriesStats => {
+  const parseSessionStats = (sessionData: Series): SeriesStats => {
     let  singlePinSparePercentage = 0
     let  sparePercentage= 0
     let  singlePinSpares= 0
@@ -34,8 +34,7 @@ interface SeriesStats {
     let  totalStrikes= 0
     let  openFramePercentage= 0
 
-  sessionData.forEach((session)=>{
-    Object.entries(session.stats).forEach(([key, value]) => {
+    Object.entries(sessionData.stats).forEach(([key, value]) => {
       switch (key){
         case "singlePinSpares":
           singlePinSpares += value;
@@ -75,9 +74,9 @@ interface SeriesStats {
         default:
           break;
       }
-    });
+  });
       
-  })
+  
     return {singlePinSparePercentage,
           sparePercentage,
           singlePinSpares,
@@ -94,4 +93,4 @@ interface SeriesStats {
           openFramePercentage,};
   };
 
-  export default parseTotalSessionStats;
+  export default parseSessionStats;

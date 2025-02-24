@@ -12,6 +12,7 @@ interface StatsTabProps {
   const SessionsTab : React.FC<StatsTabProps> = ({ sessionsData }) => {
 
     const handleItemPress = (item: Series) => {
+        // Show screen with games and stats.
         console.log(`You selected: ${item.title}`);
     };
 

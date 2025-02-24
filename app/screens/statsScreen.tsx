@@ -11,8 +11,6 @@ import { collection, onSnapshot, orderBy, query, Timestamp, where } from "fireba
 
 const Tab = createMaterialTopTabNavigator();
 
-
-
 const StatsScreen = () => {
     const [sessionData, setSessionData] = useState<Series[]>([]);
     const navigation = useNavigation();

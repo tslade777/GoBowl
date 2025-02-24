@@ -5,7 +5,6 @@ import Frame from './Frame';
 import TenthFrame from './TenthFrame';
 import { FIREBASE_AUTH, db } from '../../../firebase.config'
 import { collection, query, where, doc, getDoc, updateDoc, setDoc, arrayUnion } from 'firebase/firestore';
-import useBowlingStats from '@/app/hooks/useBowlingStats';
 
 type ChildComponentProps = {
   sendDataToParent: (data: any) => void; // Define the function type

@@ -5,8 +5,11 @@ import { collection, getDocs, onSnapshot, orderBy, query, Timestamp, where } fro
 import { db, FIREBASE_AUTH } from '@/firebase.config';
 import { Series } from '@/app/src/types';
 
+interface StatsTabProps {
+    sessionsData: Series[];
+}
   
-  const SessionsTab = () => {
+  const SessionsTab : React.FC<StatsTabProps> = ({ sessionsData }) => {
     const [sessionData, setSessionData] = useState<Series[]>([]);
 
     useEffect(() => {
@@ -53,7 +56,7 @@ import { Series } from '@/app/src/types';
 
     return (
         <View className="flex-1 justify-center items-center bg-primary">
-            <GameLists data={sessionData} onItemPress={handleItemPress} />
+            <GameLists data={sessionsData} onItemPress={handleItemPress} />
         </View>
     );
 };

@@ -88,7 +88,12 @@ const game = () => {
     setGamesData([...gamesData, {game: data, stats: statsList}])
   }
   
-
+/**
+ * Update series stats. 
+ * 
+ * @param gameStats The stats from the game bowled. 
+ * @param games The number of games bowled.
+ */
   const addToSerriesStats = (gameStats: { finalScore: number; totalStrikes: number; 
     totalShots: any; totalSpares: number; spareOpportunities:
     number; singlePinAttempts: number; singlePinSpares: number; 

@@ -1,3 +1,21 @@
+export interface SerieStats {
+    seriesScore: number;
+    totalStrikes: number;
+    strikePercentage: number;
+    totalSpares: number;
+    totalShots: number;
+    sparePercentage: number;
+    singlePinSparePercentage: number;
+    openFramePercentage: number;
+    singlePinSpares: number;
+    singlePinAttempts: number;
+    spareOpportunities: number;
+    numberOfGames: number;
+    openFrames: number;
+    average: number;
+  }
+
+
 export interface Series {
     id: string;
     date: Date; // Converted from Firestore Timestamp

@@ -25,14 +25,14 @@ const StatsScreen = () => {
       }
 
       // Firestore query to filter by user ID and order by date
-      const q = query(
+      const practiceQ = query(
           collection(db, "practiceSessions"),
           where("userID", "==", currentUser.uid),
           orderBy("date", "desc") // Order newest first
       );
 
       // Subscribe to Firestore updates in real-time
-      const unsubscribe = onSnapshot(q, (querySnapshot) => {
+      const unsubscribe = onSnapshot(practiceQ, (querySnapshot) => {
           const sessions: Series[] = querySnapshot.docs.map((doc) => {
               const data = doc.data();
 
@@ -48,18 +48,11 @@ const StatsScreen = () => {
           });
 
           setSessionData(sessions); // Update state with real-time data
-          console.log(`Fetched ${sessions.length} practice sessions.`);
       });
 
       // Cleanup the listener when the component unmounts
       return () => unsubscribe();
     }, []);
-
-// useEffect (()=>{
-//   sessionData.forEach((session)=>{
-//     console.log(session.stats)
-//   })
-// },[sessionData])
 
     return (
       <View className="flex-1 bg-primary">

@@ -31,7 +31,7 @@ const BowlingSeriesItem = ({ series, onPress }: { series: any; onPress: () => vo
     );
 };
 
-const GameLists = ({ data, onItemPress }: { data: any[]; onItemPress: (item: any) => void }) => {
+const SeriesList = ({ data, onItemPress }: { data: any[]; onItemPress: (item: any) => void }) => {
     return (
         <View className="flex-1 w-full h-50">
             <FlatList
@@ -43,4 +43,4 @@ const GameLists = ({ data, onItemPress }: { data: any[]; onItemPress: (item: any
     );
 };
 
-export default GameLists;
+export default SeriesList;

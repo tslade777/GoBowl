@@ -22,4 +22,19 @@ export const defaultSeriesStats: SeriesStats = {
     sevenPins: 0,
     sevenPinsHit: 0,
   };
+
+export const gamestats: GameStats = {
+    finalScore: 0,
+    totalStrikes: 0,
+    totalShots: 0,
+    totalSpares: 0,
+    spareOpportunities: 0,
+    singlePinAttempts: 0,
+    singlePinSpares: 0,
+    strikePercentage: 0,
+    sparePercentage: 0,
+    singlePinSparePercentage: 0,
+    openFramePercentage: 0,
+    openFrames: 0,
+}
   

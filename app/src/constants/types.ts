@@ -32,9 +32,13 @@ export interface Series {
     stats: any[]; // Holds frame-by-frame breakdown of strikes, spares, etc.
   }
 
+export interface Game {
+    game: any[];
+    stats: any[];
+}
+
 
 export interface GameStats{
-  
     finalScore: number,
     totalStrikes: number,
     totalShots: number,

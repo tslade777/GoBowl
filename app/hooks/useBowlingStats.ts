@@ -23,7 +23,7 @@ interface Frame {
     singlePinSpares: number;
     singlePinAttempts: number;
     spareOpportunities: number;
-    openFrames: number
+    openFrames: number;
   }
   
   const calculateBowlingStats = (frames: Frame[]): BowlingStats => {
@@ -63,7 +63,7 @@ interface Frame {
         totalStrikes += roll2=='10'? 1:0
         totalStrikes += roll3=='10'? 1:0
       }
-      if (isStrike) totalStrikes++;
+      else if (isStrike) totalStrikes++;
       if (isSpare) totalSpares++;
   
       // Identify single-pin spare opportunities

@@ -5,7 +5,7 @@ import { useNavigation } from "expo-router";
 import StatsTab from "../components/Tabs/stats";
 import SessionsTab from "../components/Tabs/sessions";
 import { LinearGradient } from "expo-linear-gradient";
-import { Series } from "@/app/src/types";
+import { Series } from "@/app/src/constants/types";
 import { db, FIREBASE_AUTH } from "@/firebase.config";
 import { collection, onSnapshot, orderBy, query, Timestamp, where } from "firebase/firestore";
 

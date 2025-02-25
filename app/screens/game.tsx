@@ -7,39 +7,13 @@ import { db } from '@/firebase.config';
 import { useLocalSearchParams } from 'expo-router/build/hooks';
 import { router } from 'expo-router';
 import useBowlingStats from '../hooks/useBowlingStats';
+import { GameStats, SeriesStats } from "@/app/src/constants/types";
+import { defaultSeriesStats } from "@/app/src/constants/defaults";
 
-interface SerieStats {
-  seriesScore: number;
-  totalStrikes: number;
-  strikePercentage: number;
-  totalSpares: number;
-  totalShots: number;
-  sparePercentage: number;
-  singlePinSparePercentage: number;
-  openFramePercentage: number;
-  singlePinSpares: number;
-  singlePinAttempts: number;
-  spareOpportunities: number;
-  numberOfGames: number;
-  openFrames: number;
-  average: number;
-}
 
-const initialStats: SerieStats = {
-  seriesScore: 0,
-  totalStrikes: 0,
-  strikePercentage: 0,
-  totalSpares: 0,
-  totalShots: 0,
-  sparePercentage: 0,
-  singlePinSparePercentage: 0,
-  openFramePercentage: 0,
-  singlePinSpares: 0,
-  singlePinAttempts: 0,
-  spareOpportunities: 0,
-  numberOfGames: 0,
-  openFrames: 0,
-  average: 0,
+
+const initialStats: SeriesStats = {
+  ...defaultSeriesStats
 };
 
 const game = () => {
@@ -51,7 +25,9 @@ const game = () => {
   const [gamesData, setGamesData] = useState([{}])
   const [activeGame, setActiveGame] = useState(true)
   const [firstRender, setFirstRender] = useState(true)
-  const [seriesStats, setSeriesStats] = useState<SerieStats>(initialStats) 
+  const [seriesStats, setSeriesStats] = useState<SeriesStats>(initialStats) 
+  let localHighGame = 0;
+  let localLowGame = 0;
 
   const toggleActiveGame = (inProgress:boolean)=>{
     setActiveGame(inProgress)
@@ -69,7 +45,7 @@ const game = () => {
     }
     const stats = useBowlingStats(data);
 
-    const statsList = {
+    const statsList: GameStats = {
       finalScore: stats.finalScore,
       totalStrikes: stats.totalStrikes,
       totalShots: stats.totalShots,
@@ -94,12 +70,10 @@ const game = () => {
  * @param gameStats The stats from the game bowled. 
  * @param games The number of games bowled.
  */
-  const addToSerriesStats = (gameStats: { finalScore: number; totalStrikes: number; 
-    totalShots: any; totalSpares: number; spareOpportunities:
-    number; singlePinAttempts: number; singlePinSpares: number; 
-    strikePercentage: number; sparePercentage: number; 
-    singlePinSparePercentage: number; openFramePercentage: number; openFrames: number; }, games: number) =>{
-
+  const addToSerriesStats = (gameStats: GameStats, games: number) =>{
+    
+      localHighGame = Math.max(localHighGame, gameStats.finalScore)
+      localLowGame = Math.min(localLowGame, gameStats.finalScore)
       setSeriesStats((prevStats)=>({...prevStats,
         totalShots: gameStats.totalShots + prevStats.totalShots,
         seriesScore: gameStats.finalScore + prevStats.seriesScore,
@@ -115,6 +89,8 @@ const game = () => {
         openFramePercentage: (gameStats.openFrames + prevStats.openFrames)/(games*10),
         numberOfGames: games,
         average: (gameStats.finalScore + prevStats.seriesScore)/games,
+        highGame:localHighGame,
+        lowGame: localLowGame,
       }))
   }
   /**

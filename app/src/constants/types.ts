@@ -1,4 +1,4 @@
-export interface SerieStats {
+export interface SeriesStats {
     seriesScore: number;
     totalStrikes: number;
     strikePercentage: number;
@@ -13,6 +13,12 @@ export interface SerieStats {
     numberOfGames: number;
     openFrames: number;
     average: number;
+    highGame: number,
+    lowGame: number,
+    tenPins: number,
+    tenPinsHit: number,
+    sevenPins: number,
+    sevenPinsHit: number,
   }
 
 
@@ -27,6 +33,21 @@ export interface Series {
   }
 
 
+export interface GameStats{
+  
+    finalScore: number,
+    totalStrikes: number,
+    totalShots: number,
+    totalSpares: number,
+    spareOpportunities: number,
+    singlePinAttempts: number,
+    singlePinSpares: number,
+    strikePercentage: number,
+    sparePercentage: number,
+    singlePinSparePercentage: number,
+    openFramePercentage: number,
+    openFrames: number,
+}
 export interface GameState {
     frames: Array<Frames>
 }

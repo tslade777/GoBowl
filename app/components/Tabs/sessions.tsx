@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react';
 import GameLists from '../lists/GameLists';
 import { collection, getDocs, onSnapshot, orderBy, query, Timestamp, where } from 'firebase/firestore';
 import { db, FIREBASE_AUTH } from '@/firebase.config';
-import { Series } from '@/app/src/types';
+import { Series } from '@/app/src/constants/types';
 
 interface StatsTabProps {
     sessionsData: Series[];

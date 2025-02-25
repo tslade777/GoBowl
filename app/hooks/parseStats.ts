@@ -1,76 +1,60 @@
-import { Series } from '@/app/src/types';
-
-interface SeriesStats {
-    seriesScore: number;
-    totalStrikes: number;
-    strikePercentage: number;
-    totalSpares: number;
-    totalShots: number;
-    sparePercentage: number;
-    singlePinSparePercentage: number;
-    openFramePercentage: number;
-    singlePinSpares: number;
-    singlePinAttempts: number;
-    spareOpportunities: number;
-    numberOfGames: number;
-    openFrames: number;
-    average: number;
-  }
-
+import { Series,SeriesStats } from '@/app/src/constants/types';
+import { defaultSeriesStats } from '../src/constants/defaults';
 
   const parseTotalSessionStats = (sessionData: Series[]): SeriesStats => {
-    let  singlePinSparePercentage = 0
-    let  sparePercentage= 0
-    let  singlePinSpares= 0
-    let  average= 0
-    let  totalSpares= 0
-    let  spareOpportunities= 0
-    let  numberOfGames= 0
-    let  totalShots= 0
-    let  openFrames= 0
-    let  seriesScore= 0
-    let  singlePinAttempts= 0
-    let  strikePercentage= 0
-    let  totalStrikes= 0
-    let  openFramePercentage= 0
+    const initialStats: SeriesStats = {
+          ...defaultSeriesStats
+        };
 
   sessionData.forEach((session)=>{
     Object.entries(session.stats).forEach(([key, value]) => {
       switch (key){
         case "singlePinSpares":
-          singlePinSpares += value;
-          singlePinSparePercentage = (singlePinSpares / singlePinAttempts)*100;
+          initialStats.singlePinSpares += value;
+          initialStats.singlePinSparePercentage = (initialStats.singlePinSpares / initialStats.singlePinAttempts)*100;
           break;
         case "totalSpares":
-          totalSpares += value;
-          sparePercentage = (totalSpares / spareOpportunities)*100;
+          initialStats.totalSpares += value;
+          initialStats.sparePercentage = (initialStats.totalSpares / initialStats.spareOpportunities)*100;
           break;
         case "spareOpportunities":
-          spareOpportunities +=value;
-          sparePercentage = (totalSpares / spareOpportunities)*100;
-          openFramePercentage = (openFrames / spareOpportunities)*100;
+          initialStats.spareOpportunities +=value;
+          initialStats.sparePercentage = (initialStats.totalSpares / initialStats.spareOpportunities)*100;
+          initialStats.openFramePercentage = (initialStats.openFrames / initialStats.spareOpportunities)*100;
           break;
         case "numberOfGames":
-          numberOfGames +=value;
-          average = (seriesScore/numberOfGames);
+          initialStats.numberOfGames +=value;
+          initialStats.average = (initialStats.seriesScore/initialStats.numberOfGames);
           break;
         case "totalShots":
-          totalShots +=value;
+          initialStats.totalShots +=value;
           break;
         case "openFrames":
-          openFrames +=value;
-          openFramePercentage = (openFrames / spareOpportunities)*100;
+          initialStats.openFrames +=value;
+          initialStats.openFramePercentage = (initialStats.openFrames / initialStats.spareOpportunities)*100;
           break;
         case "seriesScore":
-          seriesScore +=value;
+          initialStats.seriesScore +=value;
           break;
         case "singlePinAttempts":
-          singlePinAttempts += value;
-          singlePinSparePercentage = (singlePinSpares / singlePinAttempts)*100;
+          initialStats.singlePinAttempts += value;
+          initialStats.singlePinSparePercentage = (initialStats.singlePinSpares / initialStats.singlePinAttempts)*100;
           break;
         case "totalStrikes":
-          totalStrikes +=value;
-          strikePercentage = (totalStrikes / totalShots)*100;
+          initialStats.totalStrikes +=value;
+          initialStats.strikePercentage = (initialStats.totalStrikes / initialStats.totalShots)*100;
+          break;
+        case "highGame":
+          initialStats.highGame = Math.max(initialStats.highGame, value);
+          break;
+        case "lowGame":
+          initialStats.lowGame = Math.min(initialStats.lowGame, value);
+          break;
+        case "tenPins":
+          initialStats.tenPins +=value;
+          break;
+        case "sevenPins":
+          initialStats.sevenPins +=value;
           break;
         default:
           break;
@@ -78,20 +62,7 @@ interface SeriesStats {
     });
       
   })
-    return {singlePinSparePercentage,
-          sparePercentage,
-          singlePinSpares,
-          average,
-          totalSpares,
-          spareOpportunities,
-          numberOfGames,
-          totalShots,
-          openFrames,
-          seriesScore,
-          singlePinAttempts,
-          strikePercentage,
-          totalStrikes,
-          openFramePercentage,};
+    return initialStats;
   };
 
   export default parseTotalSessionStats;

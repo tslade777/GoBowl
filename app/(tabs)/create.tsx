@@ -22,6 +22,7 @@ const [isModalVisible, setIsModalVisible] = useState(false);
 const [sessionType, setSessionType] = useState("Session");
 const [sessionName, setSessionName] = useState("")
 const [sessionDoc, setSessionDoc] = useState("")
+const [requiredName, setRequiredName] = useState(false)
 
 // 🔹 Animated styles (Fixes direct value access in JSX)
 const animatedStyle = useAnimatedStyle(() => {
@@ -37,7 +38,6 @@ const animatedStyle = useAnimatedStyle(() => {
  * @param type is the type of session being started. 
  */
   const showOptions = (type:string) => {
-    console.log("🚀 Modal opening");
     setSessionType(type)
     setIsRendered(true);
     
@@ -71,13 +71,24 @@ const animatedStyle = useAnimatedStyle(() => {
    * Close the popup window.
    */
   const closeModal = () => {
-
-    console.log("🚀 Closing modal...");
-
     // ✅ Instantly hide the modal
+    setSessionName("")
     setIsModalVisible(false);
     setIsRendered(false);
   };
+
+  const handleRequired = () =>{
+    console.log("checking required")
+    if (sessionType=="tournament" && sessionName==""){
+      console.log("name required")
+      setRequiredName(true);
+    }
+    else{
+      console.log("Starting session")
+      setRequiredName(false);
+      startSession();
+    }
+  }
 
   /**
    * Start a firebase session either for practice or for open play.
@@ -86,6 +97,7 @@ const animatedStyle = useAnimatedStyle(() => {
    */
   const startFirebaseSession = async (): Promise<string> =>{
     try{
+      console.log('Firebase')
       if (FIREBASE_AUTH.currentUser != null){
         let uID = FIREBASE_AUTH.currentUser.uid
         const docRef = await addDoc(collection(db, `${sessionType}Sessions`),{
@@ -110,7 +122,9 @@ const animatedStyle = useAnimatedStyle(() => {
    *
    */
   const startSession = async () =>{
+    console.log("Session start function")
     closeModal();
+    console.log("Starting firebase")
     const id = await startFirebaseSession();
     console.log(`❄️ID: ${id}❄️`)
     router.push({
@@ -121,7 +135,7 @@ const animatedStyle = useAnimatedStyle(() => {
               type: sessionType
             }
     })
-    setSessionName('')
+    setSessionName("")
   }
   
   return (
@@ -141,7 +155,7 @@ const animatedStyle = useAnimatedStyle(() => {
           />
       <BowlingGameButton
             title="Tournament"
-            handlePress={() => router.push("/(tabs)/home")}
+            handlePress={() => showOptions("tournament")}
           />
 
       </View>
@@ -159,13 +173,15 @@ const animatedStyle = useAnimatedStyle(() => {
                   </Text>
                   <TextInput
                           className="h-12 mb-2 border border-gray-300 rounded-2xl px-3 bg-white"
-                          placeholder="Name the session? (optional)"
+                          placeholder={`Name the session? ${sessionType=='tournament' ? "(REQUIRED)" : "(optional)"}`}
                           value={sessionName}
+                          placeholderTextColor={requiredName ? 'red' : 'grey'}
                           onChangeText={(newText)=>{setSessionName(newText)}}
                   />
                   <TouchableOpacity
                     className="bg-green-600 p-3 mb-2 rounded-xl"
-                    onPress={startSession}
+                    onPress={handleRequired}
+                    disabled={requiredName}
                     activeOpacity={0.7}
                   >
                     <Text className="text-white text-center font-psemibold text-xl">Go Bowl!!</Text>

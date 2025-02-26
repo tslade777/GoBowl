@@ -25,7 +25,7 @@ const Stats = () => {
             />
         <BowlingGameButton
               title="Tournament Stats"
-              handlePress={() => router.push("/ball_stats")}
+              handlePress={() => router.push({pathname:"/screens/statsScreen", params: {type: "tournament"}})}
             />
       </View>
     </SafeAreaView>

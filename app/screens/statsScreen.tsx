@@ -1,56 +1,31 @@
 import React, { useEffect, useState } from "react";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { View, Text } from "react-native";
-import { useNavigation } from "expo-router";
+import { useLocalSearchParams, useNavigation } from "expo-router";
 import StatsTab from "../components/Tabs/stats";
 import SessionsTab from "../components/Tabs/sessions";
 import { LinearGradient } from "expo-linear-gradient";
 import { Series } from "@/app/src/constants/types";
 import { db, FIREBASE_AUTH } from "@/firebase.config";
 import { collection, onSnapshot, orderBy, query, Timestamp, where } from "firebase/firestore";
+import getSessions from "../hooks/firebaseFunctions";
 
 const Tab = createMaterialTopTabNavigator();
 
 const StatsScreen = () => {
+    const params = useLocalSearchParams();
+    const type = params.type as string;
     const [sessionData, setSessionData] = useState<Series[]>([]);
     const navigation = useNavigation();
     
       useEffect(() => {
-      const currentUser = FIREBASE_AUTH.currentUser;
-      if (!currentUser) {
-          console.warn("No user logged in.");
-          return;
-      }
-
-      // Firestore query to filter by user ID and order by date
-      const practiceQ = query(
-          collection(db, "practiceSessions"),
-          where("userID", "==", currentUser.uid),
-          orderBy("date", "desc") // Order newest first
-      );
-
-      // Subscribe to Firestore updates in real-time
-      const unsubscribe = onSnapshot(practiceQ, (querySnapshot) => {
-          const sessions: Series[] = querySnapshot.docs.map((doc) => {
-              const data = doc.data();
-
-              return {
-                  id: doc.id,
-                  date: data.date ? (data.date as Timestamp).toDate() : new Date(),
-                  games: Array.isArray(data.games) ? data.games : [],
-                  notes: data.notes || "",
-                  title: data.title || "No Title",
-                  userID: data.userID || "",
-                  stats: data.stats ? data.stats : [],
-              };
-          });
-
-          setSessionData(sessions); // Update state with real-time data
-      });
-
-      // Cleanup the listener when the component unmounts
-      return () => unsubscribe();
+        fetchData()
     }, []);
+
+    const fetchData = async () =>{
+      const sessions = await getSessions(type);
+      setSessionData(sessions)
+    }
 
     return (
       <View className="flex-1 bg-primary">

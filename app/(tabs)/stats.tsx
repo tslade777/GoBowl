@@ -11,25 +11,22 @@ const Stats = () => {
       <View className='flex flex-row flex-wrap mt-20 items-center justify-center'>
         <BowlingGameButton
               title="Practice stats"
-              handlePress={() => router.push("/screens/statsScreen")}
+              handlePress={() => 
+                router.push({pathname:"/screens/statsScreen", params: {type: "practice"}})
+              }
             />
         <BowlingGameButton
-              title="League stats"
-              handlePress={() => router.push("/league_stats")}
+              title="Open Stats"
+              handlePress={() => router.push({pathname:"/screens/statsScreen", params: {type: "open"}})}
             />
         <BowlingGameButton
-              title="Tournament stats"
+              title="League Stats"
               handlePress={() => router.push("/tournament_stats")}
             />
         <BowlingGameButton
-              title="Ball stats"
+              title="Tournament Stats"
               handlePress={() => router.push("/ball_stats")}
             />
-        <BowlingGameButton
-              title="Spare stats"
-              handlePress={() => router.push("/spare_stats")}
-            />
-        
       </View>
     </SafeAreaView>
   )

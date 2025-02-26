@@ -5,9 +5,6 @@ import { gamestats } from '@/app/src/constants/defaults';
 
 // Single Item Component
 const BowlingGameItem = ({ game, onPress, index }: { game: any; onPress: () => void, index:number }) => {
-    //const stats = parseGameStats(game.stats);
-    const stats = gamestats;
-    
     return (
         <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
             <View className="bg-gray-300 shadow-md rounded-2xl p-4 my-2 mt-3 mx-4">

@@ -28,6 +28,7 @@ import { defaultSeriesStats } from '../src/constants/defaults';
           break;
         case "totalShots":
           initialStats.totalShots +=value;
+          initialStats.strikePercentage = (initialStats.totalStrikes / initialStats.totalShots)*100;
           break;
         case "openFrames":
           initialStats.openFrames +=value;
@@ -41,7 +42,7 @@ import { defaultSeriesStats } from '../src/constants/defaults';
           initialStats.singlePinSparePercentage = (initialStats.singlePinSpares / initialStats.singlePinAttempts)*100;
           break;
         case "totalStrikes":
-          initialStats.totalStrikes +=value;
+          initialStats.totalStrikes += value;
           initialStats.strikePercentage = (initialStats.totalStrikes / initialStats.totalShots)*100;
           break;
         case "highGame":

@@ -31,7 +31,7 @@ const StatsScreen = () => {
       <View className="flex-1 bg-primary">
         {/* Page Title */}
         <View className="py-4 px-6 bg-blue-500">
-          <Text className="text-white text-2xl font-psemibold">Practice Stats and Games</Text>
+          <Text className="text-white text-2xl font-psemibold">{type.charAt(0).toLocaleUpperCase() + type.slice(1)} Stats and Games</Text>
         </View>
   
         {/* Nested Top Tabs */}

@@ -1,8 +1,10 @@
-import { View, Text } from 'react-native';
+import { View, Text, Touchable, TouchableOpacity } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import SeriesList from '../lists/SeriesList';
 import { Game, Series } from '@/app/src/constants/types';
 import GameList from '../lists/GameList';
+import { router } from 'expo-router';
+import { ArrowLeft } from "lucide-react-native";
 
 interface StatsTabProps {
     sessionsData: Series[];
@@ -23,14 +25,25 @@ interface StatsTabProps {
     };
 
     const handleGamePress = (game: Game, gameNum: number) => {
-        console.log(`You selected: game ${gameNum}`);
+        router.push({pathname:"/screens/previousGame",
+            params: {gameData: JSON.stringify(game), gameNumber: gameNum}
+        })
     }
 
     return (
-        <View className="flex-1 justify-center items-center bg-primary">
+        <View className="flex-1  bg-primary">
             {showGames ? (
-                
-                <GameList data={selectedItem} onItemPress={handleGamePress} />
+                <><View className="mt-4 mx-4 flex-row items-center justify-between w-full">
+                    <TouchableOpacity 
+                        onPress={() => setShowGames(false)} 
+                        className="p-2 rounded-full bg-gray-200 active:bg-gray-300">
+                        <ArrowLeft size={24} color="black" />
+                    </TouchableOpacity>
+                    <View className="absolute left-1/2 -translate-x-1/2">
+                        <Text className='p-2 text-orange text-2xl font-psemibold'>Games</Text>
+                    </View>
+                </View>
+                <GameList data={selectedItem} onItemPress={handleGamePress} /></>
             ):
             <SeriesList data={sessionsData} onItemPress={handleItemPress} />
             }

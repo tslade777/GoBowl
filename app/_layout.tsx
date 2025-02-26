@@ -57,6 +57,14 @@ if(!fontsLoaded && !error) return null;
           },
           headerTintColor: 'white'
           }}/>
+          <Stack.Screen name="screens/previousGame" options={{
+          headerShadowVisible:false,
+          title:"",
+          headerStyle: {
+            backgroundColor: '#161622'
+          },
+          headerTintColor: 'white'
+          }}/>
           <Stack.Screen name="(auth)" options={{headerShown:
           false 
         }} />

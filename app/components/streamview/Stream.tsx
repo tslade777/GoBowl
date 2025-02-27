@@ -41,14 +41,13 @@ const Stream: React.FC<FriendProps> = ({id,username,active}) => {
     const unsubscribe = onSnapshot(docRef, (docSnap) => {
           if (docSnap.exists()) {
             const currentGame = docSnap.data().currentGame;
-            console.log(`🎊 ${username}'s current game as been found`)
+            
             setFrames(currentGame.frames);
             setCurrentFrame(currentGame.currentFrame);
             setIsFirstRoll(currentGame.isFirstRoll);
-
-            const updatedPins = currentGame.isFirstRoll
-              ? [...currentGame.frames[currentGame.currentFrame].firstBallPins]
-              : [...currentGame.frames[currentGame.currentFrame].secondBallPins];
+            
+            // Possible show pins being knocked down with a small delay? animations?
+            const updatedPins = [...currentGame.frames[currentGame.currentFrame].firstBallPins];
 
             setPins(updatedPins);
             setGameComplete(currentGame.gameComplete);

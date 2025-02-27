@@ -1,4 +1,4 @@
-import { collection, getDocs, orderBy, query, Timestamp, where } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, orderBy, query, Timestamp, where } from "firebase/firestore";
 import { Series } from "../src/constants/types";
 import { db, FIREBASE_AUTH } from "@/firebase.config";
 
@@ -45,6 +45,8 @@ export const getAllSessionsBySessionType = async (sessionType: string): Promise<
 }
 
 export const getSessionsByUserID = async (userID: string, sessionType: string): Promise<Series[]> => {
+    
+    // commented out instead of deleted just in case
     /**
     
     try {
@@ -82,6 +84,14 @@ export const getSessionsByUserID = async (userID: string, sessionType: string): 
 
     return (await getAllSessionsBySessionType(sessionType)).filter((session) => (session.userID == userID));
 };
+
+export const usernameFromUserID = async (userID: string) => {
+    const userRef = doc(db, `users/${userID}`);
+    const userDoc = await getDoc(userRef);
+    if (userDoc.exists()) {
+        return userDoc.data().username
+    }
+}
 
 
 const getSessions = async (sessionType: string): Promise<Series[]> => {

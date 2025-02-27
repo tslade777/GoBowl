@@ -2,9 +2,13 @@ import { View, Text, FlatList, ActivityIndicator } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import "../../global.css";
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { collection, getDocs } from 'firebase/firestore';
-import { db } from '@/firebase.config';
+import { collection, doc, getDoc, getDocs } from 'firebase/firestore';
+import { db, FIREBASE_AUTH } from '@/firebase.config';
 import GameStatTile from '../gamestattile';
+import { Series } from '../src/constants/types';
+import { getAllSessions } from '../hooks/firebaseFunctions';
+import FriendSessionTile from '../components/stats/FriendSessionTile';
+import FriendSessionsListTile from '../components/stats/FriendSessionsListTile';
 
 interface Game {
   id: string;
@@ -17,13 +21,25 @@ interface Game {
 const Home = () => {
   const [games, setGames] = useState<Game[]>([]);
   const [loading, setLoading] = useState(true);
+  const [sessions, setSessions] = useState<Series[]>([]);
+  const [friends, setFriends] = useState<any>([])
+  const [myID, setMyID] = useState("")
 
   useEffect(() => {
     const fetchGames = async () => {
       try {
-        const querySnapshot = await getDocs(collection(db, 'users'));
-        const gamesData: Game[] = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Game[];
-        setGames(gamesData);
+        const currentUserID = FIREBASE_AUTH.currentUser?.uid
+        const querySnapshot = await getDoc(doc(db, `userFriends/${currentUserID}`));
+        var friends: any[] = []
+        if (querySnapshot.exists()) {
+          friends = querySnapshot.data().friendsList.map((friend: any) => friend)
+        }
+        
+        //const gamesData: Game[] = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Game[];
+        //setGames(gamesData);
+        var allSessions = await getAllSessions();
+        setSessions(allSessions.filter(session => friends.includes(session.userID)));
+        setFriends(friends);
       } catch (error) {
         console.error("Error fetching games: ", error);
       } finally {
@@ -39,11 +55,14 @@ const Home = () => {
       {loading ? (
         <ActivityIndicator size='large' color='#F24804' />
       ) : (
+        <Text>Sessions will go here</Text>
+        /**
         <FlatList
-          data={games}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <GameStatTile game={item} />}
+          data={friends}
+          keyExtractor={(item) => item}
+          renderItem={({ item }) => <FriendSessionsListTile sessions={sessions.filter(s => s.userID == item.id)}/>}
         />
+         */
       )}
     </SafeAreaView>
   );

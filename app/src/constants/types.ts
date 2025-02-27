@@ -26,6 +26,7 @@ export interface SeriesStats {
     washoutsConverted:number,
     splitsPercentage: number,
     washoutsPrecentage: number,
+    pinCombinations:  PinCombinations;
   }
 
 
@@ -80,4 +81,15 @@ export interface Frame {
     splitsConverted: number;
     washouts: number;
     washoutsConverted: number;
+    pinCombinations:  PinCombinations;
   }
+
+  export interface PinCombinationStats {
+    count: number;
+    converted: number;
+  }
+  
+  export interface PinCombinations {
+    [combination: string]: PinCombinationStats;
+  }
+  

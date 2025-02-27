@@ -39,7 +39,8 @@ const BowlingGame: React.FC<GameInfo> = ({gameData, gameNum}) => {
             roll1={frame.isStrike ? 'X' : frame.roll1 == '0' ? '-' : frame.roll1} 
             roll2={frame.isSpare ? '/' : frame.roll2 == '0' ? '-' : frame.roll2} 
             total={frame.score.toString()}
-            isSelected= {currentFrame==index} 
+            isSelected= {currentFrame==index}
+            isSplit={frame.isSplit} 
             />      
           </TouchableOpacity>
         ))}

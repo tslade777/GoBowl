@@ -1,4 +1,4 @@
-import { BowlingStats, Frame } from "../src/constants/types";
+import { BowlingStats, Frame, PinCombinations } from "../src/constants/types";
 import { bowlingStats } from "../src/constants/defaults";
 import { useState } from "react";
 
@@ -10,11 +10,10 @@ import { useState } from "react";
    * @returns A BowlingStats object that contains various stats.
    */
   const calculateBowlingStats = (frames: Frame[]): BowlingStats => {
-    const [stats, setStats] = useState(bowlingStats);
+    
     if (!frames || frames.length === 0) {
       return bowlingStats;
     }
-    
   
     let finalScore = 0;
     let totalStrikes = 0;
@@ -33,10 +32,11 @@ import { useState } from "react";
     let splitsConverted = 0;
     let washouts = 0;
     let washoutsConverted = 0;
-  
+    const pinCombinations: PinCombinations = {};
     
     for (let index = 0; index < 10; index++) {
-      const { roll1, roll2, roll3, isStrike, isSpare, firstBallPins, secondBallPins, thirdBallPins, score, visible } = frames[index];
+      const { roll1, roll2, roll3, isStrike, isSpare, firstBallPins, 
+        secondBallPins, thirdBallPins, score, visible, isSplit } = frames[index];
       finalScore = score; // Last frame will have the final score
       
       // Tenth frame special stats
@@ -63,6 +63,9 @@ import { useState } from "react";
         sevenPins += firstBallPins[6] ? 0 : 1;
         sevenPinsConverted += isSpare ? 1 : 0;
       }
+
+      splits += isSplit? 1 : 0;
+      splitsConverted += (isSpare && isSplit) ? 1:0;
       
       // Open frames
       if (!isStrike && !isSpare) openFrames++;
@@ -73,6 +76,26 @@ import { useState } from "react";
   
       if (!isStrike) spareOpportunities++;
 
+      // Track Pin Combonations
+      
+      const standingPins = firstBallPins.map((pin, index) => (!pin ? index + 1 : null)).filter(Boolean) as number[];
+      
+      // Exclude strikes (all pins down) and gutter balls (no pins down)
+      if (standingPins.length > 0 && standingPins.length < 10) {
+        const key = standingPins.join(",");
+
+        if (!pinCombinations[key]) {
+          pinCombinations[key] = { count: 0, converted: 0 };
+        }
+
+        pinCombinations[key].count++;
+
+        // Check if all pins were knocked down in the second roll (converted)
+        if (standingPins.every(pin => secondBallPins[pin - 1])) {
+          pinCombinations[key].converted++;
+        }
+      }
+
     }
     return {
       finalScore,
@@ -82,7 +105,7 @@ import { useState } from "react";
       singlePinAttempts,
       singlePinSpares,
       totalSpares,
-      strikePercentage: totalShots > 0 ? (totalStrikes / totalShots) * 100 : 0,
+      strikePercentage: totalShots > 0 ? (totalStrikes / strikeOpportunities) * 100 : 0,
       sparePercentage: spareOpportunities > 0 ? (totalSpares / spareOpportunities) * 100 : 0,
       singlePinSparePercentage: singlePinAttempts > 0 ? (singlePinSpares / singlePinAttempts) * 100 : 0,
       openFramePercentage: frames.length > 0 ? (openFrames / frames.length) * 100 : 0,
@@ -96,6 +119,7 @@ import { useState } from "react";
       splitsConverted,
       washouts,
       washoutsConverted,
+      pinCombinations,
     };
   };
   

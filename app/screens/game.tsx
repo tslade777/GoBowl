@@ -39,11 +39,14 @@ const game = () => {
    * @param data The game data for the recently bowled game. 
    */
   const handleDataFromChild = (data: any) =>{
+    
     if (!data || !Array.isArray(data)) {
       console.error("❌ Invalid data received from child:", data);
       return;
     }
+    
     const stats = useBowlingStats(data);
+    
 
     const statsList: BowlingStats = {
       finalScore: stats.finalScore,
@@ -58,15 +61,16 @@ const game = () => {
       singlePinSparePercentage: stats.singlePinSparePercentage,
       openFramePercentage: stats.openFramePercentage,
       openFrames: stats.openFrames,
-      strikeOpportunities: 0,
-      tenPins: 0,
-      sevenPins: 0,
-      splits: 0,
-      washouts: 0,
-      tenPinsConverted: 0,
-      sevenPinsConverted: 0,
-      splitsConverted: 0,
-      washoutsConverted: 0
+      strikeOpportunities: stats.strikeOpportunities,
+      tenPins: stats.tenPins,
+      sevenPins: stats.sevenPins,
+      splits:stats.splits,
+      washouts: stats.washouts,
+      tenPinsConverted: stats.tenPinsConverted,
+      sevenPinsConverted: stats.sevenPinsConverted,
+      splitsConverted: stats.splitsConverted,
+      washoutsConverted: stats.washoutsConverted,
+      pinCombinations: stats.pinCombinations,
     }
     addToSerriesStats(statsList, numGames+1)
     setNumGames(numGames+1)

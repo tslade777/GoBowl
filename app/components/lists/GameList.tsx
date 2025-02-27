@@ -1,7 +1,5 @@
 import { View, Text, FlatList, TouchableOpacity } from 'react-native'
 import React from 'react'
-import parseGameStats from '@/app/hooks/parseGameStats';
-import { gamestats } from '@/app/src/constants/defaults';
 
 // Single Item Component
 const BowlingGameItem = ({ game, onPress, index }: { game: any; onPress: () => void, index:number }) => {

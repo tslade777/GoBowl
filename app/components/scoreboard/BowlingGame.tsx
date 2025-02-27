@@ -191,8 +191,11 @@ const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent, toggleBow
 
   // Clear the game to be ready for another set of inputs
   const clearGame = async () => {
+    
     if (gameComplete){
+     
       sendDataToParent(frames);
+      
       toggleBowling(false);
       setNumGames(numGames+1)
     }
@@ -543,6 +546,7 @@ const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent, toggleBow
       updatedFrames[currentFrame] = frame;
       frame.isSplit = checkIsSplit(pins) && frame.roll1 == '10'
       setFrames(calculateTotalScore(updatedFrames));
+
       // User gets an extra shot if spare or strike
       if(frame.isSpare || frame.roll2 == '10'){
         setIsFinalRoll(true)

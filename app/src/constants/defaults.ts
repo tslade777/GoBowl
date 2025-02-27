@@ -1,4 +1,4 @@
-import { GameStats, SeriesStats } from "@/app/src/constants/types";
+import { SeriesStats, BowlingStats } from "@/app/src/constants/types";
 // defaults.ts or constants.ts
 export const defaultSeriesStats: SeriesStats = {
     seriesScore: 0,
@@ -21,20 +21,36 @@ export const defaultSeriesStats: SeriesStats = {
     tenPinsHit: 0,
     sevenPins: 0,
     sevenPinsHit: 0,
+    strikeOpportunities: 0,
+    splitsTotal: 0,
+    splitsConverted: 0,
+    washoutsTotal: 0,
+    washoutsConverted:0,
+    splitsPercentage: 0,
+    washoutsPrecentage: 0,
   };
 
-export const gamestats: GameStats = {
-    finalScore: 0,
-    totalStrikes: 0,
-    totalShots: 0,
-    totalSpares: 0,
-    spareOpportunities: 0,
-    singlePinAttempts: 0,
-    singlePinSpares: 0,
-    strikePercentage: 0,
-    sparePercentage: 0,
-    singlePinSparePercentage: 0,
-    openFramePercentage: 0,
-    openFrames: 0,
+export const bowlingStats: BowlingStats = {
+  finalScore: 0,
+  totalStrikes: 0,
+  strikePercentage: 0,
+  totalSpares: 0,
+  singlePinSpares: 0,
+  singlePinAttempts: 0,
+  sparePercentage: 0,
+  singlePinSparePercentage: 0,
+  openFramePercentage: 0,
+  totalShots: 0,
+  spareOpportunities: 0,
+  openFrames: 0,
+  strikeOpportunities: 0,
+  tenPins: 0,
+  sevenPins: 0,
+  splits: 0,
+  washouts: 0,
+  tenPinsConverted: 0,
+  sevenPinsConverted: 0,
+  splitsConverted: 0,
+  washoutsConverted: 0
 }
   

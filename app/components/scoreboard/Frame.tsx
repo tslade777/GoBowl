@@ -9,7 +9,8 @@ const Frame = ({
     roll1 = '', 
     roll2 = '', 
     total = '',
-    isSelected = false
+    isSelected = false,
+    isSplit = false
 }) => {
     return (
         <View className="items-center">
@@ -25,9 +26,10 @@ const Frame = ({
             >
                 {/* Rolls */}
                 <View className="flex-row">
-                    <View className="flex-1 items-center justify-center border-r border-black">
-                        <Text className="text-lg font-bold">{roll1}</Text>
+                    <View className={`flex-1 items-center justify-center border-r border-black`}>
+                        <Text className={`text-lg font-bold ${isSplit ? 'text-red-500':'text-black'}`}>{roll1}</Text>
                     </View>
+                    
                     <View className="flex-1 items-center justify-center">
                         <Text className="text-lg font-bold">{roll2}</Text>
                     </View>

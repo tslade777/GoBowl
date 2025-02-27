@@ -19,6 +19,13 @@ export interface SeriesStats {
     tenPinsHit: number,
     sevenPins: number,
     sevenPinsHit: number,
+    strikeOpportunities: number,
+    splitsTotal: number,
+    splitsConverted: number,
+    washoutsTotal:number,
+    washoutsConverted:number,
+    splitsPercentage: number,
+    washoutsPrecentage: number,
   }
 
 
@@ -37,33 +44,40 @@ export interface Game {
     stats: any[];
 }
 
-
-export interface GameStats{
-    finalScore: number,
-    totalStrikes: number,
-    totalShots: number,
-    totalSpares: number,
-    spareOpportunities: number,
-    singlePinAttempts: number,
-    singlePinSpares: number,
-    strikePercentage: number,
-    sparePercentage: number,
-    singlePinSparePercentage: number,
-    openFramePercentage: number,
-    openFrames: number,
-}
-export interface GameState {
-    frames: Array<Frames>
-}
-
-export interface Frames {
+export interface Frame {
     roll1: string;
     roll2: string;
     roll3: string;
     score: number;
-    firstBallPins: Array<boolean>,
-    secondBallPins:Array<boolean>, 
-    isSpare: boolean, 
-    isStrike: boolean, 
-    visible: boolean
-}
+    firstBallPins: boolean[];
+    secondBallPins: boolean[];
+    thirdBallPins: boolean[];
+    isSpare: boolean;
+    isStrike: boolean;
+    visible: boolean;
+    isSplit: boolean;
+  }
+
+ export interface BowlingStats {
+    finalScore: number;
+    totalStrikes: number;
+    strikePercentage: number;
+    totalSpares: number;
+    totalShots: number;
+    sparePercentage: number;
+    singlePinSparePercentage: number;
+    openFramePercentage: number;
+    singlePinSpares: number;
+    singlePinAttempts: number;
+    spareOpportunities: number;
+    openFrames: number;
+    strikeOpportunities: number;
+    tenPins: number;
+    tenPinsConverted: number;
+    sevenPins:number;
+    sevenPinsConverted: number;
+    splits: number;
+    splitsConverted: number;
+    washouts: number;
+    washoutsConverted: number;
+  }

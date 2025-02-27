@@ -21,7 +21,7 @@ const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent, toggleBow
       roll1: "", roll2: "", roll3: "", score: 0,
       firstBallPins: Array(10).fill(false),
       secondBallPins: Array(10).fill(false),
-      isSpare: false, isStrike: false, visible: true, }))
+      isSpare: false, isStrike: false, visible: true, isSplit: false }))
   );
 
   // Game state
@@ -199,7 +199,7 @@ const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent, toggleBow
     setFirebaseInActive()
     setFrames(Array(10).fill(null).map(() => ({ roll1: '', roll2: '', roll3: '', score: 0, 
       firstBallPins: Array(10).fill(false),secondBallPins: Array(10).fill(false), 
-      isSpare: false, isStrike: false, visible: true })));
+      isSpare: false, isStrike: false, visible: true, isSplit: false })));
     setCurrentFrame(0)
     setPins(Array(10).fill(false))
     setFarthestFrame(0)
@@ -337,6 +337,18 @@ const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent, toggleBow
       }
     }
   };
+
+  /**
+   * 
+   * @param pins the knocked down pins
+   * @returns true if a split is detected.
+   */
+  const checkIsSplit = (pins: boolean[]) =>{
+    const headPinDown = pins[0]; // Index 0 represents pin #1
+    const standingPins = pins.map((pin, index) => (!pin ? index + 1 : null)).filter(Boolean) as number[];
+
+    return headPinDown && standingPins.length > 1
+  }
   
   // Handle unique pin toggle of tenth frame
   function tenthFramePinToggle(index: number){
@@ -508,6 +520,7 @@ const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent, toggleBow
       frame.roll1 = rollValue.toString();
       frame.firstBallPins = pins;
       frame.isStrike = rollValue == 10;
+      frame.isSplit = checkIsSplit(pins)
       frame.score = rollValue + updatedFrames[currentFrame-1].score;
       updatedFrames[currentFrame] = frame;
       
@@ -528,6 +541,7 @@ const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent, toggleBow
       frame.isSpare = (parseInt(frame.roll1) + parseInt(frame.roll2) == 10 && (!frame.isStrike))
       frame.score = frame.score + rollValue;
       updatedFrames[currentFrame] = frame;
+      frame.isSplit = checkIsSplit(pins) && frame.roll1 == '10'
       setFrames(calculateTotalScore(updatedFrames));
       // User gets an extra shot if spare or strike
       if(frame.isSpare || frame.roll2 == '10'){
@@ -577,6 +591,7 @@ const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent, toggleBow
       // Set the throw.
       frame.roll1 = rollValue.toString();
       frame.firstBallPins = pins;
+      frame.isSplit = checkIsSplit(pins)
       frame.isStrike = rollValue == 10;
       updatedFrames[currentFrame] = frame;
       updatedFrames = calculateTotalScore(updatedFrames)
@@ -629,7 +644,8 @@ const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent, toggleBow
             roll1={frame.isStrike ? 'X' : frame.roll1 == '0' ? '-' : frame.roll1} 
             roll2={frame.isSpare ? '/' : frame.roll2 == '0' ? '-' : frame.roll2} 
             total={frame.visible ? '' : farthestFrame > index ? frame.score.toString() : ''}
-            isSelected= {currentFrame==index} 
+            isSelected= {currentFrame==index}
+            isSplit = {frame.isSplit} 
             />      
           </TouchableOpacity>
         ))}

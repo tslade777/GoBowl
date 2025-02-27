@@ -7,7 +7,7 @@ import { db } from '@/firebase.config';
 import { useLocalSearchParams } from 'expo-router/build/hooks';
 import { router } from 'expo-router';
 import useBowlingStats from '../hooks/useBowlingStats';
-import { GameStats, SeriesStats } from "@/app/src/constants/types";
+import { BowlingStats, SeriesStats } from "@/app/src/constants/types";
 import { defaultSeriesStats } from "@/app/src/constants/defaults";
 
 
@@ -45,7 +45,7 @@ const game = () => {
     }
     const stats = useBowlingStats(data);
 
-    const statsList: GameStats = {
+    const statsList: BowlingStats = {
       finalScore: stats.finalScore,
       totalStrikes: stats.totalStrikes,
       totalShots: stats.totalShots,
@@ -58,6 +58,15 @@ const game = () => {
       singlePinSparePercentage: stats.singlePinSparePercentage,
       openFramePercentage: stats.openFramePercentage,
       openFrames: stats.openFrames,
+      strikeOpportunities: 0,
+      tenPins: 0,
+      sevenPins: 0,
+      splits: 0,
+      washouts: 0,
+      tenPinsConverted: 0,
+      sevenPinsConverted: 0,
+      splitsConverted: 0,
+      washoutsConverted: 0
     }
     addToSerriesStats(statsList, numGames+1)
     setNumGames(numGames+1)
@@ -70,7 +79,7 @@ const game = () => {
  * @param gameStats The stats from the game bowled. 
  * @param games The number of games bowled.
  */
-  const addToSerriesStats = (gameStats: GameStats, games: number) =>{
+  const addToSerriesStats = (gameStats: BowlingStats, games: number) =>{
     
       localHighGame = Math.max(localHighGame, gameStats.finalScore)
       localLowGame = Math.min(localLowGame, gameStats.finalScore)
@@ -89,7 +98,7 @@ const game = () => {
         openFramePercentage: (gameStats.openFrames + prevStats.openFrames)/(games*10),
         numberOfGames: games,
         average: (gameStats.finalScore + prevStats.seriesScore)/games,
-        highGame:localHighGame,
+        highGame: localHighGame,
         lowGame: localLowGame,
       }))
   }

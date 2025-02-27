@@ -3,7 +3,7 @@ import React, { useState } from 'react'
 import PracticeStatsList from '../PracticeStatsListPage'
 import { Series } from '@/app/src/constants/types';
 import StatTile from '../StatTile';
-import parseTotalSessionStats from '../../hooks/parseStats';
+import parseTotalSessionStats from '../../hooks/parseTotalSessionStats';
 import DonutChart from '../stats/DonutChart';
 
 interface StatsTabProps {
@@ -12,10 +12,6 @@ interface StatsTabProps {
 
 const StatsTab: React.FC<StatsTabProps> = ({ sessionData }) => {
   const stats = parseTotalSessionStats(sessionData);
-  const widthAndHeight = 150; // Size of the donut chart
-  const series = [stats.sparePercentage, 100 - stats.sparePercentage]; // Data for the chart
-  const sliceColor = ["#4CAF50", "#E0E0E0"]; // Colors for filled and unfilled parts
-  
   
 
   return (

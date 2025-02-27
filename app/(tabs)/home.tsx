@@ -6,7 +6,7 @@ import { collection, doc, getDoc, getDocs } from 'firebase/firestore';
 import { db, FIREBASE_AUTH } from '@/firebase.config';
 import GameStatTile from '../gamestattile';
 import { Series } from '../src/constants/types';
-import { getAllSessions } from '../hooks/firebaseFunctions';
+import { getAllSessions, getAllSessionsBySessionType } from '../hooks/firebaseFunctions';
 import FriendSessionTile from '../components/stats/FriendSessionTile';
 import FriendSessionsListTile from '../components/stats/FriendSessionsListTile';
 
@@ -21,7 +21,10 @@ interface Game {
 const Home = () => {
   const [games, setGames] = useState<Game[]>([]);
   const [loading, setLoading] = useState(true);
-  const [sessions, setSessions] = useState<Series[]>([]);
+  const [practiceSessions, setPracticeSessions] = useState<Series[]>([]);
+  const [openSessions, setOpenSessions] = useState<Series[]>([]);
+  const [tournamentSessions, setTournamentSessions] = useState<Series[]>([]);
+  
   const [friends, setFriends] = useState<any>([])
   const [myID, setMyID] = useState("")
 
@@ -37,8 +40,14 @@ const Home = () => {
         
         //const gamesData: Game[] = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() })) as Game[];
         //setGames(gamesData);
-        var allSessions = await getAllSessions();
-        setSessions(allSessions.filter(session => friends.includes(session.userID)));
+        var allPracticeSessions = await getAllSessionsBySessionType("practice");
+        var allOpenSessions = await getAllSessionsBySessionType("open");
+        var allTournamentSessions = await getAllSessionsBySessionType("tournament");
+
+        setPracticeSessions(allPracticeSessions.filter(session => friends.includes(session.userID)).slice(0, 2));
+        setOpenSessions(allOpenSessions.filter(session => friends.includes(session.userID)).slice(0, 2));
+        setTournamentSessions(allTournamentSessions.filter(session => friends.includes(session.userID)).slice(0, 2));
+        
         setFriends(friends);
       } catch (error) {
         console.error("Error fetching games: ", error);
@@ -55,14 +64,14 @@ const Home = () => {
       {loading ? (
         <ActivityIndicator size='large' color='#F24804' />
       ) : (
-        <Text>Sessions will go here</Text>
-        /**
         <FlatList
           data={friends}
-          keyExtractor={(item) => item}
-          renderItem={({ item }) => <FriendSessionsListTile sessions={sessions.filter(s => s.userID == item.id)}/>}
+          keyExtractor={(friend, index) => friend}
+          renderItem={({ item }) => FriendSessionsListTile(practiceSessions.filter(s => s.userID == item.id),
+                                                          openSessions.filter(s => s.userID == item.id),
+                                                          tournamentSessions.filter(s => s.userID == item.id), 
+                                                          item.username)}
         />
-         */
       )}
     </SafeAreaView>
   );

@@ -11,10 +11,10 @@ const FriendSessionTile = (session: Series, username: string) => {
 
   return (
     <View className="bg-gray-800 p-4 m-2 rounded-lg">
-      <Text className="text-white text-lg font-bold">{username}</Text>
-      <Text className="text-gray-300">Highest Score: {seriesStats.highGame}</Text>
-      <Text className="text-gray-300">Last Game: {session.notes}</Text>
-      <Text className="text-gray-300">Mode: {session.notes}</Text>
+      <Text className="text-gray-300">{session.title}</Text>
+      <Text className="text-gray-300">Average Score: {seriesStats.average}</Text>
+      <Text className="text-gray-300">High score: {seriesStats.highGame}</Text>
+      <Text className="text-gray-300">Strikes: {seriesStats.totalStrikes}</Text>
     </View>
   );
 };

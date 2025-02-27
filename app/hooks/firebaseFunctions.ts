@@ -1,22 +1,19 @@
-import { collection, doc, getDoc, getDocs, orderBy, query, Timestamp, where } from "firebase/firestore";
+import { collection, getDocs, orderBy, query, Timestamp, where } from "firebase/firestore";
 import { Series } from "../src/constants/types";
 import { db, FIREBASE_AUTH } from "@/firebase.config";
 
-export const getAllSessions = async (): Promise<Series[]> => {
-    const sessionTypes = ["open", "practice", "tournament"];
+async function getSessions(sessionType: string): Promise<Series[]>{
+    const currentUser = FIREBASE_AUTH.currentUser;
+    if (!currentUser) {
+        console.warn("No user logged in.");
+        return [];
+    }
 
-    var practiceSessions = await getAllSessionsBySessionType("practice");
-    var openSessions = await getAllSessionsBySessionType("open");
-    var tournamentSessions = await getAllSessionsBySessionType("tournament");
-
-    return practiceSessions.concat(openSessions).concat(tournamentSessions);
-}
-
-export const getAllSessionsBySessionType = async (sessionType: string): Promise<Series[]> => {
     try {
         // Firestore query to filter by user ID and order by date
         const practiceQ = query(
             collection(db, `${sessionType}Sessions`),
+            where("userID", "==", currentUser.uid),
             orderBy("date", "desc") // Order newest first
         );
 
@@ -42,18 +39,6 @@ export const getAllSessionsBySessionType = async (sessionType: string): Promise<
         console.error("Error fetching sessions:", error);
         return [];
     }
-}
+};
 
-
-
-export const usernameFromUserID = async (userID: string) => {
-    const userRef = doc(db, `users/${userID}`);
-    const userDoc = await getDoc(userRef);
-    if (userDoc.exists()) {
-        return userDoc.data().username
-    }
-}
-
-
-
-
+export default getSessions;

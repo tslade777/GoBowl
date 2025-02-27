@@ -44,46 +44,7 @@ export const getAllSessionsBySessionType = async (sessionType: string): Promise<
     }
 }
 
-export const getSessionsByUserID = async (userID: string, sessionType: string): Promise<Series[]> => {
-    
-    // commented out instead of deleted just in case
-    /**
-    
-    try {
-        // Firestore query to filter by user ID and order by date
-        const practiceQ = query(
-            collection(db, `${sessionType}Sessions`),
-            where("userID", "==", userID),
-            orderBy("date", "desc") // Order newest first
-        );
 
-        // Fetch data **once** (no real-time updates)
-        const querySnapshot = await getDocs(practiceQ);
-
-        // Process and return data
-        const sessions: Series[] = querySnapshot.docs.map((doc) => {
-            const data = doc.data();
-            return {
-                id: doc.id,
-                date: data.date ? (data.date as Timestamp).toDate() : new Date(),
-                games: Array.isArray(data.games) ? data.games : [],
-                notes: data.notes || "",
-                title: data.title || "No Title",
-                userID: data.userID || "",
-                stats: data.stats ? data.stats : [],
-            };
-        });
-
-        return sessions;
-    } catch (error) {
-        console.error("Error fetching sessions:", error);
-        return [];
-    }
-
-     */
-
-    return (await getAllSessionsBySessionType(sessionType)).filter((session) => (session.userID == userID));
-};
 
 export const usernameFromUserID = async (userID: string) => {
     const userRef = doc(db, `users/${userID}`);
@@ -94,14 +55,5 @@ export const usernameFromUserID = async (userID: string) => {
 }
 
 
-const getSessions = async (sessionType: string): Promise<Series[]> => {
-    const currentUser = FIREBASE_AUTH.currentUser;
-    if (!currentUser) {
-        console.warn("No user logged in.");
-        return [];
-    }
 
-    return getSessionsByUserID(currentUser.uid, sessionType)    
-};
 
-export default getSessions;

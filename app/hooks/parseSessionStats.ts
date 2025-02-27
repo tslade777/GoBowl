@@ -44,10 +44,10 @@ import { Series, SeriesStats } from "../src/constants/types";
           initialStats.strikePercentage = (initialStats.totalStrikes / initialStats.totalShots)*100;
           break;
         case "highGame":
-          initialStats.highGame = value;
+          initialStats.highGame = Math.max(initialStats.highGame, value);
           break;
         case "lowGame":
-          initialStats.lowGame =value;
+          initialStats.lowGame = Math.min(initialStats.lowGame, value);
           break;
         case "tenPins":
           initialStats.tenPins +=value;

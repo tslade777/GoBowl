@@ -41,7 +41,7 @@ import { Series, SeriesStats } from "../src/constants/types";
           break;
         case "totalStrikes":
           initialStats.totalStrikes +=value;
-          initialStats.strikePercentage = (initialStats.totalStrikes / initialStats.totalShots)*100;
+          initialStats.strikePercentage = (initialStats.totalStrikes / initialStats.strikeOpportunities)*100;
           break;
         case "highGame":
           initialStats.highGame = Math.max(initialStats.highGame, value);
@@ -51,10 +51,43 @@ import { Series, SeriesStats } from "../src/constants/types";
           break;
         case "tenPins":
           initialStats.tenPins +=value;
+          initialStats.tenPinPercentage = (initialStats.tenPinsConverted/initialStats.tenPins)*100;
           break;
         case "sevenPins":
           initialStats.sevenPins +=value;
+          initialStats.sevenPins = (initialStats.sevenPinsConverted/initialStats.sevenPins)*100;
           break;
+        case "tenPinsConverted":
+          initialStats.tenPinsConverted +=value;
+          initialStats.tenPinPercentage = (initialStats.tenPinsConverted/initialStats.tenPins)*100;
+          break;
+        case "sevenPinsConverted":
+          initialStats.sevenPinsConverted +=value;
+          initialStats.sevenPins = (initialStats.sevenPinsConverted/initialStats.sevenPins)*100;
+          break;
+        case "strikeOpportunities":
+          initialStats.strikeOpportunities +=value;
+          initialStats.strikePercentage = (initialStats.totalStrikes / initialStats.strikeOpportunities)*100;
+          break;
+        case "splitsTotal":
+          initialStats.splitsTotal +=value;
+          initialStats.splitsPercentage = (initialStats.splitsConverted/initialStats.splitsTotal)*100;
+          break;
+        case "splitsConverted":
+          initialStats.splitsConverted +=value;
+          initialStats.splitsPercentage = (initialStats.splitsConverted/initialStats.splitsTotal)*100;
+          break;
+        case "washoutsTotal":
+          initialStats.washoutsTotal += value;
+          initialStats.washoutsPrecentage = (initialStats.washoutsConverted/initialStats.washoutsTotal)*100;
+          break;
+        case "washoutsConverted":
+          initialStats.washoutsConverted += value;
+          initialStats.washoutsPrecentage = (initialStats.washoutsConverted/initialStats.washoutsTotal)*100;
+          break;
+          case "pinCombinations":
+            initialStats.pinCombinations = value;
+            break;
         default:
           break;
       }

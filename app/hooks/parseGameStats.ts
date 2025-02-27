@@ -81,10 +81,6 @@ import { defaultSeriesStats, bowlingStats } from '../src/constants/defaults';
           initialStats.pinCombinations = value;
           //initialStats.strikePercentage = (initialStats.totalStrikes / initialStats.strikeOpportunities)*100;
           break;
-        case "washouts":
-          initialStats.washouts = value;
-          //initialStats.strikePercentage = (initialStats.totalStrikes / initialStats.strikeOpportunities)*100;
-          break;
       }
     });
       

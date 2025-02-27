@@ -23,7 +23,7 @@ import { useState } from "react";
     let openFrames = 0;
     let totalShots = 0;
     let spareOpportunities = 0;
-    let strikeOpportunities = 10;
+    let strikeOpportunities = 0;
     let tenPins = 0;
     let tenPinsConverted = 0;
     let sevenPins = 0;
@@ -40,16 +40,18 @@ import { useState } from "react";
       finalScore = score; // Last frame will have the final score
       
       // Tenth frame special stats
-      if(index===9){
+      if(index==9){
         totalStrikes += roll1=='10'? 1:0
         totalStrikes += roll2=='10'? 1:0
         totalStrikes += roll3=='10'? 1:0
+        
         if(isSpare)strikeOpportunities+=2;
-        else if(isStrike) strikeOpportunities+=2
-        else if(isStrike && roll2 == '10')strikeOpportunities+=1
+        if(isStrike) strikeOpportunities+=2
+        if(isStrike && roll2 == '10')strikeOpportunities+=1
       }
+      else strikeOpportunities += 1;
       // Frame strike or spare stats
-      else if (isStrike) totalStrikes++;
+      if (isStrike && index != 9) totalStrikes++;
       if (isSpare) totalSpares++;
   
       // Identify single-pin spare opportunities
@@ -59,9 +61,9 @@ import { useState } from "react";
 
         // Check if it was a ten pin or 7 pin
         tenPins += firstBallPins[9] ? 0 : 1;
-        tenPinsConverted += isSpare ? 1 : 0;
+        tenPinsConverted += (isSpare &&  firstBallPins[9]) ? 1 : 0;
         sevenPins += firstBallPins[6] ? 0 : 1;
-        sevenPinsConverted += isSpare ? 1 : 0;
+        sevenPinsConverted += (isSpare && firstBallPins[6]) ? 1 : 0;
       }
 
       splits += isSplit? 1 : 0;
@@ -105,7 +107,7 @@ import { useState } from "react";
       singlePinAttempts,
       singlePinSpares,
       totalSpares,
-      strikePercentage: totalShots > 0 ? (totalStrikes / strikeOpportunities) * 100 : 0,
+      strikePercentage: strikeOpportunities > 0 ? (totalStrikes / strikeOpportunities) * 100 : 0,
       sparePercentage: spareOpportunities > 0 ? (totalSpares / spareOpportunities) * 100 : 0,
       singlePinSparePercentage: singlePinAttempts > 0 ? (singlePinSpares / singlePinAttempts) * 100 : 0,
       openFramePercentage: frames.length > 0 ? (openFrames / frames.length) * 100 : 0,

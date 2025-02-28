@@ -97,18 +97,34 @@ const animatedStyle = useAnimatedStyle(() => {
    */
   const startFirebaseSession = async (): Promise<string> =>{
     try{
-      console.log('Firebase')
       if (FIREBASE_AUTH.currentUser != null){
         let uID = FIREBASE_AUTH.currentUser.uid
-        const docRef = await addDoc(collection(db, `${sessionType}Sessions`),{
-          title: sessionName==''? format(new Date(), "EEEE, MMMM do, yyyy") : sessionName,
-          date: new Date(),
-          userID: uID, 
-          games: [],
-          stats:[],
-          notes: "",
-        })
-        return docRef.id
+        
+        // Create a new league otherwise make a session.
+        if (sessionType=='league'){
+          const leageRef = collection(db, `leagueSessions`, uID, 'Leagues')
+          const docRef = await addDoc(leageRef,{
+            title: sessionName==''? format(new Date(), "EEEE, MMMM do, yyyy") : sessionName,
+            stats:[],
+            notes: "",
+            image: "",
+          })
+          return docRef.id
+        }
+        else{
+          const docRef = await addDoc(collection(db, `${sessionType}Sessions`),{
+            title: sessionName==''? format(new Date(), "EEEE, MMMM do, yyyy") : sessionName,
+            date: new Date(),
+            userID: uID, 
+            games: [],
+            stats:[],
+            notes: "",
+            image: "",
+          })
+          return docRef.id
+        }
+        
+        
       }
     }catch(e){
       console.log(e)
@@ -124,7 +140,6 @@ const animatedStyle = useAnimatedStyle(() => {
   const startSession = async () =>{
     console.log("Session start function")
     closeModal();
-    console.log("Starting firebase")
     const id = await startFirebaseSession();
     console.log(`❄️ID: ${id}❄️`)
     router.push({

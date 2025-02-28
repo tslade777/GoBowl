@@ -145,6 +145,12 @@ const game = () => {
    */
   const updateFirebaseGameComplete = async () =>{
       try{
+          if(type == 'league'){
+            await updateDoc(doc(db,`${type}Sessions`, id),{
+              games: gamesData,
+              stats: seriesStats
+            })
+          }
           await updateDoc(doc(db,`${type}Sessions`, id),{
             games: gamesData,
             stats: seriesStats

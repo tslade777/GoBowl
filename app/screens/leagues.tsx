@@ -5,6 +5,8 @@ import { Ionicons } from "@expo/vector-icons";
 import { addDoc, collection } from 'firebase/firestore';
 import { db, FIREBASE_AUTH } from '@/firebase.config';
 import { format } from 'date-fns';
+import LeagueList from '../components/lists/LeagueList';
+import { League } from '../src/constants/types';
 
 
 const leagues = () => {
@@ -13,6 +15,7 @@ const leagues = () => {
   const scaleAnim = useRef(new Animated.Value(0)).current; // Scale animation
   const opacityAnim = useRef(new Animated.Value(0)).current; // Fade animation
   const [inputValue, setInputValue] = useState("");
+  const [leagueData, setLeagueData] = useState<League[]>([]);
 
   const createNewLeauge = async () => {
     if (FIREBASE_AUTH.currentUser != null){
@@ -60,6 +63,10 @@ const leagues = () => {
     ]).start(() => setModalVisible(false)); // Close modal after animation
   };
 
+  function handleLeaguePress(item: any): void {
+    throw new Error('Function not implemented.');
+  }
+
   return (
     <SafeAreaView className="flex-1 justify-end items-end p-6 bg-primary h-full">
        {/* Floating Button */}
@@ -70,6 +77,8 @@ const leagues = () => {
       >
         <Ionicons name="add" size={70} color="white" />
       </TouchableOpacity>
+
+      <LeagueList data={leagueData} onItemPress={handleLeaguePress} />
 
       {/* Popup Modal */}
       <Modal transparent visible={modalVisible} onRequestClose={closeModal}>

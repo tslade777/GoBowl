@@ -2,13 +2,32 @@ import { View, Text, Animated, TextInput, TouchableOpacity, SafeAreaView, Modal 
 import React, { useRef, useState } from 'react'
 import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from "@expo/vector-icons";
+import { addDoc, collection } from 'firebase/firestore';
+import { db, FIREBASE_AUTH } from '@/firebase.config';
+import { format } from 'date-fns';
 
 
 const leagues = () => {
+  const args = useLocalSearchParams();
   const [modalVisible, setModalVisible] = useState(false);
   const scaleAnim = useRef(new Animated.Value(0)).current; // Scale animation
   const opacityAnim = useRef(new Animated.Value(0)).current; // Fade animation
   const [inputValue, setInputValue] = useState("");
+
+  const createNewLeauge = async () => {
+    if (FIREBASE_AUTH.currentUser != null){
+     let uID = FIREBASE_AUTH.currentUser.uid
+    const leageRef = collection(db, `leagueSessions`, uID, 'Leagues')
+              const docRef = await addDoc(leageRef,{
+                title: inputValue==''? format(new Date(), "EEEE, MMMM do, yyyy") : inputValue,
+                weeks: [],
+                stats:[],
+                notes: "",
+                image: "",
+              })
+      console.log(docRef.id) 
+    }
+  }
 
   const openModal = () => {
     setModalVisible(true);
@@ -92,6 +111,7 @@ const leagues = () => {
                 className="bg-blue px-4 py-2 rounded-xl"
                 onPress={() => {
                   console.log("Started with:", inputValue);
+                  createNewLeauge();
                   closeModal();
                 }}
               >

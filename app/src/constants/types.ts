@@ -31,7 +31,11 @@ export interface SeriesStats {
     pinCombinations:  PinCombinations;
   }
 
-
+export interface League {
+  title: string;
+  stats: SeriesStats[];
+  weeks: any[]
+}
 export interface Series {
     id: string;
     date: Date; // Converted from Firestore Timestamp

@@ -166,7 +166,7 @@ const animatedStyle = useAnimatedStyle(() => {
           />
       <BowlingGameButton
             title="League"
-            handlePress={() => router.push("/(tabs)/home")}
+            handlePress={() => router.push("../screens/leagues")}
           />
       <BowlingGameButton
             title="Tournament"

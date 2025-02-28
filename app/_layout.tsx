@@ -49,6 +49,14 @@ if(!fontsLoaded && !error) return null;
           },
           headerTintColor: 'white'
           }}/>
+          <Stack.Screen name="screens/leagues" options={{
+          headerShadowVisible:false,
+          title:"",
+          headerStyle: {
+            backgroundColor: '#161622'
+          },
+          headerTintColor: 'white'
+          }}/>
           <Stack.Screen name="streamview" options={{
           headerShadowVisible:false,
           title:"",

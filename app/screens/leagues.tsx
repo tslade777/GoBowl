@@ -1,5 +1,5 @@
-import { View, Text, Animated, TextInput, TouchableOpacity, SafeAreaView, Modal } from 'react-native'
-import React, { useRef, useState } from 'react'
+import { View, Text, Animated, TextInput, TouchableOpacity, SafeAreaView, Modal, ActivityIndicator } from 'react-native'
+import React, { useEffect, useRef, useState } from 'react'
 import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from "@expo/vector-icons";
 import { addDoc, collection } from 'firebase/firestore';
@@ -7,6 +7,8 @@ import { db, FIREBASE_AUTH } from '@/firebase.config';
 import { format } from 'date-fns';
 import LeagueList from '../components/lists/LeagueList';
 import { League } from '../src/constants/types';
+import subscribeToLeagues from '../hooks/GetLeaguesByID';
+
 
 
 const leagues = () => {
@@ -16,7 +18,23 @@ const leagues = () => {
   const opacityAnim = useRef(new Animated.Value(0)).current; // Fade animation
   const [inputValue, setInputValue] = useState("");
   const [leagueData, setLeagueData] = useState<League[]>([]);
+  const [loading, setLoading] = useState(true);
 
+  useEffect(() => {
+    fetchData()
+  }, []);
+
+  const fetchData = async () =>{
+    console.log('Fetching leagues')
+    
+    const unsubscribe = subscribeToLeagues((updatedLeagues) => {
+      setLeagueData(updatedLeagues);
+      setLoading(false);
+    });
+
+    return () => unsubscribe(); // Cleanup when component unmounts
+  }
+ 
   const createNewLeauge = async () => {
     if (FIREBASE_AUTH.currentUser != null){
      let uID = FIREBASE_AUTH.currentUser.uid
@@ -67,18 +85,21 @@ const leagues = () => {
     throw new Error('Function not implemented.');
   }
 
+  if (loading) {
+    return <ActivityIndicator size="large" className="mt-10" />;
+  }
+
   return (
     <SafeAreaView className="flex-1 justify-end items-end p-6 bg-primary h-full">
        {/* Floating Button */}
       {/* Floating Button */}
+      <LeagueList data={leagueData} onItemPress={handleLeaguePress} />
       <TouchableOpacity
         className="w-18 h-18 bg-orange rounded-full shadow-lg justify-center items-center"
         onPress={openModal}
       >
         <Ionicons name="add" size={70} color="white" />
       </TouchableOpacity>
-
-      <LeagueList data={leagueData} onItemPress={handleLeaguePress} />
 
       {/* Popup Modal */}
       <Modal transparent visible={modalVisible} onRequestClose={closeModal}>

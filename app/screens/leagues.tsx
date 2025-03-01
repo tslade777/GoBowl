@@ -45,6 +45,7 @@ const leagues = () => {
                 stats:[],
                 notes: "",
                 image: "",
+                dateModified: Date()
               })
       console.log(docRef.id) 
     }
@@ -81,8 +82,12 @@ const leagues = () => {
     ]).start(() => setModalVisible(false)); // Close modal after animation
   };
 
+  /**
+   * 
+   * @param item League that was clicked
+   */
   function handleLeaguePress(item: any): void {
-    throw new Error('Function not implemented.');
+    console.log(`League: ${item.title} clicked`)
   }
 
   if (loading) {

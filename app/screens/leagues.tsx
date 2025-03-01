@@ -45,7 +45,7 @@ const leagues = () => {
                 stats:[],
                 notes: "",
                 image: "",
-                dateModified: Date()
+                dateModified: new Date()
               })
       console.log(docRef.id) 
     }
@@ -100,11 +100,12 @@ const leagues = () => {
       {/* Floating Button */}
       <LeagueList data={leagueData} onItemPress={handleLeaguePress} />
       <TouchableOpacity
-        className="w-18 h-18 bg-orange rounded-full shadow-lg justify-center items-center"
+        className="absolute bottom-5 right-5 w-18 h-18 bg-orange rounded-full shadow-lg justify-center items-center"
         onPress={openModal}
       >
         <Ionicons name="add" size={70} color="white" />
       </TouchableOpacity>
+      
 
       {/* Popup Modal */}
       <Modal transparent visible={modalVisible} onRequestClose={closeModal}>
@@ -118,7 +119,7 @@ const leagues = () => {
 
           {/* Animated Popup */}
           <Animated.View
-            className="bg-gray-300 bg-opacity-70 p-6 rounded-3xl w-80 shadow-lg"
+            className="bg-white bg-opacity-70 p-6 rounded-3xl w-80 shadow-lg"
             style={{
               transform: [{ scale: scaleAnim }],
               opacity: opacityAnim,
@@ -131,19 +132,19 @@ const leagues = () => {
               placeholder="Type here..."
               value={inputValue}
               onChangeText={setInputValue}
-              className="border border-gray-300 bg-white rounded-xl p-2 mb-4 w-full"
+              className="border border-gray-300 bg-gray-300 rounded-xl p-2 mb-4 w-full"
             />
 
             {/* Buttons */}
             <View className="flex-row justify-between">
               {/* Cancel Button */}
-              <TouchableOpacity className="bg-gray-400 px-4 py-2 rounded-xl" onPress={closeModal}>
+              <TouchableOpacity className="bg-red-600 px-4 py-2 rounded-xl" onPress={closeModal}>
                 <Text className="text-white font-semibold">Cancel</Text>
               </TouchableOpacity>
 
               {/* Start Button */}
               <TouchableOpacity
-                className="bg-blue px-4 py-2 rounded-xl"
+                className="bg-green-600 px-4  py-2 rounded-xl"
                 onPress={() => {
                   console.log("Started with:", inputValue);
                   createNewLeauge();
@@ -152,6 +153,7 @@ const leagues = () => {
               >
                 <Text className="text-white font-semibold">Start</Text>
               </TouchableOpacity>
+              
             </View>
           </Animated.View>
         </View>

@@ -9,8 +9,7 @@ import { router } from 'expo-router';
 import useBowlingStats from '../hooks/useBowlingStats';
 import { BowlingStats, SeriesStats } from "@/app/src/constants/types";
 import { defaultSeriesStats } from "@/app/src/constants/defaults";
-import { updateFirebaseLeagueWeekCount } from '../hooks/firebaseFunctions';
-
+import { updateFirebaseGameComplete, updateFirebaseLeagueWeekCount } from '../hooks/firebaseFunctions';
 
 
 const initialStats: SeriesStats = {
@@ -131,7 +130,7 @@ const game = () => {
       setFirstRender(false);
       return;
     }
-    updateFirebaseGameComplete()
+    updateFirebaseGameComplete(type, name, leagueID,sessionID,gamesData,seriesStats)
   },[gamesData])
 
   /**
@@ -144,36 +143,6 @@ const game = () => {
     }
     router.push("/(tabs)/create")
   }
-
-  /**
-   * Update firebase when a new game has been bowled.
-   */
-  const updateFirebaseGameComplete = async () =>{
-      try{
-        if (FIREBASE_AUTH.currentUser != null){
-                let uID = FIREBASE_AUTH.currentUser.uid
-        
-          if(type == 'league'){
-            console.log(`🔥Update firebase ${type} session with name ${name}, leagueID: ${leagueID}, sessionID: ${sessionID}, and userID: ${uID}`)
-
-            // Error is in this document. Couldn't find document. NEED TO CREATE SESSION FIRST.
-            await updateDoc(doc(db,'leagueSessions', uID, 'Leagues', leagueID, 'Weeks', sessionID),{
-              games: gamesData,
-              stats: seriesStats
-            })
-          }
-          else{
-            await updateDoc(doc(db,`${type}Sessions`, sessionID),{
-              games: gamesData,
-              stats: seriesStats
-            })
-          }
-        }
-      }catch(e){
-        console.log("👎 Something happened")
-        console.error(e)
-      }
-    }
 
   return (
     <SafeAreaView className="flex-1 bg-primary h-full">

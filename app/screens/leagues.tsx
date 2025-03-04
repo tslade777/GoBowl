@@ -8,7 +8,7 @@ import { format } from 'date-fns';
 import LeagueList from '../components/lists/LeagueList';
 import { League } from '../src/constants/types';
 import subscribeToLeagues from '../hooks/GetLeaguesByID';
-import { startFirebaseSession } from '../hooks/firebaseFunctions';
+import { createNewLeauge, startFirebaseSession } from '../hooks/firebaseFunctions';
 
 
 
@@ -29,42 +29,12 @@ const leagues = () => {
    * @returns 
    */
   const fetchData = async () =>{
-    console.log('Fetching leagues')
-    
     const unsubscribe = subscribeToLeagues((updatedLeagues) => {
       setLeagueData(updatedLeagues);
       setLoading(false);
     });
 
     return () => unsubscribe(); // Cleanup when component unmounts
-  }
-  
-  /**
-   * Insert a new league into the users League collection, then take the newly generated
-   * document id and update the league to hold this id value. It will make it much easier to 
-   * get this league doc later. 
-   */
-  const createNewLeauge = async () => {
-    try{
-      if (FIREBASE_AUTH.currentUser != null){
-        let uID = FIREBASE_AUTH.currentUser.uid
-        const leageRef = collection(db, `leagueSessions`, uID, 'Leagues')
-        const docRef = await addDoc(leageRef,{
-          title: inputValue==''? format(new Date(), "EEEE, MMMM do, yyyy") : inputValue,
-          weeks: 0,
-          stats:[],
-          notes: "",
-          image: "",
-          dateModified: new Date()
-        })
-        const newDocRef = doc(db, 'leagueSessions', uID, 'Leagues', docRef.id);
-        await updateDoc(newDocRef,{
-          leagueID: docRef.id
-        })
-        }
-    }catch(e){
-      console.error(e);
-    }
   }
 
   const openModal = () => {
@@ -99,6 +69,7 @@ const leagues = () => {
   };
 
   /**
+   * User has clicked a league to start bowling. give them a heads up before starting a new week for them
    * 
    * @param item League that was clicked
    */
@@ -122,13 +93,12 @@ const leagues = () => {
               router.push({
                           pathname: "../screens/game",
                           params: {
-                            name: item.weeks+1,
+                            name: weekNum.toString(),
                             id: sessionID,
                             leagueID: item.leagueID,
                             type: 'league'
                           }
                   })
-              console.log(`🔥 Session started ${sessionID}`)
             }catch(e){
               console.error(`📛 League Session start error: ${e}`)
             }
@@ -137,7 +107,6 @@ const leagues = () => {
       ],
       { cancelable: true } // Prevents dismissing by tapping outside
     );
-    console.log(`League clicked: ${item.leagueID}`)
   }
 
   if (loading) {
@@ -197,7 +166,7 @@ const leagues = () => {
                 className="bg-green-600 px-4  py-2 rounded-xl"
                 onPress={() => {
                   console.log("Started with:", inputValue);
-                  createNewLeauge();
+                  createNewLeauge(inputValue); 
                   closeModal();
                 }}
               >

@@ -7,9 +7,10 @@ import { db, FIREBASE_AUTH } from '@/firebase.config';
 import { useLocalSearchParams } from 'expo-router/build/hooks';
 import { router } from 'expo-router';
 import useBowlingStats from '../hooks/useBowlingStats';
-import { BowlingStats, SeriesStats } from "@/app/src/constants/types";
-import { defaultSeriesStats } from "@/app/src/constants/defaults";
+import { BowlingStats, SeriesStats } from "@/app/src/values/types";
+import { defaultSeriesStats } from "@/app/src/values/defaults";
 import { updateFirebaseGameComplete, updateFirebaseLeagueWeekCount } from '../hooks/firebaseFunctions';
+import { SESSIONS } from '../src/config/constants';
 
 
 const initialStats: SeriesStats = {
@@ -138,7 +139,7 @@ const game = () => {
    * Redirect to create page. 
    */
   const endSession = () =>{
-    if(type == 'league'){
+    if(type == SESSIONS.league){
       updateFirebaseLeagueWeekCount(leagueID, name.toString())
     }
     router.push("/(tabs)/create")

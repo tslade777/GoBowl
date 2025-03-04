@@ -5,7 +5,7 @@ import Frame from './Frame';
 import TenthFrame from './TenthFrame';
 import { FIREBASE_AUTH, db } from '../../../firebase.config'
 import { collection, query, where, doc, getDoc, updateDoc, setDoc, arrayUnion } from 'firebase/firestore';
-import { Game } from '@/app/src/constants/types';
+import { Game } from '@/app/src/values/types';
 
 type GameInfo = {
   gameData: Game;

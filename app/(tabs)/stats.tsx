@@ -4,6 +4,7 @@ import "../../global.css";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import BowlingGameButton from '../components/buttons/BowlingGameButton';
 import { router } from 'expo-router';
+import { SESSIONS } from '../src/config/constants';
 
 const Stats = () => {
   return (
@@ -12,20 +13,20 @@ const Stats = () => {
         <BowlingGameButton
               title="Practice stats"
               handlePress={() => 
-                router.push({pathname:"/screens/statsScreen", params: {type: "practice"}})
+                router.push({pathname:"/screens/statsScreen", params: {type: SESSIONS.practice}})
               }
             />
         <BowlingGameButton
               title="Open Stats"
-              handlePress={() => router.push({pathname:"/screens/statsScreen", params: {type: "open"}})}
+              handlePress={() => router.push({pathname:"/screens/statsScreen", params: {type: SESSIONS.open}})}
             />
         <BowlingGameButton
               title="League Stats"
-              handlePress={() => router.push("/tournament_stats")}
+              handlePress={() => router.push("/home")}
             />
         <BowlingGameButton
               title="Tournament Stats"
-              handlePress={() => router.push({pathname:"/screens/statsScreen", params: {type: "tournament"}})}
+              handlePress={() => router.push({pathname:"/screens/statsScreen", params: {type: SESSIONS.tournament}})}
             />
       </View>
     </SafeAreaView>

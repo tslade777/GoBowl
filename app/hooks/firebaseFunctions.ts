@@ -1,7 +1,8 @@
 import { addDoc, collection, doc, getDocs, orderBy, query, Timestamp, updateDoc, where } from "firebase/firestore";
-import { Series, SeriesStats } from "../src/constants/types";
+import { Series, SeriesStats } from "../src/values/types";
 import { db, FIREBASE_AUTH } from "@/firebase.config";
 import { format } from "date-fns";
+import { SESSIONS } from "../src/config/constants";
 
 async function getSessions(sessionType: string): Promise<Series[]>{
     const currentUser = FIREBASE_AUTH.currentUser;
@@ -13,7 +14,7 @@ async function getSessions(sessionType: string): Promise<Series[]>{
     try {
         // Firestore query to filter by user ID and order by date
         const practiceQ = query(
-            collection(db, `${sessionType}Sessions`),
+            collection(db, sessionType),
             where("userID", "==", currentUser.uid),
             orderBy("date", "desc") // Order newest first
         );
@@ -53,10 +54,10 @@ async function getSessions(sessionType: string): Promise<Series[]>{
       if (FIREBASE_AUTH.currentUser != null){
         let uID = FIREBASE_AUTH.currentUser.uid
         
-        console.log(`🔥 starting ${sessionType} session with name ${sessionName} ${leagueID == '' ? '' : 'and league id: '+leagueID}`)
+        console.log(`🔥 starting ${sessionType} with name ${sessionName} ${leagueID == '' ? '' : 'and league id: '+leagueID}`)
         // Add session to league or just create new session
-        if (sessionType=='league'){
-          const leageRef = collection(db, `leagueSessions`, uID, 'Leagues', leagueID, 'Weeks')
+        if (sessionType==SESSIONS.league){
+          const leageRef = collection(db, SESSIONS.league, uID, 'Leagues', leagueID, 'Weeks')
           const docRef = await addDoc(leageRef,{
             title: sessionName=='' ? format(new Date(), "EEEE, MMMM do, yyyy") : "Week " + sessionName,
             date: new Date(),
@@ -70,7 +71,7 @@ async function getSessions(sessionType: string): Promise<Series[]>{
           return docRef.id
         }
         else{
-          const docRef = await addDoc(collection(db, `${sessionType}Sessions`),{
+          const docRef = await addDoc(collection(db, `${sessionType}`),{
             title: sessionName==''? format(new Date(), "EEEE, MMMM do, yyyy") : sessionName,
             date: new Date(),
             userID: uID, 
@@ -103,7 +104,7 @@ const updateFirebaseLeagueWeekCount = async (leagueID: string, count: string) =>
     
       console.log(`🔥Update firebase leagueID: ${leagueID}`)
   
-      await updateDoc(doc(db,'leagueSessions', uID, 'Leagues', leagueID),{
+      await updateDoc(doc(db,SESSIONS.league, uID, 'Leagues', leagueID),{
         weeks: count,
       })      
     }
@@ -120,7 +121,7 @@ const createNewLeauge = async (title: string) => {
   try{
     if (FIREBASE_AUTH.currentUser != null){
       let uID = FIREBASE_AUTH.currentUser.uid
-      const leageRef = collection(db, `leagueSessions`, uID, 'Leagues')
+      const leageRef = collection(db, SESSIONS.league, uID, 'Leagues')
       const docRef = await addDoc(leageRef,{
         title: title==''? format(new Date(), "EEEE, MMMM do, yyyy") : title,
         weeks: 0,
@@ -129,7 +130,7 @@ const createNewLeauge = async (title: string) => {
         image: "",
         dateModified: new Date()
       })
-      const newDocRef = doc(db, 'leagueSessions', uID, 'Leagues', docRef.id);
+      const newDocRef = doc(db, SESSIONS.league, uID, 'Leagues', docRef.id);
       await updateDoc(newDocRef,{
         leagueID: docRef.id
       })
@@ -139,23 +140,31 @@ const createNewLeauge = async (title: string) => {
   }
 }
 
+/**
+ * 
+ * @param type types can {practice, open, league, tournament}
+ * @param name 
+ * @param leagueID 
+ * @param sessionID 
+ * @param gamesData 
+ * @param seriesStats 
+ */
 const updateFirebaseGameComplete = async (type:string, name:string, leagueID:string, sessionID:string, gamesData: any, seriesStats:SeriesStats) =>{
+  // check type 
   try{
     if (FIREBASE_AUTH.currentUser != null){
             let uID = FIREBASE_AUTH.currentUser.uid
     
-      if(type == 'league'){
-        console.log(`🔥Update firebase ${type} session with name ${name}, 
-          leagueID: ${leagueID}, sessionID: ${sessionID}, and userID: ${uID}`)
+      if(type == SESSIONS.league){
 
         // Error is in this document. Couldn't find document. NEED TO CREATE SESSION FIRST.
-        await updateDoc(doc(db,'leagueSessions', uID, 'Leagues', leagueID, 'Weeks', sessionID),{
+        await updateDoc(doc(db, SESSIONS.league, uID, 'Leagues', leagueID, 'Weeks', sessionID),{
           games: gamesData,
           stats: seriesStats
         })
       }
       else{
-        await updateDoc(doc(db,`${type}Sessions`, sessionID),{
+        await updateDoc(doc(db,type, sessionID),{
           games: gamesData,
           stats: seriesStats
         })

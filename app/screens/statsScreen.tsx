@@ -1,14 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { View, Text } from "react-native";
-import { useLocalSearchParams, useNavigation } from "expo-router";
+import { useLocalSearchParams } from "expo-router";
 import StatsTab from "../components/Tabs/stats";
 import SessionsTab from "../components/Tabs/sessions";
-import { LinearGradient } from "expo-linear-gradient";
-import { Series } from "@/app/src/constants/types";
-import { db, FIREBASE_AUTH } from "@/firebase.config";
-import { collection, onSnapshot, orderBy, query, Timestamp, where } from "firebase/firestore";
-import getSessions from "../hooks/firebaseFunctions";
+import { Series } from "@/app/src/values/types";
+import {getSessions} from "../hooks/firebaseFunctions";
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -16,7 +13,6 @@ const StatsScreen = () => {
     const params = useLocalSearchParams();
     const type = params.type as string;
     const [sessionData, setSessionData] = useState<Series[]>([]);
-    const navigation = useNavigation();
     
       useEffect(() => {
         fetchData()

@@ -6,7 +6,7 @@ import { addDoc, collection, doc, updateDoc } from 'firebase/firestore';
 import { db, FIREBASE_AUTH } from '@/firebase.config';
 import { format } from 'date-fns';
 import LeagueList from '../components/lists/LeagueList';
-import { League } from '../src/constants/types';
+import { League } from '../src/values/types';
 import subscribeToLeagues from '../hooks/GetLeaguesByID';
 import { createNewLeauge, startFirebaseSession } from '../hooks/firebaseFunctions';
 

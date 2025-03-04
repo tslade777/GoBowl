@@ -1,5 +1,5 @@
-import { defaultSeriesStats } from "../src/constants/defaults";
-import { Series, SeriesStats } from "../src/constants/types";
+import { defaultSeriesStats } from "../src/values/defaults";
+import { Series, SeriesStats } from "../src/values/types";
 
   const parseSessionStats = (sessionData: Series): SeriesStats => {
     const initialStats: SeriesStats = {

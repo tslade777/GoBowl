@@ -1,5 +1,5 @@
-import { BowlingStats, Frame, PinCombinations } from "../src/constants/types";
-import { bowlingStats } from "../src/constants/defaults";
+import { BowlingStats, Frame, PinCombinations } from "../src/values/types";
+import { bowlingStats } from "../src/values/defaults";
 import { useState } from "react";
 
 

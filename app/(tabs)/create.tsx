@@ -10,6 +10,7 @@ import { db, FIREBASE_AUTH, firestore } from '@/firebase.config';
 import { addDoc, collection, doc, Firestore, setDoc } from 'firebase/firestore';
 import { format } from "date-fns";
 import {startFirebaseSession} from "@/app/hooks/firebaseFunctions"
+import { SESSIONS } from '../src/config/constants';
 
 
 
@@ -80,7 +81,7 @@ const animatedStyle = useAnimatedStyle(() => {
 
   const handleRequired = () =>{
     console.log("checking required")
-    if (sessionType=="tournament" && sessionName==""){
+    if (sessionType==SESSIONS.league && sessionName==""){
       console.log("name required")
       setRequiredName(true);
     }
@@ -117,11 +118,11 @@ const animatedStyle = useAnimatedStyle(() => {
       <View className='flex flex-row flex-wrap mt-20 items-center justify-center'>
       <BowlingGameButton
             title="Practice"
-            handlePress={() => showOptions("practice")}
+            handlePress={() => showOptions(SESSIONS.practice)}
           />
       <BowlingGameButton
             title="Open"
-            handlePress={() => showOptions("open")}
+            handlePress={() => showOptions(SESSIONS.open)}
           />
       <BowlingGameButton
             title="League"
@@ -129,7 +130,7 @@ const animatedStyle = useAnimatedStyle(() => {
           />
       <BowlingGameButton
             title="Tournament"
-            handlePress={() => showOptions("tournament")}
+            handlePress={() => showOptions(SESSIONS.tournament)}
           />
 
       </View>
@@ -143,11 +144,11 @@ const animatedStyle = useAnimatedStyle(() => {
                   style={animatedStyle}
                 >
                   <Text className="text-3xl font-pbold text-center mb-4 text-black">
-                  {`${sessionType} Session`}  {/* ✅ Prevents crash */}
+                  {`${sessionType}`}  {/* ✅ Prevents crash */}
                   </Text>
                   <TextInput
                           className="h-12 mb-2 border border-gray-300 rounded-2xl px-3 bg-white"
-                          placeholder={`Name the session? ${sessionType=='tournament' ? "(REQUIRED)" : "(optional)"}`}
+                          placeholder={`Name the session? ${sessionType==SESSIONS.tournament ? "(REQUIRED)" : "(optional)"}`}
                           value={sessionName}
                           placeholderTextColor={requiredName ? 'red' : 'grey'}
                           onChangeText={(newText)=>{setSessionName(newText)}}

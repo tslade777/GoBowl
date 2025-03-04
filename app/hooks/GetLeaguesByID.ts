@@ -1,6 +1,7 @@
 import { db, FIREBASE_AUTH } from "@/firebase.config";
 import { collection, onSnapshot, Timestamp } from "firebase/firestore";
-import { League } from "../src/constants/types";
+import { League } from "../src/values/types";
+import { SESSIONS } from "../src/config/constants";
 
 type Callback = (leagues: League[]) => void;
 
@@ -13,7 +14,7 @@ function subscribeToLeagues(callback: Callback) {
 
   try {
     // Reference to the user's "Leagues" collection inside "leagueSessions"
-    const nestedCollectionRef = collection(db, "leagueSessions", currentUser.uid, "Leagues");
+    const nestedCollectionRef = collection(db, SESSIONS.league, currentUser.uid, "Leagues");
 
     // Set up real-time listener
     const unsubscribe = onSnapshot(nestedCollectionRef, (querySnapshot) => {

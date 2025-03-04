@@ -1,5 +1,5 @@
-import { Game, BowlingStats, Series,SeriesStats } from '@/app/src/constants/types';
-import { defaultSeriesStats, bowlingStats } from '../src/constants/defaults';
+import { Game, BowlingStats, Series,SeriesStats } from '@/app/src/values/types';
+import { defaultSeriesStats, bowlingStats } from '../src/values/defaults';
 
   const parseGameStats = (gameData: Game[]): BowlingStats => {
     const initialStats: BowlingStats = {

@@ -1,7 +1,7 @@
 import { View, Text, Touchable, TouchableOpacity } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import SeriesList from '../lists/SeriesList';
-import { Game, Series } from '@/app/src/constants/types';
+import { Game, Series } from '@/app/src/values/types';
 import GameList from '../lists/GameList';
 import { router } from 'expo-router';
 import { ArrowLeft } from "lucide-react-native";

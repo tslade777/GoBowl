@@ -2,7 +2,7 @@ import { View, Text } from 'react-native'
 import React from 'react'
 import EmptyGame from '../components/scoreboard/EmptyGame'
 import { useLocalSearchParams } from 'expo-router'
-import { Game } from '../src/constants/types'
+import { Game } from '../src/values/types'
 
 const previousGame = () => {
     const params = useLocalSearchParams();

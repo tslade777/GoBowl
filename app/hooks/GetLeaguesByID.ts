@@ -1,5 +1,5 @@
 import { db, FIREBASE_AUTH } from "@/firebase.config";
-import { collection, onSnapshot } from "firebase/firestore";
+import { collection, onSnapshot, Timestamp } from "firebase/firestore";
 import { League } from "../src/constants/types";
 
 type Callback = (leagues: League[]) => void;
@@ -23,6 +23,8 @@ function subscribeToLeagues(callback: Callback) {
           title: data.title || "No Title",
           stats: data.stats || [],
           weeks: data.weeks || [],
+          leagueID: data.leagueID || "no id",
+          dateModified: data.date ? (data.date as Timestamp).toDate() : new Date()
         };
       });
 

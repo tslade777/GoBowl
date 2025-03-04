@@ -23,7 +23,10 @@ const leagues = () => {
   useEffect(() => {
     fetchData()
   }, []);
-
+  /**
+   * Get collection of leagues for this user
+   * @returns 
+   */
   const fetchData = async () =>{
     console.log('Fetching leagues')
     
@@ -34,7 +37,12 @@ const leagues = () => {
 
     return () => unsubscribe(); // Cleanup when component unmounts
   }
- 
+  
+  /**
+   * Insert a new league into the users League collection, then take the newly generated
+   * document id and update the league to hold this id value. It will make it much easier to 
+   * get this league doc later. 
+   */
   const createNewLeauge = async () => {
     try{
       if (FIREBASE_AUTH.currentUser != null){
@@ -94,7 +102,7 @@ const leagues = () => {
    * @param item League that was clicked
    */
   function handleLeaguePress(item: any): void {
-    console.log(`League: ${item.title} clicked`)
+    console.log(`League clicked: ${item.leagueID}`)
   }
 
   if (loading) {

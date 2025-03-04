@@ -2,7 +2,7 @@ import { View, Text, Animated, TextInput, TouchableOpacity, SafeAreaView, Modal,
 import React, { useEffect, useRef, useState } from 'react'
 import { useLocalSearchParams } from 'expo-router';
 import { Ionicons } from "@expo/vector-icons";
-import { addDoc, collection } from 'firebase/firestore';
+import { addDoc, collection, doc, updateDoc } from 'firebase/firestore';
 import { db, FIREBASE_AUTH } from '@/firebase.config';
 import { format } from 'date-fns';
 import LeagueList from '../components/lists/LeagueList';
@@ -36,18 +36,25 @@ const leagues = () => {
   }
  
   const createNewLeauge = async () => {
-    if (FIREBASE_AUTH.currentUser != null){
-     let uID = FIREBASE_AUTH.currentUser.uid
-    const leageRef = collection(db, `leagueSessions`, uID, 'Leagues')
-              const docRef = await addDoc(leageRef,{
-                title: inputValue==''? format(new Date(), "EEEE, MMMM do, yyyy") : inputValue,
-                weeks: [],
-                stats:[],
-                notes: "",
-                image: "",
-                dateModified: new Date()
-              })
-      console.log(docRef.id) 
+    try{
+      if (FIREBASE_AUTH.currentUser != null){
+        let uID = FIREBASE_AUTH.currentUser.uid
+        const leageRef = collection(db, `leagueSessions`, uID, 'Leagues')
+        const docRef = await addDoc(leageRef,{
+          title: inputValue==''? format(new Date(), "EEEE, MMMM do, yyyy") : inputValue,
+          weeks: [],
+          stats:[],
+          notes: "",
+          image: "",
+          dateModified: new Date()
+        })
+        const newDocRef = doc(db, 'leagueSessions', uID, 'Leagues', docRef.id);
+        await updateDoc(newDocRef,{
+          leagueID: docRef.id
+        })
+        }
+    }catch(e){
+      console.error(e);
     }
   }
 

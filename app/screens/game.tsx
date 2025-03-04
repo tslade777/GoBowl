@@ -9,6 +9,7 @@ import { router } from 'expo-router';
 import useBowlingStats from '../hooks/useBowlingStats';
 import { BowlingStats, SeriesStats } from "@/app/src/constants/types";
 import { defaultSeriesStats } from "@/app/src/constants/defaults";
+import { updateFirebaseLeagueWeekCount } from '../hooks/firebaseFunctions';
 
 
 
@@ -138,6 +139,9 @@ const game = () => {
    * Redirect to create page. 
    */
   const endSession = () =>{
+    if(type == 'league'){
+      updateFirebaseLeagueWeekCount(leagueID, name.toString())
+    }
     router.push("/(tabs)/create")
   }
 
@@ -150,16 +154,20 @@ const game = () => {
                 let uID = FIREBASE_AUTH.currentUser.uid
         
           if(type == 'league'){
+            console.log(`🔥Update firebase ${type} session with name ${name}, leagueID: ${leagueID}, sessionID: ${sessionID}, and userID: ${uID}`)
+
             // Error is in this document. Couldn't find document. NEED TO CREATE SESSION FIRST.
-            await updateDoc(doc(db,'leagueSessions', uID,  'Leagues', leagueID, 'sessions', sessionID),{
+            await updateDoc(doc(db,'leagueSessions', uID, 'Leagues', leagueID, 'Weeks', sessionID),{
               games: gamesData,
               stats: seriesStats
             })
           }
-          await updateDoc(doc(db,`${type}Sessions`, sessionID),{
-            games: gamesData,
-            stats: seriesStats
-          })
+          else{
+            await updateDoc(doc(db,`${type}Sessions`, sessionID),{
+              games: gamesData,
+              stats: seriesStats
+            })
+          }
         }
       }catch(e){
         console.log("👎 Something happened")

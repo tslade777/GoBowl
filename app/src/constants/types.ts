@@ -34,7 +34,7 @@ export interface SeriesStats {
 export interface League {
   title: string;
   stats: SeriesStats[];
-  weeks: 0;
+  weeks: number;
   leagueID: string;
   dateModified: Date;
 }

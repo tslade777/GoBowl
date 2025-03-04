@@ -1,4 +1,4 @@
-import { addDoc, collection, getDocs, orderBy, query, Timestamp, where } from "firebase/firestore";
+import { addDoc, collection, doc, getDocs, orderBy, query, Timestamp, updateDoc, where } from "firebase/firestore";
 import { Series } from "../src/constants/types";
 import { db, FIREBASE_AUTH } from "@/firebase.config";
 import { format } from "date-fns";
@@ -48,11 +48,12 @@ async function getSessions(sessionType: string): Promise<Series[]>{
    * 
    * @returns The document id of the session that was just started
    */
-  const startFirebaseSession = async (sessionName: string, sessionType: string, leagueID: string): Promise<string> =>{
+  const startFirebaseSession = async (sessionName: string, sessionType: string, leagueID: string) => {
     try{
       if (FIREBASE_AUTH.currentUser != null){
         let uID = FIREBASE_AUTH.currentUser.uid
         
+        console.log(`🔥 starting ${sessionType} session with name ${sessionName} ${leagueID == '' ? '' : 'and league id: '+leagueID}`)
         // Add session to league or just create new session
         if (sessionType=='league'){
           const leageRef = collection(db, `leagueSessions`, uID, 'Leagues', leagueID, 'Weeks')
@@ -86,6 +87,23 @@ async function getSessions(sessionType: string): Promise<Series[]>{
       return ''
     }
     return ''
-  }
+}
 
-export {getSessions, startFirebaseSession};
+const updateFirebaseLeagueWeekCount = async (leagueID: string, count: string) => {
+  try{
+    if (FIREBASE_AUTH.currentUser != null){
+      let uID = FIREBASE_AUTH.currentUser.uid
+    
+      console.log(`🔥Update firebase leagueID: ${leagueID}`)
+  
+      await updateDoc(doc(db,'leagueSessions', uID, 'Leagues', leagueID),{
+        weeks: count,
+      })      
+    }
+  }catch(e){
+    console.error(`📛 Firebase update count error: ${e}`)
+  }     
+}
+
+
+export {getSessions, startFirebaseSession, updateFirebaseLeagueWeekCount};

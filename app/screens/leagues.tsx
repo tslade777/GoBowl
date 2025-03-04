@@ -103,9 +103,10 @@ const leagues = () => {
    * @param item League that was clicked
    */
   function handleLeaguePress(item: any): void {
+    const weekNum = parseInt(item.weeks) + 1;
     Alert.alert(
       'Start New Week', // Title
-      `Ready to start week ${item.weeks+1}?`, // Message
+      `Ready to start week ${weekNum}?`, // Message
       [
         {
           text: 'Cancel',
@@ -115,18 +116,22 @@ const leagues = () => {
         {
           text: 'OK',
           onPress: async () => {
-            // Start a new session and add it to the selected league.
-            const sessionID = await startFirebaseSession(item.weeks+1, 'league', item.leagueID)
-            router.push({
-                        pathname: "../screens/game",
-                        params: {
-                          name: item.weeks+1,
-                          id: sessionID,
-                          leagueID: item.leagueID,
-                          type: 'league'
-                        }
-                })
-            console.log(`🔥 Session started ${sessionID}`)
+            try{
+              // Start a new session and add it to the selected league.
+              const sessionID = await startFirebaseSession(weekNum.toString(), 'league', item.leagueID);
+              router.push({
+                          pathname: "../screens/game",
+                          params: {
+                            name: item.weeks+1,
+                            id: sessionID,
+                            leagueID: item.leagueID,
+                            type: 'league'
+                          }
+                  })
+              console.log(`🔥 Session started ${sessionID}`)
+            }catch(e){
+              console.error(`📛 League Session start error: ${e}`)
+            }
           },
         },
       ],

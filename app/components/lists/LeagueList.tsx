@@ -6,7 +6,6 @@ import parseSessionStats from '@/app/hooks/parseSessionStats';
 
 // Single Item Component
 const LeagueListSingleItem = ({ league, onPress }: { league: any; onPress: () => void }) => {
-    const stats = parseSessionStats(league);
     
     return (
         <TouchableOpacity onPress={onPress} activeOpacity={0.7}>

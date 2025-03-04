@@ -1,6 +1,6 @@
-import { View, Text, Animated, TextInput, TouchableOpacity, SafeAreaView, Modal, ActivityIndicator } from 'react-native'
+import { View, Text, Animated, TextInput, TouchableOpacity, SafeAreaView, Modal, ActivityIndicator, Alert } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
-import { useLocalSearchParams } from 'expo-router';
+import { router, useLocalSearchParams } from 'expo-router';
 import { Ionicons } from "@expo/vector-icons";
 import { addDoc, collection, doc, updateDoc } from 'firebase/firestore';
 import { db, FIREBASE_AUTH } from '@/firebase.config';
@@ -8,6 +8,7 @@ import { format } from 'date-fns';
 import LeagueList from '../components/lists/LeagueList';
 import { League } from '../src/constants/types';
 import subscribeToLeagues from '../hooks/GetLeaguesByID';
+import { startFirebaseSession } from '../hooks/firebaseFunctions';
 
 
 
@@ -50,7 +51,7 @@ const leagues = () => {
         const leageRef = collection(db, `leagueSessions`, uID, 'Leagues')
         const docRef = await addDoc(leageRef,{
           title: inputValue==''? format(new Date(), "EEEE, MMMM do, yyyy") : inputValue,
-          weeks: [],
+          weeks: 0,
           stats:[],
           notes: "",
           image: "",
@@ -102,6 +103,35 @@ const leagues = () => {
    * @param item League that was clicked
    */
   function handleLeaguePress(item: any): void {
+    Alert.alert(
+      'Start New Week', // Title
+      `Ready to start week ${item.weeks+1}?`, // Message
+      [
+        {
+          text: 'Cancel',
+          onPress: () => console.log('Cancel Pressed'),
+          style: 'cancel', // Ensures a lighter style on iOS
+        },
+        {
+          text: 'OK',
+          onPress: async () => {
+            // Start a new session and add it to the selected league.
+            const sessionID = await startFirebaseSession(item.weeks+1, 'league', item.leagueID)
+            router.push({
+                        pathname: "../screens/game",
+                        params: {
+                          name: item.weeks+1,
+                          id: sessionID,
+                          leagueID: item.leagueID,
+                          type: 'league'
+                        }
+                })
+            console.log(`🔥 Session started ${sessionID}`)
+          },
+        },
+      ],
+      { cancelable: true } // Prevents dismissing by tapping outside
+    );
     console.log(`League clicked: ${item.leagueID}`)
   }
 

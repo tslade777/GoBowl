@@ -22,7 +22,7 @@ function subscribeToLeagues(callback: Callback) {
         return {
           title: data.title || "No Title",
           stats: data.stats || [],
-          weeks: data.weeks || [],
+          weeks: data.weeks || 0,
           leagueID: data.leagueID || "no id",
           dateModified: data.date ? (data.date as Timestamp).toDate() : new Date()
         };

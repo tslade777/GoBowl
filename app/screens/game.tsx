@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import BowlingGame from '../components/scoreboard/BowlingGame'
 import { arrayUnion, doc, setDoc, updateDoc } from 'firebase/firestore';
-import { db } from '@/firebase.config';
+import { db, FIREBASE_AUTH } from '@/firebase.config';
 import { useLocalSearchParams } from 'expo-router/build/hooks';
 import { router } from 'expo-router';
 import useBowlingStats from '../hooks/useBowlingStats';
@@ -18,7 +18,8 @@ const initialStats: SeriesStats = {
 
 const game = () => {
   const args = useLocalSearchParams();
-  const id = args.id as string;
+  const sessionID = args.id as string;
+  const leagueID = args.leagueID as string;
   const name = args.name as string;
   const type = args.type as string;
   const [numGames, setNumGames] = useState(0);
@@ -145,17 +146,21 @@ const game = () => {
    */
   const updateFirebaseGameComplete = async () =>{
       try{
+        if (FIREBASE_AUTH.currentUser != null){
+                let uID = FIREBASE_AUTH.currentUser.uid
+        
           if(type == 'league'){
-            await updateDoc(doc(db,`${type}Sessions`, id),{
+            // Error is in this document. Couldn't find document. NEED TO CREATE SESSION FIRST.
+            await updateDoc(doc(db,'leagueSessions', uID,  'Leagues', leagueID, 'sessions', sessionID),{
               games: gamesData,
               stats: seriesStats
             })
           }
-          await updateDoc(doc(db,`${type}Sessions`, id),{
+          await updateDoc(doc(db,`${type}Sessions`, sessionID),{
             games: gamesData,
             stats: seriesStats
           })
-
+        }
       }catch(e){
         console.log("👎 Something happened")
         console.error(e)

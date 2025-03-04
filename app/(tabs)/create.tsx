@@ -9,6 +9,7 @@ import { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-
 import { db, FIREBASE_AUTH, firestore } from '@/firebase.config';
 import { addDoc, collection, doc, Firestore, setDoc } from 'firebase/firestore';
 import { format } from "date-fns";
+import {startFirebaseSession} from "@/app/hooks/firebaseFunctions"
 
 
 
@@ -91,62 +92,20 @@ const animatedStyle = useAnimatedStyle(() => {
   }
 
   /**
-   * Start a firebase session either for practice or for open play.
-   * 
-   * @returns The document id of the session that was just started
-   */
-  const startFirebaseSession = async (): Promise<string> =>{
-    try{
-      if (FIREBASE_AUTH.currentUser != null){
-        let uID = FIREBASE_AUTH.currentUser.uid
-        
-        // Create a new league otherwise make a session.
-        if (sessionType=='league'){
-          const leageRef = collection(db, `leagueSessions`, uID, 'Leagues')
-          const docRef = await addDoc(leageRef,{
-            title: sessionName==''? format(new Date(), "EEEE, MMMM do, yyyy") : sessionName,
-            stats:[],
-            notes: "",
-            image: "",
-          })
-          return docRef.id
-        }
-        else{
-          const docRef = await addDoc(collection(db, `${sessionType}Sessions`),{
-            title: sessionName==''? format(new Date(), "EEEE, MMMM do, yyyy") : sessionName,
-            date: new Date(),
-            userID: uID, 
-            games: [],
-            stats:[],
-            notes: "",
-            image: "",
-          })
-          return docRef.id
-        }
-        
-        
-      }
-    }catch(e){
-      console.log(e)
-      return ''
-    }
-    return ''
-  }
-
-  /**
    * Either start a practice session or open session depending on the Session type
    *
    */
   const startSession = async () =>{
     console.log("Session start function")
     closeModal();
-    const id = await startFirebaseSession();
+    const id = await startFirebaseSession(sessionName, sessionType, '');
     console.log(`❄️ID: ${id}❄️`)
     router.push({
             pathname: "../screens/game",
             params: {
               name: sessionName,
               id: id,
+              leagueID: '',
               type: sessionType
             }
     })

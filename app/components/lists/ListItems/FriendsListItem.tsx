@@ -17,7 +17,7 @@ export default function LiveListItem({
   return (
     <TouchableOpacity
       className="flex-row items-center justify-between p-4 bg-slate-500 rounded-3xl my-3 active:bg-gray-100"
-      onPressIn={onHold} // Handle hold event
+      onLongPress={onHold} // Handle hold event
       onPress={onTouch} // Handle touch event
     >
       <View className="flex-row items-center space-x-3">

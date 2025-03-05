@@ -17,7 +17,7 @@ const Stream: React.FC<FriendProps> = ({id,username,active}) => {
   const [frames, setFrames] = useState(
     Array(10).fill(null).map(() => ({ roll1: '', roll2: '', roll3: '', score: 0 ,
       firstBallPins: Array(10).fill(false),secondBallPins:Array(10).fill(false), 
-      isSpare: false, isStrike: false, visible: false }))
+      isSpare: false, isStrike: false, visible: false, isSplit: false }))
   );
   const [currentFrame, setCurrentFrame] = useState(0);
   const [farthestFrame, setFarthestFrame] = useState(0);
@@ -137,7 +137,8 @@ const Stream: React.FC<FriendProps> = ({id,username,active}) => {
               roll1={frame.isStrike ? 'X' : frame.roll1 == '0' ? '-' : frame.roll1} 
               roll2={frame.isSpare ? '/' : frame.roll2 == '0' ? '-' : frame.roll2} 
               total={frame.visible ? '' : currentFrame > index ? frame.score.toString() : ''}
-              isSelected= {currentFrame==index} 
+              isSelected= {currentFrame==index}
+              isSplit= {frame.isSplit}
               />      
             </TouchableOpacity>
           ))}
@@ -152,6 +153,7 @@ const Stream: React.FC<FriendProps> = ({id,username,active}) => {
             frames[9].roll3 == '0' ? '-' : frames[9].roll3} 
             total={(!gameComplete) ? '' : frames[9].score.toString()}
           isSelected= {currentFrame==9}  
+          isSplit = {frames[9].isSplit}
           />
           </View>}
          

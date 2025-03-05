@@ -7,25 +7,23 @@ import { FIREBASE_AUTH, db } from '@/firebase.config';
 import SearchBar from "../components/SearchBar";
 import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from "react-native-reanimated";
 import { router } from 'expo-router';
+import { Friend } from '../src/values/types';
+import { defaultFriend } from '../src/values/defaults';
+import LiveListItem from '../components/lists/ListItems/FriendsListItem';
 
-interface User {
-  id: string;
-  username: string;
-  active: boolean;
-}
 
 const Friends = () => {
-  const [friends, setFriends] = useState<User[]>([]);
+  const [friends, setFriends] = useState<Friend[]>([]);
   const [activeFriends, setActiveFriends] = useState<string[]>([]);
-  const [usersData, setUsersData] = useState<User[]>([]);
+  const [usersData, setUsersData] = useState<Friend[]>([]);
   const [loading, setLoading] = useState(true);
   const [showOptions, setShowOptions] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
   const [isRendered, setIsRendered] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
 
-  const defaultFriend = { id: "", username: "Unknown User", active: false }; // ✅ Prevents `null` issues
-  const [selectedFriend, setSelectedFriend] = useState<User>(defaultFriend); // ✅ Uses default instead of `null`
+  
+  const [selectedFriend, setSelectedFriend] = useState<Friend>(defaultFriend); // ✅ Uses default instead of `null`
 
   
   const scale = useSharedValue(0);
@@ -49,7 +47,7 @@ const Friends = () => {
     const docRef = doc(db, 'userFriends', currentUser.uid);
     const unsubscribe = onSnapshot(docRef, (docSnap) => {
       if (docSnap.exists()) {
-        const friendsList: User[] = docSnap.data().friendsList || [];
+        const friendsList: Friend[] = docSnap.data().friendsList || [];
         console.log(`📜 Friends list loaded: ${friendsList.length} friends`);
         setFriends(friendsList);
       } else {
@@ -93,10 +91,11 @@ const Friends = () => {
       setSearchLoading(true);
       const q = query(collection(db, 'users'));
       const querySnapshot = await getDocs(q);
-      const usersList: User[] = querySnapshot.docs
+      const usersList: Friend[] = querySnapshot.docs
         .map(doc => ({
           id: doc.data().id,
           username: doc.data().username,
+          profilePic: doc.data().profilePic,
           active: false
         }))
         .filter(user => user.id !== currentUser.uid); // Exclude current user
@@ -111,7 +110,7 @@ const Friends = () => {
   };
 
   // Add User to Friends List in Firebase
-  const addFriend = async (user: User) => {
+  const addFriend = async (user: Friend) => {
     try {
       if (!currentUser) return;
 
@@ -138,7 +137,7 @@ const Friends = () => {
    * User should be presented a menu when long press is detected. 
    * @param friend 
    */
-  const handleLongPress = (friend: User) => {
+  const handleLongPress = (friend: Friend) => {
     setSelectedFriend(friend);
     setIsRendered(true);
 
@@ -172,7 +171,7 @@ const Friends = () => {
    * User should be redirected to the friends stream when pressed and their live. 
    * @param friend 
    */
-  const handlePress = (friend: User) =>{
+  const handlePress = (friend: Friend) =>{
     if (friend.active){
       // Route to stream page
       router.push({
@@ -215,7 +214,7 @@ const Friends = () => {
    * 
    * @param friend 
    */
-  const viewProfile = (friend: User ) => {
+  const viewProfile = (friend: Friend ) => {
     console.log(`👤 Viewing profile of ${friend?.username}`);
     closeModal();
   };
@@ -227,7 +226,7 @@ const Friends = () => {
    * 
    * @returns 
    */
-  const removeFriend = async (friend: User ) => {
+  const removeFriend = async (friend: Friend ) => {
     if (!currentUser) return;
     try {
       const updatedFriends = friends.filter(f => f.id !== friend?.id);
@@ -253,23 +252,13 @@ const Friends = () => {
           <ActivityIndicator size='large' color='#F24804' />
         ) : (
           <FlatList
-            className='mt-10 border-t border-orange'
+            className='mt-2 mx-2'
             data={friends}
             keyExtractor={(item) => item.id}
             showsVerticalScrollIndicator={false}
-            ItemSeparatorComponent={() => <View className="h-[2px] bg-orange m-1 " />}
+            ItemSeparatorComponent={() => <View className="" />}
             renderItem={({ item }) => (
-              <TouchableOpacity
-                className={`flex-row bg-primary p-4 mb-3 rounded-lg shadow-md w-full justify-between items-center`}
-                onLongPress={() => handleLongPress(item)}
-                onPress={()=>{handlePress(item)}}
-                activeOpacity={0.7}
-              >
-                <View>
-                  <Text className="text-2xl font-pextrabold text-white">{item.username}</Text>
-                </View>
-                {item.active && <View className="w-6 h-6 bg-green-500 rounded-full" />}
-              </TouchableOpacity>
+              <LiveListItem username={item.username} active={item.active} onHold={()=>{handleLongPress(item)}} onTouch={()=>{handlePress(item)}}></LiveListItem>
             )}
           />
         )}

@@ -1,4 +1,4 @@
-import { SeriesStats, BowlingStats, PinCombinations } from "./types";
+import { SeriesStats, BowlingStats, PinCombinations, Friend } from "./types";
 // defaults.ts or constants.ts
 export const defaultSeriesStats: SeriesStats = {
     seriesScore: 0,
@@ -57,4 +57,6 @@ export const bowlingStats: BowlingStats = {
   washoutsConverted: 0,
   pinCombinations: {}
 }
+
+export const defaultFriend: Friend = { id: "", username: "Unknown User", profilePic:"", active: false }; // ✅ Prevents `null` issues
   

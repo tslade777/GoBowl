@@ -100,4 +100,11 @@ export interface Frame {
   export interface PinCombinations {
     [combination: string]: PinCombinationStats;
   }
+
+  export interface Friend {
+    id: string;
+    username: string;
+    profilePic: string;
+    active: boolean;
+  }
   

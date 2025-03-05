@@ -1,22 +1,18 @@
 import React, { useEffect, useState } from "react";
 import { View, TextInput, FlatList, Text, TouchableOpacity, Keyboard } from "react-native";
 import "react-native-gesture-handler";
+import { Friend } from "../src/values/types";
 
-interface User {
-  id: string;
-  username: string;
-  active: boolean;
-}
 
 interface SearchBarProps {
-  data: User[];
-  onSelect: (item: User) => void;
+  data: Friend[];
+  onSelect: (item: Friend) => void;
   onFocus: () => void; // Fix: onFocus should be a function (no parameters)
 }
 
 const SearchBar: React.FC<SearchBarProps> = ({ data, onFocus, onSelect }) => {
   const [query, setQuery] = useState("");
-  const [filteredData, setFilteredData] = useState<User[]>([]);
+  const [filteredData, setFilteredData] = useState<Friend[]>([]);
   const [showDropdown, setShowDropdown] = useState(false);
 
   useEffect(() => {
@@ -44,7 +40,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ data, onFocus, onSelect }) => {
     }
   };
 
-  const handleSelect = (item: User) => {
+  const handleSelect = (item: Friend) => {
     console.log("Selected Item:", item);
     setQuery(""); // Clear the input
     setShowDropdown(false); // Hide dropdown

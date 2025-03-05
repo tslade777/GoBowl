@@ -16,7 +16,7 @@ const CustomButtonBowling = ({title, image, handlePress}:
             className='w-48 h-48'
             resizeMode='contain'
           />
-          <Text className="text-3xl font-pbold mt-2 text-white">
+          <Text className="text-3xl font-pbold mt-2 text-orange">
             {title?.toString() || "Default Title"}
           </Text>
         </View>

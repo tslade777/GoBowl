@@ -6,12 +6,15 @@ import StatsTab from "../components/Tabs/stats";
 import SessionsTab from "../components/Tabs/sessions";
 import { Series } from "@/app/src/values/types";
 import {getSessions} from "../hooks/firebaseFunctions";
+import { SESSIONS } from "../src/config/constants";
 
 const Tab = createMaterialTopTabNavigator();
 
 const StatsScreen = () => {
     const params = useLocalSearchParams();
     const type = params.type as string;
+    const title = type == SESSIONS.league ? 'League Stats': SESSIONS.open ? 'Open Stats' : 
+    SESSIONS.tournament ? 'Tournament Stats' : SESSIONS.practice ? 'Practice Stats' : 'Default'
     const [sessionData, setSessionData] = useState<Series[]>([]);
     
       useEffect(() => {
@@ -26,8 +29,8 @@ const StatsScreen = () => {
     return (
       <View className="flex-1 bg-primary">
         {/* Page Title */}
-        <View className="py-4 px-6 bg-blue-500">
-          <Text className="text-white text-2xl font-psemibold">{type.charAt(0).toLocaleUpperCase() + type.slice(1)} Stats and Games</Text>
+        <View className="py-4 px-6 justify-center items-center bg-blue-500">
+          <Text className="text-orange text-3xl font-pbold">{title}</Text>
         </View>
   
         {/* Nested Top Tabs */}

@@ -5,27 +5,37 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import BowlingGameButton from '../components/buttons/BowlingGameButton';
 import { router } from 'expo-router';
 import { SESSIONS } from '../src/config/constants';
+import images from '@/constants/images';
+import StatsButton from '../components/buttons/StatsButton';
 
 const Stats = () => {
   return (
     <SafeAreaView className="bg-primary h-full">
-      <View className='flex flex-row flex-wrap mt-20 items-center justify-center'>
-        <BowlingGameButton
-              title="Practice stats"
+      <View className='mt-20 items-center justify-center'>
+      <Text className='text-orange text-4xl font-pbold'>STATS</Text>
+      </View>
+      
+      <View className='flex flex-row flex-wrap items-center justify-center'>
+        <StatsButton
+              title="Practice"
+              image={images.practice}
               handlePress={() => 
                 router.push({pathname:"/screens/statsScreen", params: {type: SESSIONS.practice}})
               }
             />
-        <BowlingGameButton
-              title="Open Stats"
+        <StatsButton
+              title="Open"
+              image={images.practice}
               handlePress={() => router.push({pathname:"/screens/statsScreen", params: {type: SESSIONS.open}})}
             />
-        <BowlingGameButton
-              title="League Stats"
+        <StatsButton
+              title="League"
+              image={images.practice}
               handlePress={() => router.push("/screens/leagueStats")}
             />
-        <BowlingGameButton
-              title="Tournament Stats"
+        <StatsButton
+              title="Tournament"
+              image={images.practice}
               handlePress={() => router.push({pathname:"/screens/statsScreen", params: {type: SESSIONS.tournament}})}
             />
       </View>

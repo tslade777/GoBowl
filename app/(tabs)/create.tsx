@@ -8,6 +8,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 import {startFirebaseSession} from "@/app/hooks/firebaseFunctions"
 import { ACTIVESESSION, INPROGRESS, SESSIONS, SESSIONSTARTED } from '../src/config/constants';
+import { images } from '@/constants';
 
 
 
@@ -217,18 +218,22 @@ const animatedStyle = useAnimatedStyle(() => {
       <View className='flex flex-row flex-wrap mt-20 items-center justify-center'>
       <BowlingGameButton
             title="Practice"
+            image={images.practice}
             handlePress={() => showOptions(SESSIONS.practice)}
           />
       <BowlingGameButton
             title="Open"
+            image={images.practice}
             handlePress={() => showOptions(SESSIONS.open)}
           />
       <BowlingGameButton
             title="League"
+            image={images.practice}
             handlePress={() => startLeagueSession()}
           />
       <BowlingGameButton
             title="Tournament"
+            image={images.practice}
             handlePress={() => showOptions(SESSIONS.tournament)}
           />
 

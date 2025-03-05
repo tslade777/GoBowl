@@ -12,18 +12,18 @@ const BowlingSeriesItem = ({ series, onPress }: { series: any; onPress: () => vo
         <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
             <View className="bg-gray-300 shadow-md rounded-2xl p-4 my-2 mt-3 mx-4">
                 <View className="flex-row justify-between">
-                    <Text className="text-2xl font-bold text-blue-600">{series.title}</Text>
-                    <Text className="text-gray-900 text-lg font-semibold">{series.date.toLocaleDateString()}</Text>
+                    <Text className="text-2xl font-pbold text-blue-600">{series.title}</Text>
+                    <Text className="text-gray-900 text-lg font-pbold">{series.date.toLocaleDateString()}</Text>
                 </View>
                 <View className="flex-row justify-evenly mt-1">
                     <Text className="text-lg text-gray-500">
-                        Avg: <Text className="font-bold">{isNaN(stats.average) ? '--' : stats.average}</Text>
+                        Avg: <Text className="font-pbold">{isNaN(stats.average) ? '--' : stats.average}</Text>
                     </Text>
                     <Text className="text-lg text-gray-500">
-                        High: <Text className="font-bold">{isNaN(stats.highGame) ? '--' : stats.highGame}</Text>
+                        High: <Text className="font-pbold">{isNaN(stats.highGame) ? '--' : stats.highGame}</Text>
                     </Text>
                     <Text className="text-lg text-gray-500">
-                        Strikes: <Text className="font-bold">{isNaN(stats.totalStrikes) ? '--' : stats.totalStrikes}</Text>
+                        Strikes: <Text className="font-pbold">{isNaN(stats.totalStrikes) ? '--' : stats.totalStrikes}</Text>
                     </Text>
                 </View>
             </View>

@@ -57,6 +57,14 @@ if(!fontsLoaded && !error) return null;
           },
           headerTintColor: 'white'
           }}/>
+          <Stack.Screen name="screens/leagueStats" options={{
+          headerShadowVisible:false,
+          title:"",
+          headerStyle: {
+            backgroundColor: '#161622'
+          },
+          headerTintColor: 'white'
+          }}/>
           <Stack.Screen name="streamview" options={{
           headerShadowVisible:false,
           title:"",
@@ -65,6 +73,16 @@ if(!fontsLoaded && !error) return null;
           },
           headerTintColor: 'white'
           }}/>
+          <Stack.Screen name="screens/statsScreenLeagues" options={{
+          headerShadowVisible:false,
+          title:"",
+          headerStyle: {
+            backgroundColor: '#161622'
+          },
+          headerTintColor: 'white'
+          }}/>
+
+
           <Stack.Screen name="screens/previousGame" options={{
           headerShadowVisible:false,
           title:"",

@@ -4,3 +4,8 @@ export const SESSIONS = {
   practice: "practiceSessions",
   tournament: "tournamentSessions",
 };
+
+const defaultValue = {
+
+}
+export default defaultValue;

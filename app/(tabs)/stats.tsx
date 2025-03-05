@@ -22,7 +22,7 @@ const Stats = () => {
             />
         <BowlingGameButton
               title="League Stats"
-              handlePress={() => router.push("/home")}
+              handlePress={() => router.push("/screens/leagueStats")}
             />
         <BowlingGameButton
               title="Tournament Stats"

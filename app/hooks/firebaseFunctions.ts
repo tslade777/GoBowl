@@ -4,6 +4,11 @@ import { db, FIREBASE_AUTH } from "@/firebase.config";
 import { format } from "date-fns";
 import { SESSIONS } from "../src/config/constants";
 
+/**
+ * Retrieve the session data from a specific session
+ * @param sessionType {practiceSessions, openSessions, tournamentSessions}
+ * @returns 
+ */
 async function getSessions(sessionType: string): Promise<Series[]>{
     const currentUser = FIREBASE_AUTH.currentUser;
     if (!currentUser) {
@@ -43,6 +48,47 @@ async function getSessions(sessionType: string): Promise<Series[]>{
     }
 };
 
+/**
+ * Retrieve the session data from a specific session
+ * @param sessionType {practiceSessions, openSessions, tournamentSessions}
+ * @returns 
+ */
+async function getLeagueSessions(leagueID: string): Promise<Series[]>{
+  const currentUser = FIREBASE_AUTH.currentUser;
+  if (!currentUser) {
+      console.warn("No user logged in.");
+      return [];
+  }
+
+  try {
+    // Reference to the Weeks collection inside a specific League
+    const weeksRef = collection(db, "leagueSessions", currentUser.uid, "Leagues", leagueID, "Weeks");
+
+    // Query all documents in the Weeks collection
+    const querySnapshot = await getDocs(query(weeksRef));
+
+    // Convert Firestore data into an array of Series objects
+    const weeks: Series[] = querySnapshot.docs.map((doc) => {
+      const data = doc.data();
+
+      return {
+        id: doc.id,
+        date: data.date.toDate(), // Convert Firestore Timestamp to JavaScript Date
+        games: data.games || [],
+        notes: data.notes || "",
+        title: data.title || "",
+        userID: data.userID || "",
+        stats: data.stats || [],
+      };
+    });
+
+    console.log("✅ Fetched Weeks:", weeks);
+    return weeks;
+  } catch (error) {
+      console.error("Error fetching sessions:", error);
+      return [];
+  }
+};
 
 /**
    * Start a firebase session either for practice or for open play.
@@ -178,4 +224,4 @@ const updateFirebaseGameComplete = async (type:string, name:string, leagueID:str
 
 export {getSessions, startFirebaseSession, 
   updateFirebaseLeagueWeekCount, createNewLeauge,
-  updateFirebaseGameComplete };
+  updateFirebaseGameComplete, getLeagueSessions };

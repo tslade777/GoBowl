@@ -15,13 +15,16 @@ const LeagueListSingleItem = ({ league, onPress }: { league: any; onPress: () =>
                 </View>
                 <View className="flex-row justify-evenly mt-1">
                     <Text className="text-lg text-gray-500">
+                        Weeks: <Text className="font-bold">{league.weeks}</Text>
+                    </Text>
+                    <Text className="text-lg text-gray-500">
                         Avg: <Text className="font-bold">--</Text>
                     </Text>
                     <Text className="text-lg text-gray-500">
-                        High: <Text className="font-bold">--</Text>
+                        Game: <Text className="font-bold">--</Text>
                     </Text>
                     <Text className="text-lg text-gray-500">
-                        Strikes: <Text className="font-bold">--</Text>
+                        Series: <Text className="font-bold">--</Text>
                     </Text>
                 </View>
             </View>

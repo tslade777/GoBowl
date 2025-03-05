@@ -114,70 +114,63 @@ const leagues = () => {
   }
 
   return (
-    <SafeAreaView className="flex-1 justify-end items-end p-6 bg-primary h-full">
-       {/* Floating Button */}
-      {/* Floating Button */}
-      <LeagueList data={leagueData} onItemPress={handleLeaguePress} />
-      <TouchableOpacity
-        className="absolute bottom-5 right-5 w-18 h-18 bg-orange rounded-full shadow-lg justify-center items-center"
-        onPress={openModal}
+    <SafeAreaView className="flex-1 p-6 bg-primary h-full justify-center items-center">
+      <Text className="text-white font-psemibold text-5xl">
+        Leagues
+      </Text>
+
+  {/* Floating Button */}
+  <LeagueList data={leagueData} onItemPress={handleLeaguePress} />
+  
+  <TouchableOpacity
+    className="absolute bottom-5 right-5 w-18 h-18 bg-orange rounded-full shadow-lg justify-center items-center"
+    onPress={openModal}
+  >
+    <Ionicons name="add" size={70} color="white" />
+  </TouchableOpacity>
+
+  {/* Popup Modal */}
+  <Modal transparent visible={modalVisible} onRequestClose={closeModal}>
+    <View className="flex-1 justify-center items-center">
+      <TouchableOpacity 
+        className="absolute w-full h-full" 
+        activeOpacity={1} 
+        onPress={closeModal} 
+      />
+      <Animated.View
+        className="bg-white bg-opacity-70 p-6 rounded-3xl w-80 shadow-lg"
+        style={{
+          transform: [{ scale: scaleAnim }],
+          opacity: opacityAnim,
+        }}
       >
-        <Ionicons name="add" size={70} color="white" />
-      </TouchableOpacity>
-      
-
-      {/* Popup Modal */}
-      <Modal transparent visible={modalVisible} onRequestClose={closeModal}>
-        <View className="flex-1 justify-center items-center">
-          {/* Background Overlay (Transparent Clickable Area) */}
-          <TouchableOpacity 
-            className="absolute w-full h-full" 
-            activeOpacity={1} 
-            onPress={closeModal} 
-          />
-
-          {/* Animated Popup */}
-          <Animated.View
-            className="bg-white bg-opacity-70 p-6 rounded-3xl w-80 shadow-lg"
-            style={{
-              transform: [{ scale: scaleAnim }],
-              opacity: opacityAnim,
+        <Text className="text-2xl font-pbold mb-2">League Name:</Text>
+        <TextInput
+          placeholder="Type here..."
+          value={inputValue}
+          onChangeText={setInputValue}
+          className="border border-gray-300 bg-gray-300 rounded-xl p-2 mb-4 w-full"
+        />
+        <View className="flex-row justify-between">
+          <TouchableOpacity className="bg-red-600 px-4 py-2 rounded-xl" onPress={closeModal}>
+            <Text className="text-white font-semibold">Cancel</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            className="bg-green-600 px-4 py-2 rounded-xl"
+            onPress={() => {
+              console.log("Started with:", inputValue);
+              createNewLeauge(inputValue);
+              closeModal();
             }}
           >
-            <Text className="text-2xl font-pbold mb-2">League Name:</Text>
-
-            {/* User Input */}
-            <TextInput
-              placeholder="Type here..."
-              value={inputValue}
-              onChangeText={setInputValue}
-              className="border border-gray-300 bg-gray-300 rounded-xl p-2 mb-4 w-full"
-            />
-
-            {/* Buttons */}
-            <View className="flex-row justify-between">
-              {/* Cancel Button */}
-              <TouchableOpacity className="bg-red-600 px-4 py-2 rounded-xl" onPress={closeModal}>
-                <Text className="text-white font-semibold">Cancel</Text>
-              </TouchableOpacity>
-
-              {/* Start Button */}
-              <TouchableOpacity
-                className="bg-green-600 px-4  py-2 rounded-xl"
-                onPress={() => {
-                  console.log("Started with:", inputValue);
-                  createNewLeauge(inputValue); 
-                  closeModal();
-                }}
-              >
-                <Text className="text-white font-semibold">Start</Text>
-              </TouchableOpacity>
-              
-            </View>
-          </Animated.View>
+            <Text className="text-white font-semibold">Start</Text>
+          </TouchableOpacity>
         </View>
-      </Modal>
-    </SafeAreaView>
+      </Animated.View>
+    </View>
+  </Modal>
+</SafeAreaView>
+
     
   );
 };

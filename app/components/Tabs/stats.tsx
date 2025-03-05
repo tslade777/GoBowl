@@ -1,6 +1,5 @@
 import { View, Text, ScrollView } from 'react-native'
 import React, { useState } from 'react'
-import PracticeStatsList from '../PracticeStatsListPage'
 import { Series } from '@/app/src/values/types';
 import StatTile from '../StatTile';
 import parseTotalSessionStats from '../../hooks/parseTotalSessionStats';

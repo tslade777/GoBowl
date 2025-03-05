@@ -81,8 +81,6 @@ async function getLeagueSessions(leagueID: string): Promise<Series[]>{
         stats: data.stats || [],
       };
     });
-
-    console.log("✅ Fetched Weeks:", weeks);
     return weeks;
   } catch (error) {
       console.error("Error fetching sessions:", error);

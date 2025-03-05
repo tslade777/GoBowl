@@ -8,7 +8,8 @@ const TenthFrame = ({
   roll2 = '', 
   roll3 = '', 
   total = '',
-  isSelected = false  
+  isSelected = false,
+  isSplit = false 
 }) => {
   return (
     <View className="items-center">
@@ -22,11 +23,17 @@ const TenthFrame = ({
       >
         {/* Rolls */}
         <View className="flex-row">
-          {[roll1, roll2, roll3].map((roll, index) => (
-            <View key={index} className={`flex-1 items-center justify-center ${index < 2 ? "border-r border-black" : ""}`}>
-              <Text className="text-lg font-bold">{roll}</Text>
-            </View>
-          ))}
+          
+        <View className={`flex-1 items-center justify-center  border-r border-black`}>
+          <Text className={`text-lg ${isSplit && roll1=='10' ? 'text-red-500':'text-black'} font-bold`}>{roll1}</Text>
+        </View>
+        <View className={`flex-1 items-center justify-center  border-r border-black`}>
+          <Text className={`text-lg ${isSplit && roll1!='10' ? 'text-red-500':'text-black'} font-bold`}>{roll2}</Text>
+        </View>
+        <View className={`flex-1 items-center justify-center`}>
+          <Text className={`text-lg text-black font-bold`}>{roll3}</Text>
+        </View>
+          
         </View>
 
         {/* Total Score */}

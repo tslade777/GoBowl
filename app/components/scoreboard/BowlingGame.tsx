@@ -551,11 +551,12 @@ const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent, toggleBow
       frame.isSpare = (parseInt(frame.roll1) + parseInt(frame.roll2) == 10 && (!frame.isStrike))
       frame.score = frame.score + rollValue;
       updatedFrames[currentFrame] = frame;
-      frame.isSplit = checkIsSplit(pins) && frame.roll1 == '10'
       if (frame.roll2 != '10'){
         updatedFrames = showFrames(updatedFrames)
         setStriking(false);
       }
+      if(!frame.isSplit)
+        frame.isSplit = checkIsSplit(pins) && frame.roll1 == '10'
       setFrames(calculateTotalScore(updatedFrames));
 
       // User gets an extra shot if spare or strike
@@ -675,7 +676,8 @@ const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent, toggleBow
             && (parseInt(frames[9].roll2) + parseInt(frames[9].roll3)==10)) ? '/':
             frames[9].roll3 == '0' ? '-' : frames[9].roll3} 
           total={(!gameComplete) ? '' : frames[9].score.toString()}
-          isSelected= {currentFrame==9}  
+          isSelected= {currentFrame==9}
+          isSplit = {frames[9].isSplit}   
         />
         </View>
         <View className=" flex-row  px-4">

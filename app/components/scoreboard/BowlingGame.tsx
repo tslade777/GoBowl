@@ -5,7 +5,7 @@ import Frame from './Frame';
 import TenthFrame from './TenthFrame';
 import { FIREBASE_AUTH, db } from '../../../firebase.config'
 import { doc, updateDoc, setDoc } from 'firebase/firestore';
-import { BOWLINGSTATE, INPROGRESS } from '@/app/src/config/constants';
+import { BOWLINGSTATE, INPROGRESS, SPLITS } from '@/app/src/config/constants';
 
 type ChildComponentProps = {
   sendDataToParent: (data: any) => void; // Define the function type
@@ -347,81 +347,15 @@ const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent, toggleBow
    * @returns true if a split is detected.
    */
   const checkIsSplit = (pins: boolean[]) =>{
-    // Define bowling pin adjacency (which pins are directly connected)
-    const pinLayout: Record<number, number[]> = {
-      1: [2, 3],
-      2: [1, 4, 5],
-      3: [1, 5, 6],
-      4: [2, 7, 8, 5],
-      5: [2, 3, 4, 6, 8, 9],
-      6: [3, 5, 9, 10],
-      7: [4, 8],
-      8: [4, 5, 7, 9],
-      9: [5, 6, 8, 10],
-      10: [6, 9],
-    };
+    if (pins[0] === false) return false; // If the headpin (#1) is still standing, it's not a split
+
+    // Convert standing pins into a sorted index string
+    const standingPinIndices = pins
+      .map((pin, index) => (!pin ? index : null))
+      .filter(index => index !== null)
+      .join("");
   
-    // Defines which pins are "supporting" (i.e., if missing, the pin in front should be considered a split)
-    const supportingPins: Record<number, number[]> = {
-      2: [5],
-      3: [5],
-      4: [8],
-      5: [8, 9],
-      6: [9],
-      7: [],
-      8: [],
-      9: [],
-      10: [],
-    };
-  
-    const headPinDown = pins[0]; // Headpin (#1)
-    if (!headPinDown) return false; // If the headpin is standing, it's never a split.
-  
-    // Get standing pins as an array of pin numbers
-    const standingPins = pins
-      .map((pin, index) => (!pin ? index + 1 : null)) // Convert false (standing) to pin numbers
-      .filter((pin) => pin !== null) as number[];
-  
-    if (standingPins.length < 2) return false; // A split requires at least 2 pins
-  
-    // Function to find connected groups of standing pins
-    const findConnectedGroups = (pinsList: number[]): number[][] => {
-      let groups: number[][] = [];
-      let visited = new Set<number>();
-  
-      const dfs = (pin: number, group: number[]) => {
-        visited.add(pin);
-        group.push(pin);
-        for (let adjPin of pinLayout[pin] || []) {
-          if (pinsList.includes(adjPin) && !visited.has(adjPin)) {
-            dfs(adjPin, group);
-          }
-        }
-      };
-  
-      for (let pin of pinsList) {
-        if (!visited.has(pin)) {
-          let group: number[] = [];
-          dfs(pin, group);
-          groups.push(group);
-        }
-      }
-  
-      return groups;
-    };
-  
-    // Find separate groups of standing pins
-    const groups = findConnectedGroups(standingPins);
-  
-    // 🚨 NEW FIX: Allow splits when standing pins have no supporting pin behind them
-    const isFloatingSplit = standingPins.some(pin => 
-      supportingPins[pin]?.length > 0 && supportingPins[pin].every(supportPin => !standingPins.includes(supportPin))
-    );
-  
-    // A split occurs if:
-    // - There are two disconnected groups **OR**
-    // - The remaining standing pins are "floating" without back support
-    return groups.length > 1 || isFloatingSplit;
+    return SPLITS.has(standingPinIndices);
   };
   
   // Handle unique pin toggle of tenth frame

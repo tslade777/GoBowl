@@ -5,6 +5,11 @@ export const SESSIONS = {
   tournament: "tournamentSessions",
 };
 
+export const BOWLINGSTATE = 'bowlingGameState';
+export const INPROGRESS = 'gameInProgress'
+export const ACTIVESESSION = 'currentSession'
+export const SESSIONSTARTED = 'sessionStarted'
+
 const defaultValue = {
 
 }

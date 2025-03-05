@@ -9,6 +9,8 @@ import LeagueList from '../components/lists/LeagueList';
 import { League } from '../src/values/types';
 import subscribeToLeagues from '../hooks/GetLeaguesByID';
 import { createNewLeauge, startFirebaseSession } from '../hooks/firebaseFunctions';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { SESSIONS, SESSIONSTARTED } from '../src/config/constants';
 
 
 
@@ -22,6 +24,7 @@ const leagues = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    
     fetchData()
   }, []);
   /**
@@ -89,14 +92,15 @@ const leagues = () => {
           onPress: async () => {
             try{
               // Start a new session and add it to the selected league.
-              const sessionID = await startFirebaseSession(weekNum.toString(), 'league', item.leagueID);
+              const sessionID = await startFirebaseSession(weekNum.toString(), SESSIONS.league, item.leagueID);
+              await AsyncStorage.setItem(SESSIONSTARTED, JSON.stringify(true));
               router.push({
                           pathname: "../screens/game",
                           params: {
                             name: weekNum.toString(),
                             id: sessionID,
                             leagueID: item.leagueID,
-                            type: 'league'
+                            type: SESSIONS.league
                           }
                   })
             }catch(e){

@@ -1,4 +1,4 @@
-import { View, Text, StyleSheet, Platform, ActionSheetIOS, Modal, TouchableWithoutFeedback, Animated, TouchableOpacity, TextInput } from 'react-native'
+import { View, Text, StyleSheet, Platform, ActionSheetIOS, Modal, TouchableWithoutFeedback, Animated, TouchableOpacity, TextInput, Alert } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import "../../global.css";
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -6,11 +6,8 @@ import BowlingGameButton from "../components/buttons/BowlingGameButton";
 import { Redirect, router, Tabs } from "expo-router";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
-import { db, FIREBASE_AUTH, firestore } from '@/firebase.config';
-import { addDoc, collection, doc, Firestore, setDoc } from 'firebase/firestore';
-import { format } from "date-fns";
 import {startFirebaseSession} from "@/app/hooks/firebaseFunctions"
-import { SESSIONS } from '../src/config/constants';
+import { ACTIVESESSION, INPROGRESS, SESSIONS, SESSIONSTARTED } from '../src/config/constants';
 
 
 
@@ -23,7 +20,6 @@ const [isModalVisible, setIsModalVisible] = useState(false);
 
 const [sessionType, setSessionType] = useState("Session");
 const [sessionName, setSessionName] = useState("")
-const [sessionDoc, setSessionDoc] = useState("")
 const [requiredName, setRequiredName] = useState(false)
 
 // 🔹 Animated styles (Fixes direct value access in JSX)
@@ -39,33 +35,84 @@ const animatedStyle = useAnimatedStyle(() => {
  * 
  * @param type is the type of session being started. 
  */
-  const showOptions = (type:string) => {
-    setSessionType(type)
-    setIsRendered(true);
-    
-    if (Platform.OS === "ios") {
-      ActionSheetIOS.showActionSheetWithOptions(
-        {
-          options: ["Cancel", "View Profile", "Remove Friend"],
-          cancelButtonIndex: 0,
-          destructiveButtonIndex: 2,
-        },
-        (buttonIndex) => {
-          if (buttonIndex === 1) {
-            //viewProfile(friend);
-          } else if (buttonIndex === 2) {
-            //removeFriend(friend);
+  const showOptions = async (stype:string) => {
+    setSessionType(stype)
+    const sessionStarted = await AsyncStorage.getItem(SESSIONSTARTED);
+    const savedSession = await AsyncStorage.getItem(ACTIVESESSION);
+    const started = sessionStarted ? JSON.parse(sessionStarted) : false;
+      
+    if(savedSession && started){
+      const { sessionID,leagueID,name,type,numGames,gamesData,activeGame, seriesStats,localHighGame,localLowGame, } = JSON.parse(savedSession);
+      // The session type clicked, is the currently active session, load it.
+      console.log(`${stype} == ${type}`)
+      if(stype == type){
+        router.push({
+          pathname: "../screens/game",
+          params: {
+            name: sessionName,
+            id: sessionID,
+            leagueID: leagueID,
+            type: type
           }
-        }
-      );
-    } else {
-      scale.value = 0.8;
-      opacity.value = 0;
-      setTimeout(() => {
-        setIsModalVisible(true);
-        scale.value = withSpring(1);
-        opacity.value = withTiming(1);
-      }, 50);
+        })
+      }
+      // The user is trying to start a new session while a different type is active.
+      else{
+        Alert.alert(
+          'Resume', // Title
+          `You've already started a ${type}! Resume?`, // Message
+          [
+            {
+              text: 'Cancel',
+              onPress: () => console.log('Cancel Pressed'),
+              style: 'cancel', // Ensures a lighter style on iOS
+            },
+            {
+              text: 'Resume',
+              onPress: async () => {
+                router.push({
+                  pathname: "../screens/game",
+                  params: {
+                    name: sessionName,
+                    id: sessionID,
+                    leagueID: leagueID,
+                    type: type
+                  }
+                })
+              },
+            },
+          ],
+          { cancelable: true } // Prevents dismissing by tapping outside
+        );
+      }
+    }
+    else{
+      setIsRendered(true);
+      
+      if (Platform.OS === "ios") {
+        ActionSheetIOS.showActionSheetWithOptions(
+          {
+            options: ["Cancel", "View Profile", "Remove Friend"],
+            cancelButtonIndex: 0,
+            destructiveButtonIndex: 2,
+          },
+          (buttonIndex) => {
+            if (buttonIndex === 1) {
+              //viewProfile(friend);
+            } else if (buttonIndex === 2) {
+              //removeFriend(friend);
+            }
+          }
+        );
+      } else {
+        scale.value = 0.8;
+        opacity.value = 0;
+        setTimeout(() => {
+          setIsModalVisible(true);
+          scale.value = withSpring(1);
+          opacity.value = withTiming(1);
+        }, 50);
+      }
     }
   }
 
@@ -92,12 +139,64 @@ const animatedStyle = useAnimatedStyle(() => {
     }
   }
 
+  const startLeagueSession = async () => {
+    const sessionStarted = await AsyncStorage.getItem(SESSIONSTARTED);
+    const savedSession = await AsyncStorage.getItem(ACTIVESESSION);
+    const started = sessionStarted ? JSON.parse(sessionStarted) : false;
+      
+    if(savedSession && started){
+      const { sessionID,leagueID,name,type,numGames,gamesData,activeGame,
+        seriesStats,localHighGame,localLowGame, } = JSON.parse(savedSession);
+        console.log(`${SESSIONS.league} == ${type}`)
+        if(type == SESSIONS.league)
+          router.push({
+            pathname: "../screens/game",
+            params: {
+              name: name.toString(),
+              id: sessionID,
+              leagueID: leagueID,
+              type: SESSIONS.league
+            }
+          })
+        else{
+          Alert.alert(
+            'Resume', // Title
+            `You've already started a ${type}! Resume?`, // Message
+            [
+              {
+                text: 'Cancel',
+                onPress: () => console.log('Cancel Pressed'),
+                style: 'cancel', // Ensures a lighter style on iOS
+              },
+              {
+                text: 'Resume',
+                onPress: async () => {
+                  router.push({
+                    pathname: "../screens/game",
+                    params: {
+                      name: sessionName,
+                      id: sessionID,
+                      leagueID: leagueID,
+                      type: type
+                    }
+                  })
+                },
+              },
+            ],
+            { cancelable: true } // Prevents dismissing by tapping outside
+          );
+        }
+    }
+    else{
+      router.push("../screens/leagues")
+    }
+  }
   /**
    * Either start a practice session or open session depending on the Session type
    *
    */
   const startSession = async () =>{
-    console.log("Session start function")
+    await AsyncStorage.setItem(SESSIONSTARTED, JSON.stringify(true));
     closeModal();
     const id = await startFirebaseSession(sessionName, sessionType, '');
     console.log(`❄️ID: ${id}❄️`)
@@ -126,7 +225,7 @@ const animatedStyle = useAnimatedStyle(() => {
           />
       <BowlingGameButton
             title="League"
-            handlePress={() => router.push("../screens/leagues")}
+            handlePress={() => startLeagueSession()}
           />
       <BowlingGameButton
             title="Tournament"

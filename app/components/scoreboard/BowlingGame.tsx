@@ -4,15 +4,15 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import Frame from './Frame';
 import TenthFrame from './TenthFrame';
 import { FIREBASE_AUTH, db } from '../../../firebase.config'
-import { collection, query, where, doc, getDoc, updateDoc, setDoc, arrayUnion } from 'firebase/firestore';
+import { doc, updateDoc, setDoc } from 'firebase/firestore';
+import { BOWLINGSTATE, INPROGRESS } from '@/app/src/config/constants';
 
 type ChildComponentProps = {
   sendDataToParent: (data: any) => void; // Define the function type
   toggleBowling: (inProgress: boolean) => void;
 };
 
-const BOWLINGSTATE = 'bowlingGameState';
-const INPROGRESS = 'gameInProgress'
+
 
 
 const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent, toggleBowling}) => {

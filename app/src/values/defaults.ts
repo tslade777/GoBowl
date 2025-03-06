@@ -58,5 +58,5 @@ export const bowlingStats: BowlingStats = {
   pinCombinations: {}
 }
 
-export const defaultFriend: Friend = { id: "", username: "Unknown User", profilePic:"", active: false }; // ✅ Prevents `null` issues
+export const defaultFriend: Friend = { id: "", username: "Unknown User", profilePic: "", active: false }; // ✅ Prevents `null` issues
   

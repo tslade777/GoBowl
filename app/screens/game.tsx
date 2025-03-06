@@ -140,7 +140,7 @@ const saveSession = async () => {
 
 const markSessionComplete = async () =>{
   try {
-    await AsyncStorage.setItem(SESSIONSTARTED, JSON.stringify(false))
+    await AsyncStorage.clear()
   } catch (error) {
     console.error('Error saving game:', error);
   }

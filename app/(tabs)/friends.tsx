@@ -95,7 +95,7 @@ const Friends = () => {
         .map(doc => ({
           id: doc.data().id,
           username: doc.data().username,
-          profilePic: doc.data().profilePic,
+          profilePic: doc.data().profilePic || "",
           active: false
         }))
         .filter(user => user.id !== currentUser.uid); // Exclude current user

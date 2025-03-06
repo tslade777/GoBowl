@@ -59,11 +59,16 @@ import { useState } from "react";
         singlePinAttempts++;
         if (isSpare) singlePinSpares++;
 
-        // Check if it was a ten pin or 7 pin
-        tenPins += firstBallPins[9] ? 0 : 1;
-        tenPinsConverted += (isSpare &&  firstBallPins[9]) ? 1 : 0;
-        sevenPins += firstBallPins[6] ? 0 : 1;
-        sevenPinsConverted += (isSpare && firstBallPins[6]) ? 1 : 0;
+        if (firstBallPins[9]){
+          tenPins += 1;
+          if (isSpare)
+            tenPinsConverted += 1;
+        }
+        else if (firstBallPins[6]){
+          sevenPins += 1;
+          if(isSpare)
+            sevenPinsConverted += 1;
+        }
       }
 
       splits += isSplit? 1 : 0;

@@ -8,6 +8,9 @@ import { Series, SeriesStats } from "../src/values/types";
 
     Object.entries(sessionData.stats).forEach(([key, value]) => {
       switch (key){
+        case "average":
+          initialStats.average = (initialStats.seriesScore/initialStats.numberOfGames);
+          break;
         case "singlePinSpares":
           initialStats.singlePinSpares += value;
           initialStats.singlePinSparePercentage = (initialStats.singlePinSpares / initialStats.singlePinAttempts)*100;
@@ -34,6 +37,7 @@ import { Series, SeriesStats } from "../src/values/types";
           break;
         case "seriesScore":
           initialStats.seriesScore +=value;
+          initialStats.average = (initialStats.seriesScore/initialStats.numberOfGames);
           break;
         case "singlePinAttempts":
           initialStats.singlePinAttempts += value;
@@ -50,7 +54,7 @@ import { Series, SeriesStats } from "../src/values/types";
           initialStats.lowGame = Math.min(initialStats.lowGame, value);
           break;
         case "tenPins":
-          initialStats.tenPins +=value;
+          initialStats.tenPins += value;
           initialStats.tenPinPercentage = (initialStats.tenPinsConverted/initialStats.tenPins)*100;
           break;
         case "sevenPins":

@@ -214,8 +214,8 @@ const animatedStyle = useAnimatedStyle(() => {
   }
   
   return (
-    <SafeAreaView className="bg-primary h-full">
-      <View className='flex flex-row flex-wrap mt-20 items-center justify-center'>
+    <SafeAreaView className={"bg-primary h-full"}>
+      <View className={'flex flex-row flex-wrap mt-20 items-center justify-center'}>
       <BowlingGameButton
             title="Practice"
             image={images.practice}

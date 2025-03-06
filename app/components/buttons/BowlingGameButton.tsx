@@ -11,7 +11,7 @@ const CustomButtonBowling = ({title, image, handlePress}:
         activeOpacity={.07}
         className={`rounded-xl h-50 w-50 m-4 justify-center items-center align-middle`}
        >
-       <View className={"items-center"}> {/* Center Image & Text */}
+       <View className={"items-center"}> 
           <Image 
             source={image}
             className={'w-48 h-48'}

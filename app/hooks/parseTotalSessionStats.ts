@@ -9,6 +9,9 @@ import { defaultSeriesStats } from '../src/values/defaults';
   sessionData.forEach((session)=>{
     Object.entries(session.stats).forEach(([key, value]) => {
       switch (key){
+        case "average":
+          initialStats.average = (initialStats.seriesScore/initialStats.numberOfGames);
+          break;
         case "singlePinSpares":
           initialStats.singlePinSpares += value;
           initialStats.singlePinSparePercentage = (initialStats.singlePinSpares / initialStats.singlePinAttempts)*100;
@@ -36,6 +39,7 @@ import { defaultSeriesStats } from '../src/values/defaults';
           break;
         case "seriesScore":
           initialStats.seriesScore +=value;
+          initialStats.average = (initialStats.seriesScore/initialStats.numberOfGames);
           break;
         case "singlePinAttempts":
           initialStats.singlePinAttempts += value;
@@ -60,23 +64,23 @@ import { defaultSeriesStats } from '../src/values/defaults';
           initialStats.sevenPinPercentage = (initialStats.sevenPinsConverted/initialStats.sevenPins)*100;
           break;
         case "tenPinsConverted":
-          initialStats.tenPinsConverted +=value;
+          initialStats.tenPinsConverted += value;
           initialStats.tenPinPercentage = (initialStats.tenPinsConverted/initialStats.tenPins)*100;
           break;
         case "sevenPinsConverted":
-          initialStats.sevenPinsConverted +=value;
+          initialStats.sevenPinsConverted += value;
           initialStats.sevenPinPercentage = (initialStats.sevenPinsConverted/initialStats.sevenPins)*100;
           break;
         case "strikeOpportunities":
-          initialStats.strikeOpportunities +=value;
+          initialStats.strikeOpportunities += value;
           initialStats.strikePercentage = (initialStats.totalStrikes / initialStats.strikeOpportunities)*100;
           break;
         case "splitsTotal":
-          initialStats.splitsTotal +=value;
+          initialStats.splitsTotal += value;
           initialStats.splitsPercentage = (initialStats.splitsConverted/initialStats.splitsTotal)*100;
           break;
         case "splitsConverted":
-          initialStats.splitsConverted +=value;
+          initialStats.splitsConverted += value;
           initialStats.splitsPercentage = (initialStats.splitsConverted/initialStats.splitsTotal)*100;
           break;
         case "washoutsTotal":

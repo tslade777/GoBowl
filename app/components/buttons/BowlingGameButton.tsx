@@ -4,6 +4,7 @@ import { images } from '@/constants'
 
 const CustomButtonBowling = ({title, image, handlePress}:
     {title:any, image:any, handlePress:any}) => {
+      const displayTitle = title?.toString() || "Default Title"
   return (
     <TouchableOpacity 
         onPress={handlePress}
@@ -17,7 +18,7 @@ const CustomButtonBowling = ({title, image, handlePress}:
             resizeMode='contain'
           />
           <Text className="text-3xl font-pbold mt-2 text-white">
-            {title?.toString() || "Default Title"}
+            {displayTitle}
           </Text>
         </View>
       

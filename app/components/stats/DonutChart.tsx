@@ -110,7 +110,7 @@ const DonutChart: React.FC<DonutChartProps> = ({
           color: color,
         }}
       >
-        {Math.round(percentage)}%
+        {isNaN(Math.round(percentage)) ? '--' : Math.round(percentage)+''}%
       </AnimatedText>
     </View>
   );

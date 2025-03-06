@@ -13,8 +13,8 @@ const Tab = createMaterialTopTabNavigator();
 const StatsScreen = () => {
     const params = useLocalSearchParams();
     const type = params.type as string;
-    const title = type == SESSIONS.league ? 'League Stats': SESSIONS.open ? 'Open Stats' : 
-    SESSIONS.tournament ? 'Tournament Stats' : SESSIONS.practice ? 'Practice Stats' : 'Default'
+    let title = type.slice(0, -8);
+    title = title.charAt(0).toUpperCase() + title.slice(1);
     const [sessionData, setSessionData] = useState<Series[]>([]);
     
       useEffect(() => {
@@ -30,7 +30,7 @@ const StatsScreen = () => {
       <View className="flex-1 bg-primary">
         {/* Page Title */}
         <View className="py-4 px-6 justify-center items-center bg-blue-500">
-          <Text className="text-orange text-3xl font-pbold">{title}</Text>
+          <Text className="text-orange text-3xl font-pbold">{title} Stats</Text>
         </View>
   
         {/* Nested Top Tabs */}

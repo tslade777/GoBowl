@@ -5,6 +5,7 @@ import { FIREBASE_AUTH, db } from '@/firebase.config';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { router } from 'expo-router';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Profile = () => {
   const user = FIREBASE_AUTH.currentUser;
@@ -108,6 +109,7 @@ const Profile = () => {
         await updateDoc(userRef, { active: false });
       }
       console.log("User logged out successfully");
+      await AsyncStorage.clear()
       router.replace('/(auth)/sign-in');
     } catch (error) {
       console.error("Error logging out: ", error);

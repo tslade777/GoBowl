@@ -17,7 +17,7 @@ const BowlingSeriesItem = ({ series, onPress }: { series: any; onPress: () => vo
                 </View>
                 <View className="flex-row justify-evenly mt-1">
                     <Text className="text-lg text-gray-500">
-                        Avg: <Text className="font-pbold">{isNaN(stats.average) ? '--' : stats.average}</Text>
+                        Avg: <Text className="font-pbold">{isNaN(stats.average) ? '--' : stats.average.toFixed(2)}</Text>
                     </Text>
                     <Text className="text-lg text-gray-500">
                         High: <Text className="font-pbold">{isNaN(stats.highGame) ? '--' : stats.highGame}</Text>

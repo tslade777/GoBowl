@@ -47,39 +47,30 @@ import { defaultSeriesStats, bowlingStats } from '../src/values/defaults';
           break;
         case "tenPins":
           initialStats.tenPins = value;
-          //initialStats.tenPinsConverted = (initialStats.tenPins / initialStats.tenPinsConverted)*100;
           break;
         case "tenPinsConverted":
           initialStats.tenPinsConverted = value;
-          //initialStats.tenPinsConverted = (initialStats.tenPins / initialStats.tenPinsConverted)*100;
           break;
         case "sevenPins":
           initialStats.sevenPins = value;
-          //initialStats.singlePinSparePercentage = (initialStats.sevenPins / initialStats.sevenPinsConverted)*100;
           break;
         case "sevenPinsConverted":
           initialStats.sevenPinsConverted = value;
-          //initialStats.strikePercentage = (initialStats.totalStrikes / initialStats.totalShots)*100;
           break;
         case "splits":
           initialStats.splits = value;
-          //initialStats.singlePinSparePercentage = (initialStats.singlePinSpares / initialStats.singlePinAttempts)*100;
           break;
         case "splitsConverted":
           initialStats.splitsConverted = value;
-          //initialStats.strikePercentage = (initialStats.totalStrikes / initialStats.strikeOpportunities)*100;
           break;
         case "washouts":
           initialStats.washouts = value;
-          //initialStats.strikePercentage = (initialStats.totalStrikes / initialStats.strikeOpportunities)*100;
           break;
         case "washoutsConverted":
           initialStats.washoutsConverted = value;
-          //initialStats.singlePinSparePercentage = (initialStats.singlePinSpares / initialStats.singlePinAttempts)*100;
           break;
         case "pinCombinations":
           initialStats.pinCombinations = value;
-          //initialStats.strikePercentage = (initialStats.totalStrikes / initialStats.strikeOpportunities)*100;
           break;
       }
     });

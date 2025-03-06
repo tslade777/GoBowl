@@ -40,7 +40,7 @@ const Submit = async () => {
       active: false,
       currentGame: gameState
     });
-    router.replace('/home')
+    router.replace('/create')
   } catch (error){
     setSubmitting(false)
     console.log(`Failed to log in. Error: ${error}`)

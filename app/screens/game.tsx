@@ -24,7 +24,7 @@ const game = () => {
   const [firstRender, setFirstRender] = useState(true)
   const [seriesStats, setSeriesStats] = useState<SeriesStats>(initialStats) 
   let highGame = 0;
-  let lowGame = 0;
+  let lowGame = 301;
   let sID = args.id as string;
   let lID = args.leagueID as string;
   let sName = args.name as string;

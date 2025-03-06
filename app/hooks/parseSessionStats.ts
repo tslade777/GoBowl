@@ -55,7 +55,7 @@ import { Series, SeriesStats } from "../src/values/types";
           break;
         case "sevenPins":
           initialStats.sevenPins +=value;
-          initialStats.sevenPins = (initialStats.sevenPinsConverted/initialStats.sevenPins)*100;
+          initialStats.sevenPinPercentage = (initialStats.sevenPinsConverted/initialStats.sevenPins)*100;
           break;
         case "tenPinsConverted":
           initialStats.tenPinsConverted +=value;
@@ -63,14 +63,14 @@ import { Series, SeriesStats } from "../src/values/types";
           break;
         case "sevenPinsConverted":
           initialStats.sevenPinsConverted +=value;
-          initialStats.sevenPins = (initialStats.sevenPinsConverted/initialStats.sevenPins)*100;
+          initialStats.sevenPinPercentage = (initialStats.sevenPinsConverted/initialStats.sevenPins)*100;
           break;
         case "strikeOpportunities":
           initialStats.strikeOpportunities +=value;
           initialStats.strikePercentage = (initialStats.totalStrikes / initialStats.strikeOpportunities)*100;
           break;
         case "splitsTotal":
-          initialStats.splitsTotal +=value;
+          initialStats.splitsTotal += value;
           initialStats.splitsPercentage = (initialStats.splitsConverted/initialStats.splitsTotal)*100;
           break;
         case "splitsConverted":
@@ -85,9 +85,9 @@ import { Series, SeriesStats } from "../src/values/types";
           initialStats.washoutsConverted += value;
           initialStats.washoutsPrecentage = (initialStats.washoutsConverted/initialStats.washoutsTotal)*100;
           break;
-          case "pinCombinations":
-            initialStats.pinCombinations = value;
-            break;
+        case "pinCombinations":
+          initialStats.pinCombinations = value;
+          break;
         default:
           break;
       }

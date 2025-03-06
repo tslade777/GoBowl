@@ -152,9 +152,6 @@ const markSessionComplete = async () =>{
  * @param games The number of games bowled.
  */
   const addToSerriesStats = (gameStats: BowlingStats, games: number) =>{
-    
-      highGame = Math.max(highGame, gameStats.finalScore)
-      lowGame = Math.min(lowGame, gameStats.finalScore)
       setSeriesStats((prevStats)=>({...prevStats,
         totalShots: gameStats.totalShots + prevStats.totalShots,
         seriesScore: gameStats.finalScore + prevStats.seriesScore,
@@ -170,8 +167,8 @@ const markSessionComplete = async () =>{
         openFramePercentage: (gameStats.openFrames + prevStats.openFrames)/(games*10),
         numberOfGames: games,
         average: (gameStats.finalScore + prevStats.seriesScore)/games,
-        highGame: highGame,
-        lowGame: lowGame,
+        highGame: Math.max(gameStats.finalScore, prevStats.highGame),
+        lowGame: Math.min(gameStats.finalScore, prevStats.lowGame ),
         tenPins: gameStats.tenPins + prevStats.tenPins,
         tenPinsConverted: gameStats.tenPinsConverted + prevStats.sevenPinsConverted,
         sevenPins: gameStats.sevenPins + prevStats.sevenPins,

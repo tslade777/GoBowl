@@ -1,5 +1,6 @@
 import { View, Text, TouchableOpacity, Image } from "react-native";
 import icons from '../../../../constants/icons'
+import { images } from "@/constants";
 
 export default function LiveListItem({
   username = "Username",
@@ -22,7 +23,7 @@ export default function LiveListItem({
     >
       <View className="flex-row items-center space-x-3">
         <Image
-          source={icons.profile}
+          source={profilePicture ? { uri: profilePicture } : icons.profile}
           className="w-10 h-10 rounded-full"
         />
         <Text className="text-white ml-3 text-2xl font-psemibold">{username}</Text>

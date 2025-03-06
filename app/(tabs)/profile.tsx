@@ -1,14 +1,16 @@
-import { View, Text, Button, TextInput, StyleSheet, ActivityIndicator, TouchableOpacity } from 'react-native';
+import { View, Text, Button, TextInput, StyleSheet, ActivityIndicator, TouchableOpacity, Image } from 'react-native';
 import React, { useEffect, useState } from 'react';
+import * as ImagePicker from 'expo-image-picker';
+import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import "../../global.css";
 import { FIREBASE_AUTH, db } from '@/firebase.config';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { router } from 'expo-router';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Profile = () => {
   const user = FIREBASE_AUTH.currentUser;
+  const storage = getStorage();
   const [userData, setUserData] = useState({
     username: "",
     email: "",
@@ -23,8 +25,19 @@ const Profile = () => {
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [originalData, setOriginalData] = useState(userData);
+  const [profileImage, setProfileImage] = useState<string | null>(null);
 
   useEffect(() => {
+    const fetchProfileImage = async () => {
+      if (!user) return;
+      try {
+        const imageRef = ref(storage, `profileImages/${user.uid}/${userData.username}.jpg`);
+        const imageUrl = await getDownloadURL(imageRef);
+        setProfileImage(imageUrl);
+      } catch (error) {
+        console.log('No profile image found in Firebase Storage.');
+      }
+    };
     const fetchUserData = async () => {
       if (!user) return;
       try {
@@ -43,6 +56,13 @@ const Profile = () => {
             highGame: data.highGame ? data.highGame.toString() : "",
             highSeries: data.highSeries ? data.highSeries.toString() : "",
           });
+        }
+        const imageRef = ref(storage, `profileImages/${user.uid}/${userData.username}.jpg`);
+        try {
+          const imageUrl = await getDownloadURL(imageRef);
+          setProfileImage(imageUrl);
+        } catch (error) {
+          console.log("No profile image found in Firebase Storage.");
         }
       } catch (error) {
         console.error("Error fetching user data: ", error);
@@ -109,12 +129,44 @@ const Profile = () => {
         await updateDoc(userRef, { active: false });
       }
       console.log("User logged out successfully");
-      await AsyncStorage.clear()
       router.replace('/(auth)/sign-in');
     } catch (error) {
       console.error("Error logging out: ", error);
     }
   };
+
+  const pickImage = async () => {
+    let result = await ImagePicker.launchImageLibraryAsync({
+      mediaTypes: ImagePicker.MediaTypeOptions.Images,
+      allowsEditing: true,
+      aspect: [1, 1],
+      quality: 1,
+    });
+
+    if (!result.canceled) {
+      const selectedImage = result.assets[0].uri;
+    // const fileExtension = selectedImage.split('.').pop();.${fileExtension}
+    const fileName = `${userData.username}.jpg`;
+
+    const response = await fetch(selectedImage);
+      const blob = await response.blob();
+      if (!user) return;
+      const imageRef = ref(storage, `profileImages/${user.uid}/${fileName}`);
+
+      try {
+      await uploadBytes(imageRef, blob);
+      try {
+        const downloadURL = await getDownloadURL(imageRef);
+        setProfileImage(downloadURL);
+      } catch (error) {
+        console.error("Error retrieving image URL: ", error);
+      }
+      } catch (error) {
+        console.error("Error uploading image: ", error);
+      };
+    }
+  };
+  
 
   return (
     <SafeAreaView style={styles.container}>
@@ -143,6 +195,9 @@ const Profile = () => {
         <ActivityIndicator size="large" color="#007BFF" style={{ marginTop: 20 }} />
       ) : (
         <View style={styles.content}>
+           <TouchableOpacity onPress={pickImage} activeOpacity={0.7}>
+            <Image source={profileImage ? { uri: profileImage } : require('../../assets//images/profile.png')} style={styles.profileImage} />
+          </TouchableOpacity>
           <Text style={styles.info}>Username: {userData.username}</Text>
           <Text style={styles.info}>Email: {userData.email}</Text>
 
@@ -274,6 +329,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     marginTop: 10,
   },
+  profileImage: { 
+    width: 100, 
+    height: 100, 
+    borderRadius: 50, 
+    marginBottom: 10 },
 });
 
 export default Profile;

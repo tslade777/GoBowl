@@ -15,7 +15,7 @@ const firebaseConfig = {
   messagingSenderId: "783085768870",
   appId: "1:783085768870:web:4e6371485dd082f8fae467"
 };
-//setLogLevel("debug")
+
 // Initialize Firebase
 export const FIREBASE_APP = initializeApp(firebaseConfig);
 //export const FIREBASE_AUTH = initializeAuth(FIREBASE_APP)
@@ -23,5 +23,4 @@ export const FIREBASE_AUTH = initializeAuth(FIREBASE_APP,{
     persistence: getReactNativePersistence(AsyncStorage)
 })
 export const db = getFirestore(FIREBASE_APP)
-export const firestore = getFirestore(FIREBASE_APP)
-
+export const storage = getStorage(FIREBASE_APP);

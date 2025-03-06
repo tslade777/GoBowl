@@ -60,3 +60,7 @@ export const bowlingStats: BowlingStats = {
 
 export const defaultFriend: Friend = { id: "", username: "Unknown User", profilePic: "", active: false }; // ✅ Prevents `null` issues
   
+const defaultValue = {
+
+}
+export default defaultValue;

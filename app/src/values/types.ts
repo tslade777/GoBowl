@@ -107,4 +107,9 @@ export interface Frame {
     profilePic: string;
     active: boolean;
   }
+
+  const defaultValue = {
+
+  }
+  export default defaultValue;
   

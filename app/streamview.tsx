@@ -4,11 +4,14 @@ import { useLocalSearchParams } from 'expo-router'
 import Stream from './components/streamview/Stream';
 import icons from '@/constants/icons';
 
+
 const StreamView = () => {
     const params = useLocalSearchParams(); // Get paramaters passed in.
     const id = params.id as string;
+    const profilePic = params.profilePic as string
     const username = params.username as string
     const isActive = params.active === "true"; // Convert string to boolean
+    console.log(`📸 Image path: ${profilePic}`)
   return (
     <SafeAreaView className="flex-1 bg-primary h-full">
       <View className="items-center">

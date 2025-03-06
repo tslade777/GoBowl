@@ -223,3 +223,9 @@ const updateFirebaseGameComplete = async (type:string, name:string, leagueID:str
 export {getSessions, startFirebaseSession, 
   updateFirebaseLeagueWeekCount, createNewLeauge,
   updateFirebaseGameComplete, getLeagueSessions };
+
+
+  const defaultValue = {
+
+  }
+  export default defaultValue;

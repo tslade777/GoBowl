@@ -3,13 +3,16 @@ import { View, Text, FlatList, ActivityIndicator, TouchableOpacity, TouchableWit
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { collection, doc, getDocs, onSnapshot, query, where, setDoc, updateDoc } from 'firebase/firestore';
-import { FIREBASE_AUTH, db } from '@/firebase.config';
+import { FIREBASE_AUTH, db, storage } from '@/firebase.config';
 import SearchBar from "../components/SearchBar";
 import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from "react-native-reanimated";
 import { router } from 'expo-router';
 import { Friend } from '../src/values/types';
 import { defaultFriend } from '../src/values/defaults';
 import LiveListItem from '../components/lists/ListItems/FriendsListItem';
+import { getDownloadURL, ref } from 'firebase/storage';
+import Profile from './profile';
+import * as FileSystem from "expo-file-system";
 
 
 const Friends = () => {
@@ -95,7 +98,7 @@ const Friends = () => {
         .map(doc => ({
           id: doc.data().id,
           username: doc.data().username,
-          profilePic: doc.data().profilePic || "",
+          profilePic: doc.data().profilePic || '',
           active: false
         }))
         .filter(user => user.id !== currentUser.uid); // Exclude current user
@@ -119,10 +122,17 @@ const Friends = () => {
         console.log("⚠ User is already in friends list.");
         return;
       }
-
+      try{
+        const imageRef = ref(storage, `profileImages/${user.id}/${user.username}.jpg`);
+        const imageUrl = await getDownloadURL(imageRef);
+        user.profilePic = imageUrl;
+        const updatedFriends = [...friends, user];
+        setFriends(updatedFriends);
+      }catch(e){
+        console.log(e)
+      }
       const updatedFriends = [...friends, user];
       setFriends(updatedFriends);
-
       // Save to Firestore
       await setDoc(doc(db, "userFriends", currentUser.uid), { friendsList: updatedFriends });
       console.log(`✅ ${user.username} added to friends list.`);
@@ -130,8 +140,7 @@ const Friends = () => {
       console.error("❌ Error adding friend:", error);
     }
   };
-
-
+  
 
   /**
    * User should be presented a menu when long press is detected. 
@@ -173,11 +182,13 @@ const Friends = () => {
    */
   const handlePress = (friend: Friend) =>{
     if (friend.active){
+      console.log(friend.profilePic)
       // Route to stream page
       router.push({
         pathname: "../streamview",
         params: {
           id: friend.id,
+          profilePic: friend.profilePic,
           username: friend.username,
           active: friend.active.toString()
         }
@@ -258,7 +269,7 @@ const Friends = () => {
             showsVerticalScrollIndicator={false}
             ItemSeparatorComponent={() => <View className="" />}
             renderItem={({ item }) => (
-              <LiveListItem username={item.username} active={item.active} onHold={()=>{handleLongPress(item)}} onTouch={()=>{handlePress(item)}}></LiveListItem>
+              <LiveListItem username={item.username} profilePicture={item.profilePic} active={item.active} onHold={()=>{handleLongPress(item)}} onTouch={()=>{handlePress(item)}}></LiveListItem>
             )}
           />
         )}

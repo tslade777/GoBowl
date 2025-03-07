@@ -7,6 +7,7 @@ import { FIREBASE_AUTH, db } from '@/firebase.config';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { router } from 'expo-router';
+import { icons } from '@/constants';
 
 const Profile = () => {
   const user = FIREBASE_AUTH.currentUser;
@@ -196,7 +197,7 @@ const Profile = () => {
       ) : (
         <View style={styles.content}>
            <TouchableOpacity onPress={pickImage} activeOpacity={0.7}>
-            <Image source={profileImage ? { uri: profileImage } : require('../../assets//images/profile.png')} style={styles.profileImage} />
+            <Image source={profileImage ? { uri: profileImage } : icons.profile} style={styles.profileImage} />
           </TouchableOpacity>
           <Text style={styles.info}>Username: {userData.username}</Text>
           <Text style={styles.info}>Email: {userData.email}</Text>

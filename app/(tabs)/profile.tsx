@@ -1,6 +1,5 @@
 import { View, Text, Button, TextInput, StyleSheet, ActivityIndicator, TouchableOpacity, Image } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import * as ImagePicker from 'expo-image-picker';
 import { getStorage, ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import "../../global.css";
 import { FIREBASE_AUTH, db } from '@/firebase.config';
@@ -8,9 +7,10 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { router } from 'expo-router';
 import { icons } from '@/constants';
+import { checkIfImageExists, getLocalImagePath, handleImageSelection } from '../hooks/ImageFunctions';
 
 const Profile = () => {
-  const user = FIREBASE_AUTH.currentUser;
+  const currentUser = FIREBASE_AUTH.currentUser;
   const storage = getStorage();
   const [userData, setUserData] = useState({
     username: "",
@@ -27,22 +27,14 @@ const Profile = () => {
   const [editing, setEditing] = useState(false);
   const [originalData, setOriginalData] = useState(userData);
   const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [localImage, setLocalImage] = useState<string | null>(null);
+  const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchProfileImage = async () => {
-      if (!user) return;
-      try {
-        const imageRef = ref(storage, `profileImages/${user.uid}/${userData.username}.jpg`);
-        const imageUrl = await getDownloadURL(imageRef);
-        setProfileImage(imageUrl);
-      } catch (error) {
-        console.log('No profile image found in Firebase Storage.');
-      }
-    };
     const fetchUserData = async () => {
-      if (!user) return;
+      if (!currentUser) return;
       try {
-        const userRef = doc(db, `users/${user.uid}`);
+        const userRef = doc(db, `users/${currentUser.uid}`);
         const userDoc = await getDoc(userRef);
 
         if (userDoc.exists()) {
@@ -58,10 +50,13 @@ const Profile = () => {
             highSeries: data.highSeries ? data.highSeries.toString() : "",
           });
         }
-        const imageRef = ref(storage, `profileImages/${user.uid}/${userData.username}.jpg`);
+        
         try {
-          const imageUrl = await getDownloadURL(imageRef);
-          setProfileImage(imageUrl);
+          if( await checkIfImageExists(`${userData.username}.png`))
+            setProfileImage(getLocalImagePath(`${userData.username}.png`))
+          else {
+            setProfileImage(null)
+          }
         } catch (error) {
           console.log("No profile image found in Firebase Storage.");
         }
@@ -73,7 +68,8 @@ const Profile = () => {
     };
 
     fetchUserData();
-  }, [user]);
+    
+  }, [currentUser]);
 
   const handleEditToggle = () => {
     setOriginalData(userData);
@@ -86,9 +82,9 @@ const Profile = () => {
   };
 
   const handleSaveChanges = async () => {
-    if (!user) return;
+    if (!currentUser) return;
     try {
-      const userRef = doc(db, `users/${user.uid}`);
+      const userRef = doc(db, `users/${currentUser.uid}`);
       const userDoc = await getDoc(userRef);
   
       if (userDoc.exists()) {
@@ -125,8 +121,8 @@ const Profile = () => {
 
   const handleLogout = async () => {
     try {
-      if (user) {
-        const userRef = doc(db, `users/${user.uid}`);
+      if (currentUser) {
+        const userRef = doc(db, `users/${currentUser.uid}`);
         await updateDoc(userRef, { active: false });
       }
       console.log("User logged out successfully");
@@ -136,38 +132,18 @@ const Profile = () => {
     }
   };
 
-  const pickImage = async () => {
-    let result = await ImagePicker.launchImageLibraryAsync({
-      mediaTypes: ImagePicker.MediaTypeOptions.Images,
-      allowsEditing: true,
-      aspect: [1, 1],
-      quality: 1,
-    });
-
-    if (!result.canceled) {
-      const selectedImage = result.assets[0].uri;
-    // const fileExtension = selectedImage.split('.').pop();.${fileExtension}
-    const fileName = `${userData.username}.jpg`;
-
-    const response = await fetch(selectedImage);
-      const blob = await response.blob();
-      if (!user) return;
-      const imageRef = ref(storage, `profileImages/${user.uid}/${fileName}`);
-
-      try {
-      await uploadBytes(imageRef, blob);
-      try {
-        const downloadURL = await getDownloadURL(imageRef);
-        setProfileImage(downloadURL);
-      } catch (error) {
-        console.error("Error retrieving image URL: ", error);
-      }
-      } catch (error) {
-        console.error("Error uploading image: ", error);
-      };
+  
+  /**
+   * 
+   */
+  const selectAndUploadImage = async () => {
+    const result = await handleImageSelection(`profileImages/${currentUser?.uid}`, userData.username);
+    if (result) {
+      setLocalImage(result.localPath);
+      setUploadedUrl(result.downloadURL);
+      setProfileImage(result.localPath)
     }
   };
-  
 
   return (
     <SafeAreaView style={styles.container}>
@@ -196,7 +172,7 @@ const Profile = () => {
         <ActivityIndicator size="large" color="#007BFF" style={{ marginTop: 20 }} />
       ) : (
         <View style={styles.content}>
-           <TouchableOpacity onPress={pickImage} activeOpacity={0.7}>
+           <TouchableOpacity onPress={selectAndUploadImage} activeOpacity={0.7}>
             <Image source={profileImage ? { uri: profileImage } : icons.profile} style={styles.profileImage} />
           </TouchableOpacity>
           <Text style={styles.info}>Username: {userData.username}</Text>

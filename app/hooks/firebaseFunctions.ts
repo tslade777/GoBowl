@@ -1,8 +1,10 @@
 import { addDoc, collection, doc, getDocs, orderBy, query, Timestamp, updateDoc, where } from "firebase/firestore";
 import { Series, SeriesStats } from "../src/values/types";
-import { db, FIREBASE_AUTH } from "@/firebase.config";
+import { db, FIREBASE_AUTH, storage } from "@/firebase.config";
 import { format } from "date-fns";
 import { SESSIONS } from "../src/config/constants";
+import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
+import * as FileSystem from 'expo-file-system';
 
 /**
  * Retrieve the session data from a specific session
@@ -186,6 +188,72 @@ const createNewLeauge = async (title: string) => {
 
 /**
  * 
+ * @param localUri 
+ * @param storagePath 
+ * @returns 
+ */
+const uploadImageToFirebase = async (localUri: string, storagePath: string): Promise<string | null> => {
+  try {
+    const fileName = localUri.split('/').pop(); // Extract filename
+    if (!fileName) throw new Error('Invalid file path');
+
+    const storageRef = ref(storage, `${storagePath}/${fileName}`);
+
+    // Fetch the local file and convert it to a Blob
+    const response = await fetch(localUri);
+    const fileBlob = await response.blob();
+
+    // Upload the Blob to Firebase
+    await uploadBytes(storageRef, fileBlob);
+
+    // Get the download URL
+    const downloadURL = await getDownloadURL(storageRef);
+    console.log('🥳Image uploaded to Firebase:', downloadURL);
+    return downloadURL;
+  } catch (error) {
+    console.error('📛Error uploading image:', error);
+    return null;
+  }
+};
+
+/**
+ * 
+ * @param imagePath 
+ * @returns 
+ */
+const downloadImageFromFirebase = async (imagePath: string): Promise<string | null> => {
+  try {
+    // Get Firebase download URL
+    const storageRef = ref(storage, imagePath);
+    const url = await getDownloadURL(storageRef);
+
+    // Define local file path
+    const fileName = imagePath.split('/').pop();
+    if (!fileName) return null;
+
+    const localFilePath = `${FileSystem.documentDirectory}${fileName}`;
+
+    // Check if file already exists to prevent redundant downloads
+    const fileExists = await FileSystem.getInfoAsync(localFilePath);
+    if (fileExists.exists) {
+      console.log('File already exists:', localFilePath);
+      return localFilePath;
+    }
+
+    // Download the file
+    const downloadResult = await FileSystem.downloadAsync(url, localFilePath);
+
+    console.log('Download successful:', downloadResult.uri);
+    return downloadResult.uri;
+  } catch (error) {
+    console.error('Error downloading image:', error);
+    return null;
+  }
+};
+
+
+/**
+ * 
  * @param type types can {practice, open, league, tournament}
  * @param name 
  * @param leagueID 
@@ -222,7 +290,7 @@ const updateFirebaseGameComplete = async (type:string, name:string, leagueID:str
 
 export {getSessions, startFirebaseSession, 
   updateFirebaseLeagueWeekCount, createNewLeauge,
-  updateFirebaseGameComplete, getLeagueSessions };
+  updateFirebaseGameComplete, getLeagueSessions, uploadImageToFirebase, downloadImageFromFirebase};
 
 
   const defaultValue = {

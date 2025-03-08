@@ -13,6 +13,7 @@ import LiveListItem from '../components/lists/ListItems/FriendsListItem';
 import { getDownloadURL, ref } from 'firebase/storage';
 import Profile from './profile';
 import * as FileSystem from "expo-file-system";
+import { downloadImageFromFirebase } from '../hooks/firebaseFunctions';
 
 
 const Friends = () => {
@@ -123,9 +124,8 @@ const Friends = () => {
         return;
       }
       try{
-        const imageRef = ref(storage, `profileImages/${user.id}/${user.username}.jpg`);
-        const imageUrl = await getDownloadURL(imageRef);
-        user.profilePic = imageUrl;
+        const imageUrl = await downloadImageFromFirebase(`profileImages/${user.id}/${user.username}.png`)
+        user.profilePic = imageUrl || '';
         const updatedFriends = [...friends, user];
         setFriends(updatedFriends);
       }catch(e){
@@ -193,7 +193,6 @@ const Friends = () => {
           active: friend.active.toString()
         }
       })
-      console.log('🔴 User is live, check out the stream!')
     }
     else{
       console.log('❌ User is not live, maybe look at stats?')

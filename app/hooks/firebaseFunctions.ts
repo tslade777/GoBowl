@@ -151,7 +151,7 @@ const updateFirebaseLeagueWeekCount = async (leagueID: string, count: string) =>
       console.log(`🔥Update firebase leagueID: ${leagueID}`)
   
       await updateDoc(doc(db,SESSIONS.league, uID, 'Leagues', leagueID),{
-        weeks: count,
+        weeks: weekCount,
       })      
     }
   }catch(e){

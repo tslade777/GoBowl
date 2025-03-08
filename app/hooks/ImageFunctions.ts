@@ -4,7 +4,7 @@ import { uploadImageToFirebase } from './firebaseFunctions';
 
 
 /**
- * 
+ * Handle image selection
  * @param storagePath 
  * @returns 
  */
@@ -29,7 +29,7 @@ const handleImageSelection = async (storagePath: string, userName: string) => {
   };
 
   /**
-   * 
+   * Save the image locally. 
    * @param imageUri 
    * @returns 
    */
@@ -52,7 +52,7 @@ const handleImageSelection = async (storagePath: string, userName: string) => {
   };
 
   /**
-   * 
+   * Select image to upload
    * @returns 
    */
   const pickImage = async (): Promise<string | null> => {

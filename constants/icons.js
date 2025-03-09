@@ -13,7 +13,12 @@ import eye from "../assets/icons/eye.png";
 import play from "../assets/icons/play.png";
 import stats from "../assets/icons/bar-chart.png";
 import friends from "../assets/icons/friends.png";
-
+import previous from "../assets/icons/previous.png";
+import next from "../assets/icons/next.png";
+import previousShot from "../assets/icons/previous_shot.png";
+import nextShot from "../assets/icons/next_shot.png";
+import previousFrame from "../assets/icons/previous_frame.png";
+import nextFrame from "../assets/icons/next_frame.png";
 
 export default {
   play,
@@ -31,4 +36,10 @@ export default {
   eye,
   stats,
   friends,
+  previous,
+  next,
+  previousFrame,
+  nextFrame,
+  previousShot,
+  nextShot
 };

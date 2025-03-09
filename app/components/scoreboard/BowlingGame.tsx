@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, TextInput, PanResponder, Animated  } from 'react-native';
+import { View, Text, TouchableOpacity, Image, PanResponder, Animated  } from 'react-native';
 import { useEffect, useRef, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Frame from './Frame';
@@ -6,6 +6,7 @@ import TenthFrame from './TenthFrame';
 import { FIREBASE_AUTH, db } from '../../../firebase.config'
 import { doc, updateDoc, setDoc } from 'firebase/firestore';
 import { BOWLINGSTATE, INPROGRESS, SPLITS } from '@/app/src/config/constants';
+import icons from '@/constants/icons';
 
 type ChildComponentProps = {
   sendDataToParent: (data: any) => void; // Define the function type
@@ -738,30 +739,54 @@ const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent, toggleBow
 
 
       {/* Manual Input Controls */}
-      <View className="flex-col mt-4 items-center">
-          
-        <View className='flex-row items-center' >
+      <View className="flex-col mt-4 items-center"> 
+        <View className='flex-row justify-evenly items-center' >
+          {/** Previous Frame button */}
+          <TouchableOpacity 
+            onPress={()=>{}} 
+            className="m-2  px-4 py-2 rounded-lg"
+          >
+            <Image source={icons.previousFrame}
+              className='w-16 h-16'
+              resizeMode='contain'
+              style={{tintColor: "white"}}/>
+          </TouchableOpacity>
+          {/** Previous shot button */}
+          <TouchableOpacity 
+            onPress={()=>{}} 
+            className="mr-5 px-1 py-2 rounded-lg"
+          >
+            <Image source={icons.previousShot}
+              className='w-10 h-10'
+              resizeMode='contain'
+              style={{tintColor: "white"}}/>
+          </TouchableOpacity>
+
+          {/** Next shot button */}
+          <TouchableOpacity 
+            onPress={()=>{}} 
+            className="ml-5 px-1 py-2 rounded-lg"
+          >
+            <Image source={icons.nextShot}
+              className='w-10 h-10'
+              resizeMode='contain'
+              style={{tintColor: "white"}}/>
+          </TouchableOpacity>
+          {/** Next Frame button */}
           <TouchableOpacity 
             onPress={edited?handleEdit:(currentFrame==9)?handleLastFrame:handleManualInput} 
-            className="m-2 bg-green-500 px-4 py-2 rounded-lg"
+            className="m-2  px-4 py-2 rounded-lg"
           >
-            <Text className="text-white font-bold">Enter Roll</Text>
+            <Image source={icons.nextFrame}
+              className='w-16 h-16'
+              resizeMode='contain'
+              style={{tintColor: "white"}}/>
           </TouchableOpacity>
-          <TouchableOpacity 
-            onPress={gameComplete ? clearGame : ()=>{}}
-            className={`m-2 ${gameComplete ? 'bg-green-950' : 'bg-red-600'} px-4 py-2 rounded-lg `}
-            disabled={!gameComplete}
-          >
-            <Text className="text-white font-bold">Next Game</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            onPress={clearGame}
-            className={"m-2 bg-orange px-4 py-2 rounded-lg"}
-          >
-            <Text className="text-white font-bold">Reset Game</Text>
-          </TouchableOpacity>
+
         </View>
+        
     </View>
+    
       </Animated.View>
     
   

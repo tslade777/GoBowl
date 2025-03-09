@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity } from 'react-native'
+import { View, Text, TouchableOpacity, Image } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import BowlingGame from '../components/scoreboard/BowlingGame'
@@ -10,6 +10,7 @@ import { defaultSeriesStats } from "@/app/src/values/defaults";
 import { updateFirebaseGameComplete, updateFirebaseLeagueWeekCount } from '../hooks/firebaseFunctions';
 import { ACTIVESESSION, INPROGRESS, SESSIONS, SESSIONSTARTED } from '../src/config/constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import icons from '@/constants/icons';
 
 
 const initialStats: SeriesStats = {
@@ -186,6 +187,7 @@ const markSessionComplete = async () =>{
         pinCombinations: prevStats.pinCombinations,
       }))
   }
+
   /**
    * Wait for changes to the games Data and update firebase.
    */
@@ -222,9 +224,27 @@ const markSessionComplete = async () =>{
         <TouchableOpacity
           onPress={endSession}
           disabled = {activeGame}
-          className={`absolute bottom-5 right-5 ${activeGame ? "bg-red-700":"bg-green-800"} px-4 py-2 rounded-lg`}
+          className={`absolute bottom-9 left-1/2 -translate-x-1/2 ${activeGame ? "bg-red-700":"bg-green-800"} px-4 py-2 rounded-lg`}
         >
           <Text className="text-white font-bold">End Session</Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          onPress={()=>{}} 
+          className="absolute bottom-8 right-5 mr-5 px-1 py-2 rounded-lg"
+        >
+          <Image source={icons.next}
+            className='w-10 h-10'
+            resizeMode='contain'
+            style={{tintColor: "white"}}/>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          onPress={()=>{}} 
+          className="absolute bottom-8 left-5 mr-5 px-1 py-2 rounded-lg"
+        >
+          <Image source={icons.previous}
+            className='w-10 h-10'
+            resizeMode='contain'
+            style={{tintColor: "white"}}/>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

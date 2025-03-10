@@ -188,6 +188,10 @@ const createNewLeauge = async (title: string) => {
   }
 }
 
+/**
+ * 
+ * @returns 
+ */
 const fetchUserData = async () => {
   let currentUser = FIREBASE_AUTH.currentUser;
   if (currentUser == null) return;
@@ -208,6 +212,20 @@ const fetchUserData = async () => {
           highGame: data.highGame ? data.highGame.toString() : "",
           highSeries: data.highSeries ? data.highSeries.toString() : "",
           profilepic: `${data.username}.png` || "",
+        }
+        AsyncStorage.setItem(CURRENTUSER, JSON.stringify(user));
+      }
+      else{
+        let user:UserData = {
+          username: "N/A",
+          email: "N/A",
+          age: "N/A",
+          bowlingHand: "N/A",
+          favoriteBall: "N/A",
+          yearsBowling: "N/A",
+          highGame: "N/A",
+          highSeries: "N/A",
+          profilepic: "N/A",
         }
         AsyncStorage.setItem(CURRENTUSER, JSON.stringify(user));
       }
@@ -321,7 +339,8 @@ const updateFirebaseGameComplete = async (type:string, name:string, leagueID:str
 
 export {getSessions, startFirebaseSession, 
   updateFirebaseLeagueWeekCount, createNewLeauge,
-  updateFirebaseGameComplete, getLeagueSessions, uploadImageToFirebase, downloadImageFromFirebase};
+  updateFirebaseGameComplete, getLeagueSessions, uploadImageToFirebase, downloadImageFromFirebase,
+  fetchUserData};
 
 
   const defaultValue = {

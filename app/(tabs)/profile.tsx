@@ -8,6 +8,8 @@ import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { router } from 'expo-router';
 import { icons } from '@/constants';
 import { checkIfImageExists, getLocalImagePath, handleImageSelection } from '../hooks/ImageFunctions';
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import { CURRENTUSER } from '../src/config/constants';
 
 const Profile = () => {
   const currentUser = FIREBASE_AUTH.currentUser;
@@ -31,45 +33,36 @@ const Profile = () => {
   const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchUserData = async () => {
-      if (!currentUser) return;
-      try {
-        const userRef = doc(db, `users/${currentUser.uid}`);
-        const userDoc = await getDoc(userRef);
 
-        if (userDoc.exists()) {
-          const data = userDoc.data();
-          setUserData({
-            username: data.username || "N/A",
-            email: data.email || "N/A",
-            age: data.age ? data.age.toString() : "",
-            bowlingHand: data.bowlingHand || "",
-            favoriteBall: data.favoriteBall || "",
-            yearsBowling: data.yearsBowling ? data.yearsBowling.toString() : "",
-            highGame: data.highGame ? data.highGame.toString() : "",
-            highSeries: data.highSeries ? data.highSeries.toString() : "",
-          });
-        }
-        
-        try {
-          if( await checkIfImageExists(`${userData.username}.png`))
-            setProfileImage(getLocalImagePath(`${userData.username}.png`))
-          else {
-            setProfileImage(null)
-          }
-        } catch (error) {
-          console.log("No profile image found in Firebase Storage.");
-        }
-      } catch (error) {
-        console.error("Error fetching user data: ", error);
-      } finally {
-        setLoading(false);
-      }
-    };
 
-    fetchUserData();
+    // setUserData({
+    //   username: data.username || "N/A",
+    //   email: data.email || "N/A",
+    //   age: data.age ? data.age.toString() : "",
+    //   bowlingHand: data.bowlingHand || "",
+    //   favoriteBall: data.favoriteBall || "",
+    //   yearsBowling: data.yearsBowling ? data.yearsBowling.toString() : "",
+    //   highGame: data.highGame ? data.highGame.toString() : "",
+    //   highSeries: data.highSeries ? data.highSeries.toString() : "",
+    // });
+
+    getProfilePic();
+
     
-  }, [currentUser]);
+  
+  }, []);
+
+  const getUserData = async ()=> {
+    
+  }
+  const getProfilePic = async ()=>{
+    if( await checkIfImageExists(`${userData.username}.png`))
+      setProfileImage(getLocalImagePath(`${userData.username}.png`))
+    else {
+      setProfileImage(null)
+      console.log("No profile pic saved locally");
+    }
+  }
 
   const handleEditToggle = () => {
     setOriginalData(userData);

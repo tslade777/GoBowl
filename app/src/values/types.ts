@@ -56,12 +56,12 @@ export interface Game {
 export interface UserData {
   username: string,
   email: string,
-  age: number,
+  age: string,
   bowlingHand: string,
   favoriteBall: string,
-  yearsBowling: number,
-  highGame: number,
-  highSeries: number,
+  yearsBowling: string,
+  highGame: string,
+  highSeries: string,
   profilepic: string,
 }
 

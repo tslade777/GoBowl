@@ -9,6 +9,7 @@ import {onAuthStateChanged, User} from "firebase/auth"
 import { useEffect, useState } from "react";
 import { FIREBASE_AUTH } from "@/firebase.config";
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import { fetchUserData } from "./hooks/firebaseFunctions";
 
 export default function RootLayout() {
   const [user, setUser] = useState<User | null>(null);
@@ -62,8 +63,4 @@ export default function RootLayout() {
   </SafeAreaView>);
 }
 
-
-function fetchUserData() {
-  throw new Error("Function not implemented.");
-}
 

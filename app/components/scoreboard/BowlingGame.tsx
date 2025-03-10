@@ -14,8 +14,6 @@ type ChildComponentProps = {
 };
 
 
-
-
 const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent, toggleBowling}) => {
   const [frames, setFrames] = useState(
     Array.from({ length: 10 }, () => ({
@@ -588,6 +586,51 @@ const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent, toggleBow
     }
   }
 
+  const handleNextShot = () =>{
+    // If its the first ball, go to last shot of current frame
+    if(isFirstRoll){
+      setIsFirstRoll(false)
+      setPins(frames[currentFrame].secondBallPins)
+      setEdited(true)
+    }
+    // else go to first shot of next frame
+    else{
+      setIsFirstRoll(true)
+      setCurrentFrame(currentFrame+1)
+      setPins(frames[currentFrame+1].firstBallPins)
+    }
+  }
+  const handlePreviousShot = () =>{
+    // If its the first ball, go to last shot of last frame
+    if(isFirstRoll){
+      // If last frame is a strike, show the first ball
+      if (frames[currentFrame-1].isStrike){
+        setCurrentFrame(currentFrame-1);
+        setPins(frames[currentFrame-1].firstBallPins)
+      }
+      else{
+        setIsFirstRoll(false)
+        setCurrentFrame(currentFrame-1);
+        setPins(frames[currentFrame-1].secondBallPins)
+      }
+    }
+    // else go to first shot of current frame
+    else{
+      setIsFirstRoll(true)
+      setPins(frames[currentFrame].firstBallPins)
+    }
+  }
+  const handleNextFrame = () =>{
+    setCurrentFrame(currentFrame+1);
+    setIsFirstRoll(true)
+    setPins(frames[currentFrame+1].firstBallPins)
+  }
+  const handlePreviousFrame = () =>{
+    setCurrentFrame(currentFrame-1);
+    setIsFirstRoll(true)
+    setPins(frames[currentFrame-1].firstBallPins)
+  }
+
   // This will hold game logic like moving to the next frame on a strike or spare. 
   const handleManualInput = () => {
     // Don't edit unless first ball has been thrown. 
@@ -715,17 +758,19 @@ const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent, toggleBow
         {/* Quick Select Buttons */}
         <View className="flex-col mt-10 items-center ">
           <TouchableOpacity 
+            disabled={!isFirstRoll}
             onPress={()=>{setInputRoll(10); setPins(Array(10).fill(true)); setQuickSelection('X');
               }}
             className="mx-5 pr-4 pl-2 py-2 rounded-lg items-center"
           >
-            <Text className="text-5xl text-white font-pextrabold">X</Text>
+            <Text className={`text-5xl ${isFirstRoll ? "text-white" : "text-gray-500"} font-pextrabold`}>X</Text>
           </TouchableOpacity>
           <TouchableOpacity 
+            disabled={isFirstRoll}
             onPress={()=>{instantSpareToggle(); setQuickSelection('/');}} 
             className="mx-5 mt-4 pr-4 pl-2 py-2 rounded-lg items-center"
           >
-            <Text className="text-5xl text-white font-pextrabold">/</Text>
+            <Text className={`text-5xl ${isFirstRoll ? "text-gray-500" : "text-white"} font-pextrabold`}>/</Text>
           </TouchableOpacity>
           <TouchableOpacity 
             onPress={quickSelect} 
@@ -736,45 +781,47 @@ const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent, toggleBow
         </View>
         </View>
       
-
-
       {/* Manual Input Controls */}
       <View className="flex-col mt-4 items-center"> 
         <View className='flex-row justify-evenly items-center' >
           {/** Previous Frame button */}
           <TouchableOpacity 
-            onPress={()=>{}} 
+            onPress={handlePreviousFrame} 
             className="m-2  px-4 py-2 rounded-lg"
+            disabled={currentFrame==0} 
           >
             <Image source={icons.previousFrame}
               className='w-16 h-16'
               resizeMode='contain'
-              style={{tintColor: "white"}}/>
+              style={currentFrame>0 ? {tintColor: "white"} : {tintColor: "gray"}}/>
           </TouchableOpacity>
           {/** Previous shot button */}
           <TouchableOpacity 
-            onPress={()=>{}} 
+            onPress={handlePreviousShot}
+            disabled={currentFrame==0 && isFirstRoll} 
             className="mr-5 px-1 py-2 rounded-lg"
           >
             <Image source={icons.previousShot}
               className='w-10 h-10'
               resizeMode='contain'
-              style={{tintColor: "white"}}/>
+              style={currentFrame==0 && isFirstRoll? {tintColor: "gray"} : {tintColor: "white"}}/>
           </TouchableOpacity>
 
           {/** Next shot button */}
           <TouchableOpacity 
-            onPress={()=>{}} 
+            onPress={handleNextShot}
+            disabled={currentFrame == farthestFrame} 
             className="ml-5 px-1 py-2 rounded-lg"
           >
             <Image source={icons.nextShot}
               className='w-10 h-10'
               resizeMode='contain'
-              style={{tintColor: "white"}}/>
+              style={currentFrame== farthestFrame ? {tintColor: "gray"} : {tintColor: "white"}}/>
           </TouchableOpacity>
           {/** Next Frame button */}
           <TouchableOpacity 
-            onPress={edited?handleEdit:(currentFrame==9)?handleLastFrame:handleManualInput} 
+            onPress={edited?handleEdit:(currentFrame==9)?handleLastFrame:(currentFrame==farthestFrame)?
+              handleManualInput:handleNextFrame} 
             className="m-2  px-4 py-2 rounded-lg"
           >
             <Image source={icons.nextFrame}

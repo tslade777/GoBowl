@@ -1,4 +1,4 @@
-import { SeriesStats, BowlingStats, PinCombinations, Friend } from "./types";
+import { SeriesStats, BowlingStats, PinCombinations, Friend, Frame } from "./types";
 // defaults.ts or constants.ts
 export const defaultSeriesStats: SeriesStats = {
     seriesScore: 0,
@@ -57,6 +57,13 @@ export const bowlingStats: BowlingStats = {
   washoutsConverted: 0,
   pinCombinations: {}
 }
+
+export const defaultFrame: Frame = {
+  roll1: "", roll2: "", roll3: "", score: 0,
+  firstBallPins: Array(10).fill(false),
+  secondBallPins: Array(10).fill(false),
+  thirdBallPins: Array(10).fill(false),
+  isSpare: false, isStrike: false, visible: true, isSplit: false }
 
 export const defaultFriend: Friend = { id: "", username: "Unknown User", profilePic: "", active: false }; // ✅ Prevents `null` issues
   

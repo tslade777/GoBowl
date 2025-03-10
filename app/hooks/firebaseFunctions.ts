@@ -1,10 +1,12 @@
-import { addDoc, collection, doc, getDocs, orderBy, query, Timestamp, updateDoc, where } from "firebase/firestore";
-import { Series, SeriesStats } from "../src/values/types";
+import { addDoc, collection, doc, getDoc, getDocs, orderBy, query, Timestamp, updateDoc, where } from "firebase/firestore";
+import { Series, SeriesStats, UserData } from "../src/values/types";
 import { db, FIREBASE_AUTH, storage } from "@/firebase.config";
 import { format } from "date-fns";
-import { SESSIONS } from "../src/config/constants";
+import { CURRENTUSER, SESSIONS } from "../src/config/constants";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import * as FileSystem from 'expo-file-system';
+import { checkIfImageExists, getLocalImagePath } from "./ImageFunctions";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 /**
  * Retrieve the session data from a specific session
@@ -185,6 +187,35 @@ const createNewLeauge = async (title: string) => {
     console.error(e);
   }
 }
+
+const fetchUserData = async () => {
+  let currentUser = FIREBASE_AUTH.currentUser;
+  if (currentUser == null) return;
+  else{
+    try {
+      const userRef = doc(db, `users/${currentUser.uid}`);
+      const userDoc = await getDoc(userRef);
+  
+      if (userDoc.exists()) {
+        const data = userDoc.data();
+        let user:UserData = {
+          username: data.username || "N/A",
+          email: data.email || "N/A",
+          age: data.age ? data.age.toString() : "",
+          bowlingHand: data.bowlingHand || "",
+          favoriteBall: data.favoriteBall || "",
+          yearsBowling: data.yearsBowling ? data.yearsBowling.toString() : "",
+          highGame: data.highGame ? data.highGame.toString() : "",
+          highSeries: data.highSeries ? data.highSeries.toString() : "",
+          profilepic: `${data.username}.png` || "",
+        }
+        AsyncStorage.setItem(CURRENTUSER, JSON.stringify(user));
+      }
+    } catch (error) {
+      console.error("Error fetching user data: ", error);
+    } 
+  }
+};
 
 /**
  * 

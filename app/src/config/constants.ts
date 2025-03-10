@@ -7,6 +7,7 @@ export const SESSIONS = {
 
 export const BOWLINGSTATE = 'bowlingGameState';
 export const INPROGRESS = 'gameInProgress'
+export const CURRENTUSER = 'currentUser'
 export const ACTIVESESSION = 'currentSession'
 export const SESSIONSTARTED = 'sessionStarted'
 

@@ -53,6 +53,18 @@ export interface Game {
     stats: any[];
 }
 
+export interface UserData {
+  username: string,
+  email: string,
+  age: number,
+  bowlingHand: string,
+  favoriteBall: string,
+  yearsBowling: number,
+  highGame: number,
+  highSeries: number,
+  profilepic: string,
+}
+
 export interface tGame {
   frames: tFrame[];
   pins: boolean[];

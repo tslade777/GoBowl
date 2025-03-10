@@ -18,6 +18,7 @@ export default function RootLayout() {
   },[])
     const clearAll = async () => {
       try{
+        fetchUserData()
         // await AsyncStorage.removeItem("BOWLINGSTATE")
         // await AsyncStorage.clear()
       } catch(e){
@@ -61,4 +62,8 @@ export default function RootLayout() {
   </SafeAreaView>);
 }
 
+
+function fetchUserData() {
+  throw new Error("Function not implemented.");
+}
 

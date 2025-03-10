@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Image } from 'react-native'
+import { View, Text, ScrollView, Image, ActivityIndicator } from 'react-native'
 import React, { useState } from 'react'
 import "../../global.css";
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -25,9 +25,11 @@ const Submit = async () => {
   setSubmitting(true)
   try{
     const response = await signInWithEmailAndPassword(FIREBASE_AUTH, form.email, form.password)
+    setSubmitting(false)
     router.replace('/home')
   } catch (error){
     setFailed(true)
+    setSubmitting(false)
     console.log(`Failed to log in. Error: ${error}`)
   }
 }
@@ -65,8 +67,11 @@ const Submit = async () => {
               <Text className='text-lg text-gray-100 font-pregular'>Dont have account?</Text>
               <Link href="/(auth)/sign-up" className='text-lg font-psemibold text-orange'>Sign Up</Link>
             </View>
+            
         </View>
       </ScrollView>
+      {isSubmitting ? <ActivityIndicator 
+            className='absolute top-1/2 left-1/2' size='large' color='#F24804' /> : <></>}
     </SafeAreaView>
   )
 }

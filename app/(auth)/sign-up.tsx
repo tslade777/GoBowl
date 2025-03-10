@@ -1,4 +1,4 @@
-import { View, Text, ScrollView, Image } from 'react-native'
+import { View, Text, ScrollView, Image, ActivityIndicator } from 'react-native'
 import React, { useState } from 'react'
 import "../../global.css";
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -18,7 +18,7 @@ const SignUP = () => {
     confirmPass: '',
     username: '',
   })
-
+const [loading, setLoading] = useState(false);
 const [passwordsMatch, setPasswordsMatch] = useState(true)
 const [isSubmitting, setSubmitting] = useState(false)
 const gameState = {
@@ -96,8 +96,10 @@ const Submit = async () => {
               <Text className='text-lg text-gray-100 font-pregular'>Already have an account?</Text>
               <Link href="/(auth)/sign-in" className='text-lg font-psemibold text-orange'>Sign In</Link>
             </View>
+           
         </View>
       </ScrollView>
+      {isSubmitting ? <ActivityIndicator className='absolute bottom-10 left-1/2' size='large' color='#F24804' /> : <></>}
     </SafeAreaView>
   )
 }

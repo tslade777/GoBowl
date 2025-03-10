@@ -53,6 +53,19 @@ export interface Game {
     stats: any[];
 }
 
+export interface tGame {
+  frames: tFrame[];
+  pins: boolean[];
+  currentFrame: number;
+  farthestFrame: number;
+  isFirstRoll: Boolean;
+  isFinalRoll: Boolean;
+  striking: Boolean;
+  gameComplete: Boolean;
+  edited: Boolean;
+  gameNum: number;
+}
+
 export interface tFrame {
     roll1: string;
     roll2: string;

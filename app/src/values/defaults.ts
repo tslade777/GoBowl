@@ -1,4 +1,4 @@
-import { SeriesStats, BowlingStats, PinCombinations, Friend, tFrame } from "./types";
+import { SeriesStats, BowlingStats, PinCombinations, Friend, tFrame, tGame } from "./types";
 // defaults.ts or constants.ts
 export const defaultSeriesStats: SeriesStats = {
     seriesScore: 0,
@@ -64,6 +64,19 @@ export const defaultFrame: tFrame = {
   secondBallPins: Array(10).fill(false),
   thirdBallPins: Array(10).fill(false),
   isSpare: false, isStrike: false, visible: true, isSplit: false }
+
+export const defaultGame: tGame = {
+  frames: Array.from({ length: 10 }, () => ({ ...defaultFrame })),
+  currentFrame: 0,
+  farthestFrame: 0,
+  isFirstRoll: true,
+  isFinalRoll: false,
+  striking: false,
+  gameComplete: false,
+  edited: false,
+  gameNum: 0,
+  pins: []
+}
 
 export const defaultFriend: Friend = { id: "", username: "Unknown User", profilePic: "", active: false }; // ✅ Prevents `null` issues
   

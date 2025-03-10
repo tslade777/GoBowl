@@ -5,8 +5,8 @@ import BowlingGame, { BowlingGameRef } from '../components/scoreboard/BowlingGam
 import { useLocalSearchParams } from 'expo-router/build/hooks';
 import { router } from 'expo-router';
 import useBowlingStats from '../hooks/useBowlingStats';
-import { BowlingStats, SeriesStats } from "@/app/src/values/types";
-import { defaultFrame, defaultSeriesStats } from "@/app/src/values/defaults";
+import { tGame, BowlingStats, SeriesStats } from "@/app/src/values/types";
+import { defaultFrame, defaultGame, defaultSeriesStats } from "@/app/src/values/defaults";
 import { updateFirebaseGameComplete, updateFirebaseLeagueWeekCount } from '../hooks/firebaseFunctions';
 import { ACTIVESESSION, INPROGRESS, SESSIONS, SESSIONSTARTED } from '../src/config/constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -24,8 +24,8 @@ const game = () => {
   const [activeGame, setActiveGame] = useState(true)
   const [firstRender, setFirstRender] = useState(true)
   const [seriesStats, setSeriesStats] = useState<SeriesStats>(initialStats)
-  const [games, setGames] = useState([Array.from({ length: 10 }, () => ({ ...defaultFrame }))])
-  const [currGame, setCurrGame] = useState(Array.from({ length: 10 }, () => ({ ...defaultFrame })));
+  const [games, setGames] = useState<tGame[]>([])
+  const [currGame, setCurrGame] = useState<tGame>(defaultGame);
   const [index, setIndex] = useState(0);
 
   const childRef = useRef<BowlingGameRef>(null);
@@ -39,15 +39,26 @@ const game = () => {
 
 
   const previousGame = () =>{
-    if (index > 0)
-      childRef.current?.setGame(games[index])
-    else{
-      console.log(`This is the first game`)
+    
+    if (index > 0){
+      childRef.current?.setGame(games[index-1])
+      setIndex(index-1)
     }
   }
 
+  /**
+   * 
+   */
   const nextGame = () =>{
-    childRef.current?.setGame(currGame)
+    // if we are in game history, pass next game
+    if (index < games.length-1){
+      childRef.current?.setGame(games[index+1])
+      setIndex(index+1)
+    }
+    else if (games[games.length-1].gameComplete){
+      childRef.current?.clearGame()
+      setIndex(games.length)
+    }
   }
 
   /**
@@ -64,10 +75,15 @@ const game = () => {
     loadSession();
   }, []);
 
-
-  const updateCurrentGame = (game: any) =>{
-    console.log(`🎳 Current game updated.`)
-    setCurrGame(game);
+  /**
+   * 
+   * @param game 
+   */
+  const updateCurrentGame = (game: tGame) =>{
+    let newGames = [...games];
+    newGames[game.gameNum-1] = game;
+    setGames(newGames)
+    setIndex(game.gameNum-1)
   }
 
   /**
@@ -80,11 +96,6 @@ const game = () => {
       console.error("❌ Invalid data received from child:", data);
       return;
     }
-
-    setIndex(index+1);
-    let newGames = [...games];
-    newGames.push(data)
-    setGames(newGames)
     
     const stats = useBowlingStats(data);
     

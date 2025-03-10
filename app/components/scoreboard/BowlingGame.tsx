@@ -8,19 +8,19 @@ import { doc, updateDoc, setDoc } from 'firebase/firestore';
 import { BOWLINGSTATE, INPROGRESS, SPLITS } from '@/app/src/config/constants';
 import icons from '@/constants/icons';
 import { defaultFrame } from '@/app/src/values/defaults';
-import { tFrame } from '@/app/src/values/types';
+import { tFrame,tGame } from '@/app/src/values/types';
 
 
 type ChildComponentProps = {
   sendDataToParent: (data: any) => void; // Define the function type
   toggleBowling: (inProgress: boolean) => void;
-  updateCurrentGame: (data: any) => void; 
+  updateCurrentGame: (data: any) => void;
 };
 
 export type BowlingGameRef = {
-  setGame: (game: Array<tFrame>) => void;
+  setGame: (game: tGame) => void;
+  clearGame: () => void;
 }
-
 
 const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
   ({ sendDataToParent, toggleBowling, updateCurrentGame }, ref) => {
@@ -31,13 +31,13 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
   // Game state
   const [currentFrame, setCurrentFrame] = useState(0);
   const [farthestFrame, setFarthestFrame] = useState(0);
-  const [isFirstRoll, setIsFirstRoll] = useState(true);
-  const [isFinalRoll, setIsFinalRoll] = useState(false)
+  const [isFirstRoll, setIsFirstRoll] = useState<boolean>(true);
+  const [isFinalRoll, setIsFinalRoll] = useState<boolean>(false)
   const [inputRoll, setInputRoll] = useState(0);
-  const [striking, setStriking] = useState(false);
-  const [gameComplete, setGameComplete] = useState(false)
+  const [striking, setStriking] = useState<boolean>(false);
+  const [gameComplete, setGameComplete] = useState<boolean>(false)
   const [pins, setPins] = useState(Array(10).fill(false)); // Track knocked-down pins
-  const [edited, setEdited] = useState(false);
+  const [edited, setEdited] = useState<boolean>(false);
   const [quickSelection, setQuickSelection] = useState('');
 
   // Swiping feature
@@ -48,13 +48,27 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
   // Number of games
   const [numGames, setNumGames] = useState(1);
   
-  const setGame = (game: Array<tFrame>) =>{
-    console.log(`😮 WOW`)
+  /**
+   * 
+   * @param game The game that needs to be displayed. 
+   */
+  const setGame = (game: tGame) =>{
+    setCurrentFrame(game.currentFrame)
+    setFarthestFrame(game.farthestFrame)
+    setIsFirstRoll(Boolean(game.isFirstRoll))
+    setIsFinalRoll(Boolean(game.isFinalRoll))
+    setStriking(Boolean(game.striking))
+    setGameComplete(Boolean(game.gameComplete))
+    setPins(game.pins)
+    setEdited(Boolean(game.edited))
+    setFrames(game.frames)
+    setNumGames(game.gameNum)
   }
 
   // Expose methods to the parent
   useImperativeHandle(ref, () => ({
     setGame,
+    clearGame,
   }));
 
   // Load saved game on startup
@@ -297,7 +311,7 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
     setCurrentFrame(currentFrame+1);
     setIsFirstRoll(true)
     if (currentFrame >= farthestFrame)setFarthestFrame(currentFrame+1)
-    updateCurrentGame(frames)
+    updateGame();
   }
   //
   const showFrames = (frames:any) => {
@@ -336,6 +350,7 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
       let count = updatedPins.filter(x => x==true).length
       setInputRoll(count)
       setPins(updatedPins);
+      updateGame();
     }
     else{
       const firstBallPins = frames[currentFrame].firstBallPins
@@ -346,6 +361,7 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
         let count = (updatedPins.filter(x => x==true).length-firstBallCount)
         setInputRoll(count)
         setPins(updatedPins)
+        updateGame();
       }
     }
   };
@@ -389,6 +405,7 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
           let count = (updatedPins.filter(x => x==true).length-firstBallCount)
           setInputRoll(count)
           setPins(updatedPins)
+          updateGame();
         }
       }
       else{
@@ -401,6 +418,7 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
             let count = (updatedPins.filter(x => x==true).length-secondBallCount)
             setInputRoll(count)
             setPins(updatedPins)
+            updateGame();
           }
         }
         else{
@@ -464,6 +482,7 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
       setIsFirstRoll(true)
       setPins(frames[index].firstBallPins)
       setEdited(true)
+      updateGame();
     }
   }
 
@@ -475,6 +494,7 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
     setInputRoll(0);
     setIsFirstRoll(true);
     setEdited(false);
+    updateGame();
   }
   // Handle editing a previous frame.
   const handleEdit = () =>{
@@ -508,6 +528,29 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
     //calculateScore()
     return
   }
+
+  /**
+   * Packs and sends game data to parent
+   */
+  const updateGame = () =>{
+    const game: tGame = {
+      frames: frames,
+      currentFrame: currentFrame,
+      farthestFrame: farthestFrame,
+      isFirstRoll: isFirstRoll,
+      isFinalRoll: isFinalRoll,
+      striking: striking,
+      gameComplete: gameComplete,
+      edited: edited,
+      gameNum: numGames,
+      pins: pins
+    }
+    updateCurrentGame(game)
+  }
+
+  useEffect(() => {
+    updateGame()
+  }, [gameComplete, frames]);
 
   // Handle Tenth Frame Unique frame scoring and visuals.
   function handleLastFrame() {
@@ -569,7 +612,6 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
       if(!frame.isSplit)
         frame.isSplit = checkIsSplit(pins) && frame.roll1 == '10'
       setFrames(calculateTotalScore(updatedFrames));
-
       // User gets an extra shot if spare or strike
       if(frame.isSpare || frame.roll2 == '10'){
         setIsFinalRoll(true)
@@ -587,6 +629,7 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
         setGameComplete(true)
         setStriking(false);
       }
+      
     }
   }
 
@@ -847,12 +890,6 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
         </View>
         
     </View>
-    <TouchableOpacity 
-            onPress={clearGame} 
-            className="mx-5 mt-5 pr-4 pl-2 py-2 rounded-lg items-center"
-          >
-            <Text className="text-5xl text-white font-pextrabold">RESET</Text>
-          </TouchableOpacity>
     
     </Animated.View>
     

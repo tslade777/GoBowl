@@ -14,6 +14,7 @@ import { tFrame } from '@/app/src/values/types';
 type ChildComponentProps = {
   sendDataToParent: (data: any) => void; // Define the function type
   toggleBowling: (inProgress: boolean) => void;
+  updateCurrentGame: (data: any) => void; 
 };
 
 export type BowlingGameRef = {
@@ -22,7 +23,7 @@ export type BowlingGameRef = {
 
 
 const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
-  ({ sendDataToParent, toggleBowling }, ref) => {
+  ({ sendDataToParent, toggleBowling, updateCurrentGame }, ref) => {
   const [frames, setFrames] =  useState(
     Array.from({ length: 10 }, () => ({ ...defaultFrame }))
   );
@@ -296,6 +297,7 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
     setCurrentFrame(currentFrame+1);
     setIsFirstRoll(true)
     if (currentFrame >= farthestFrame)setFarthestFrame(currentFrame+1)
+    updateCurrentGame(frames)
   }
   //
   const showFrames = (frames:any) => {

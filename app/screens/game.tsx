@@ -64,6 +64,12 @@ const game = () => {
     loadSession();
   }, []);
 
+
+  const updateCurrentGame = (game: any) =>{
+    console.log(`🎳 Current game updated.`)
+    setCurrGame(game);
+  }
+
   /**
    * A game has just been bowled, update firebase.
    * 
@@ -74,6 +80,11 @@ const game = () => {
       console.error("❌ Invalid data received from child:", data);
       return;
     }
+
+    setIndex(index+1);
+    let newGames = [...games];
+    newGames.push(data)
+    setGames(newGames)
     
     const stats = useBowlingStats(data);
     
@@ -242,6 +253,7 @@ const markSessionComplete = async () =>{
           ref={childRef}
           sendDataToParent={handleDataFromChild}
           toggleBowling={toggleActiveGame}
+          updateCurrentGame={updateCurrentGame}
         />
 
         {/* Button Positioned at Bottom Right */}

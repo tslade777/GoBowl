@@ -4,8 +4,10 @@ import "../../global.css";
 import { Tabs, Redirect, Stack} from 'expo-router'
 import {icons} from '../../constants'
 import { Colors } from 'react-native/Libraries/NewAppScreen';
+import { getLocalImagePath } from '../hooks/ImageFunctions';
+import { getFromStorage } from '../hooks/userDataFunctions';
 
-const TabIcon = ({icon, color, focused}:{icon:any, color:any, focused:any}) => {
+const TabIcon = ({icon, color, focused}:{icon:any, color?:any, focused:any}) => {
   return (
     <View className="items-center justify-center gap-2">
       <Image 
@@ -20,8 +22,10 @@ const TabIcon = ({icon, color, focused}:{icon:any, color:any, focused:any}) => {
 const TabsLayout = () => {
 
   const [isKeyboardVisible, setKeyboardVisible] = useState(false);
+  const [profileImage, setProfileImage] = useState<string | null>(null);
 
   useEffect(() => {
+    getUserData();
     const showSubscription = Keyboard.addListener("keyboardDidShow", () => {
       setKeyboardVisible(true);
     });
@@ -34,6 +38,16 @@ const TabsLayout = () => {
       hideSubscription.remove();
     };
   }, []);
+
+  const getUserData = async ()=> {
+    const user = await getFromStorage()
+    if(user){
+      setProfileImage(getLocalImagePath(`${user.username}.png`))
+    }
+    else
+      console.log(`User is null`)
+  }
+
   return (
     <>
       <Stack.Screen name="index" options={{headerShown:false}}/>
@@ -115,9 +129,9 @@ const TabsLayout = () => {
             headerShown: false,
             tabBarIcon: ({color, focused}) => (
               <TabIcon 
-                icon={icons.profile}
-                color={color}
+                icon={profileImage ? { uri: profileImage } : icons.profile}
                 focused={focused}
+                color={profileImage ? null : color}
               />
             )
           }}

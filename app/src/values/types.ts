@@ -53,7 +53,7 @@ export interface Game {
     stats: any[];
 }
 
-export interface Frame {
+export interface tFrame {
     roll1: string;
     roll2: string;
     roll3: string;

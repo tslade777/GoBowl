@@ -1,4 +1,4 @@
-import { SeriesStats, BowlingStats, PinCombinations, Friend, Frame } from "./types";
+import { SeriesStats, BowlingStats, PinCombinations, Friend, tFrame } from "./types";
 // defaults.ts or constants.ts
 export const defaultSeriesStats: SeriesStats = {
     seriesScore: 0,
@@ -58,7 +58,7 @@ export const bowlingStats: BowlingStats = {
   pinCombinations: {}
 }
 
-export const defaultFrame: Frame = {
+export const defaultFrame: tFrame = {
   roll1: "", roll2: "", roll3: "", score: 0,
   firstBallPins: Array(10).fill(false),
   secondBallPins: Array(10).fill(false),

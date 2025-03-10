@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity, Image, PanResponder, Animated  } from 'react-native';
-import { useEffect, useRef, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Frame from './Frame';
 import TenthFrame from './TenthFrame';
@@ -7,20 +7,24 @@ import { FIREBASE_AUTH, db } from '../../../firebase.config'
 import { doc, updateDoc, setDoc } from 'firebase/firestore';
 import { BOWLINGSTATE, INPROGRESS, SPLITS } from '@/app/src/config/constants';
 import icons from '@/constants/icons';
+import { defaultFrame } from '@/app/src/values/defaults';
+import { tFrame } from '@/app/src/values/types';
+
 
 type ChildComponentProps = {
   sendDataToParent: (data: any) => void; // Define the function type
   toggleBowling: (inProgress: boolean) => void;
 };
 
+export type BowlingGameRef = {
+  setGame: (game: Array<tFrame>) => void;
+}
 
-const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent, toggleBowling}) => {
-  const [frames, setFrames] = useState(
-    Array.from({ length: 10 }, () => ({
-      roll1: "", roll2: "", roll3: "", score: 0,
-      firstBallPins: Array(10).fill(false),
-      secondBallPins: Array(10).fill(false),
-      isSpare: false, isStrike: false, visible: true, isSplit: false }))
+
+const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
+  ({ sendDataToParent, toggleBowling }, ref) => {
+  const [frames, setFrames] =  useState(
+    Array.from({ length: 10 }, () => ({ ...defaultFrame }))
   );
 
   // Game state
@@ -43,6 +47,15 @@ const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent, toggleBow
   // Number of games
   const [numGames, setNumGames] = useState(1);
   
+  const setGame = (game: Array<tFrame>) =>{
+    console.log(`😮 WOW`)
+  }
+
+  // Expose methods to the parent
+  useImperativeHandle(ref, () => ({
+    setGame,
+  }));
+
   // Load saved game on startup
   useEffect(() => {
     loadGame();
@@ -192,16 +205,11 @@ const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent, toggleBow
   const clearGame = async () => {
     
     if (gameComplete){
-     
-      sendDataToParent(frames);
       
-      toggleBowling(false);
       setNumGames(numGames+1)
     }
     setFirebaseInActive()
-    setFrames(Array(10).fill(null).map(() => ({ roll1: '', roll2: '', roll3: '', score: 0, 
-      firstBallPins: Array(10).fill(false),secondBallPins: Array(10).fill(false), 
-      isSpare: false, isStrike: false, visible: true, isSplit: false })));
+    setFrames(Array.from({ length: 10 }, () => ({ ...defaultFrame })));
     setCurrentFrame(0)
     setPins(Array(10).fill(false))
     setFarthestFrame(0)
@@ -518,6 +526,8 @@ const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent, toggleBow
       updatedFrames = showFrames(updatedFrames)
       setFrames(updatedFrames);
       setGameComplete(true)
+      toggleBowling(false);
+      sendDataToParent(frames);
       setStriking(false)
       return
     }
@@ -570,6 +580,8 @@ const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent, toggleBow
         setInputRoll(0)
       }
       else{
+        toggleBowling(false);
+        sendDataToParent(frames);
         setGameComplete(true)
         setStriking(false);
       }
@@ -758,12 +770,12 @@ const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent, toggleBow
         {/* Quick Select Buttons */}
         <View className="flex-col mt-10 items-center ">
           <TouchableOpacity 
-            disabled={!isFirstRoll}
+            disabled={!isFirstRoll&&currentFrame!=9}
             onPress={()=>{setInputRoll(10); setPins(Array(10).fill(true)); setQuickSelection('X');
               }}
             className="mx-5 pr-4 pl-2 py-2 rounded-lg items-center"
           >
-            <Text className={`text-5xl ${isFirstRoll ? "text-white" : "text-gray-500"} font-pextrabold`}>X</Text>
+            <Text className={`text-5xl ${!isFirstRoll&&currentFrame!=9 ? "text-gray-500" : "text-white"} font-pextrabold`}>X</Text>
           </TouchableOpacity>
           <TouchableOpacity 
             disabled={isFirstRoll}
@@ -833,11 +845,18 @@ const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent, toggleBow
         </View>
         
     </View>
+    <TouchableOpacity 
+            onPress={clearGame} 
+            className="mx-5 mt-5 pr-4 pl-2 py-2 rounded-lg items-center"
+          >
+            <Text className="text-5xl text-white font-pextrabold">RESET</Text>
+          </TouchableOpacity>
     
-      </Animated.View>
+    </Animated.View>
     
   
-  );
-  };
+    );
+  }
+);
   
   export default BowlingGame;

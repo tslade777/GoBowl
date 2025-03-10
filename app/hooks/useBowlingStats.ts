@@ -1,4 +1,4 @@
-import { BowlingStats, Frame, PinCombinations } from "../src/values/types";
+import { BowlingStats, tFrame, PinCombinations } from "../src/values/types";
 import { bowlingStats } from "../src/values/defaults";
 import { useState } from "react";
 
@@ -9,7 +9,7 @@ import { useState } from "react";
    * @param frames The completed bowling game frames.
    * @returns A BowlingStats object that contains various stats.
    */
-  const calculateBowlingStats = (frames: Frame[]): BowlingStats => {
+  const calculateBowlingStats = (frames: tFrame[]): BowlingStats => {
     
     if (!frames || frames.length === 0) {
       return bowlingStats;

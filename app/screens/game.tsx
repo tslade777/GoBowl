@@ -1,12 +1,12 @@
 import { View, Text, TouchableOpacity, Image } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import BowlingGame from '../components/scoreboard/BowlingGame'
+import BowlingGame, { BowlingGameRef } from '../components/scoreboard/BowlingGame'
 import { useLocalSearchParams } from 'expo-router/build/hooks';
 import { router } from 'expo-router';
 import useBowlingStats from '../hooks/useBowlingStats';
 import { BowlingStats, SeriesStats } from "@/app/src/values/types";
-import { defaultSeriesStats } from "@/app/src/values/defaults";
+import { defaultFrame, defaultSeriesStats } from "@/app/src/values/defaults";
 import { updateFirebaseGameComplete, updateFirebaseLeagueWeekCount } from '../hooks/firebaseFunctions';
 import { ACTIVESESSION, INPROGRESS, SESSIONS, SESSIONSTARTED } from '../src/config/constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -23,7 +23,13 @@ const game = () => {
   const [gamesData, setGamesData] = useState([{}])
   const [activeGame, setActiveGame] = useState(true)
   const [firstRender, setFirstRender] = useState(true)
-  const [seriesStats, setSeriesStats] = useState<SeriesStats>(initialStats) 
+  const [seriesStats, setSeriesStats] = useState<SeriesStats>(initialStats)
+  const [games, setGames] = useState([Array.from({ length: 10 }, () => ({ ...defaultFrame }))])
+  const [currGame, setCurrGame] = useState(Array.from({ length: 10 }, () => ({ ...defaultFrame })));
+  const [index, setIndex] = useState(0);
+
+  const childRef = useRef<BowlingGameRef>(null);
+
   let highGame = 0;
   let lowGame = 301;
   let sID = args.id as string;
@@ -31,6 +37,23 @@ const game = () => {
   let sName = args.name as string;
   let sType = args.type as string;
 
+
+  const previousGame = () =>{
+    if (index > 0)
+      childRef.current?.setGame(games[index])
+    else{
+      console.log(`This is the first game`)
+    }
+  }
+
+  const nextGame = () =>{
+    childRef.current?.setGame(currGame)
+  }
+
+  /**
+   * Called when a game is over 
+   * @param inProgress 
+   */
   const toggleActiveGame = (inProgress:boolean)=>{
     setActiveGame(inProgress)
     saveSession();
@@ -216,8 +239,9 @@ const markSessionComplete = async () =>{
       <View className="items-center flex-1">
       
         <BowlingGame 
-        sendDataToParent={handleDataFromChild}
-        toggleBowling={toggleActiveGame}
+          ref={childRef}
+          sendDataToParent={handleDataFromChild}
+          toggleBowling={toggleActiveGame}
         />
 
         {/* Button Positioned at Bottom Right */}
@@ -229,7 +253,7 @@ const markSessionComplete = async () =>{
           <Text className="text-white font-bold">End Session</Text>
         </TouchableOpacity>
         <TouchableOpacity 
-          onPress={()=>{}} 
+          onPress={nextGame} 
           className="absolute bottom-8 right-5 mr-5 px-1 py-2 rounded-lg"
         >
           <Image source={icons.next}
@@ -238,7 +262,7 @@ const markSessionComplete = async () =>{
             style={{tintColor: "white"}}/>
         </TouchableOpacity>
         <TouchableOpacity 
-          onPress={()=>{}} 
+          onPress={previousGame} 
           className="absolute bottom-8 left-5 mr-5 px-1 py-2 rounded-lg"
         >
           <Image source={icons.previous}

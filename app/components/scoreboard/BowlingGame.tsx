@@ -1,39 +1,43 @@
-import { View, Text, TouchableOpacity, TextInput, PanResponder, Animated  } from 'react-native';
-import { useEffect, useRef, useState } from 'react';
+import { View, Text, TouchableOpacity, Image, PanResponder, Animated  } from 'react-native';
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Frame from './Frame';
 import TenthFrame from './TenthFrame';
 import { FIREBASE_AUTH, db } from '../../../firebase.config'
 import { doc, updateDoc, setDoc } from 'firebase/firestore';
 import { BOWLINGSTATE, INPROGRESS, SPLITS } from '@/app/src/config/constants';
+import icons from '@/constants/icons';
+import { defaultFrame } from '@/app/src/values/defaults';
+import { tFrame,tGame } from '@/app/src/values/types';
+
 
 type ChildComponentProps = {
   sendDataToParent: (data: any) => void; // Define the function type
   toggleBowling: (inProgress: boolean) => void;
+  updateCurrentGame: (data: any) => void;
 };
 
+export type BowlingGameRef = {
+  setGame: (game: tGame) => void;
+  clearGame: () => void;
+}
 
-
-
-const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent, toggleBowling}) => {
-  const [frames, setFrames] = useState(
-    Array.from({ length: 10 }, () => ({
-      roll1: "", roll2: "", roll3: "", score: 0,
-      firstBallPins: Array(10).fill(false),
-      secondBallPins: Array(10).fill(false),
-      isSpare: false, isStrike: false, visible: true, isSplit: false }))
+const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
+  ({ sendDataToParent, toggleBowling, updateCurrentGame }, ref) => {
+  const [frames, setFrames] =  useState(
+    Array.from({ length: 10 }, () => ({ ...defaultFrame }))
   );
 
   // Game state
   const [currentFrame, setCurrentFrame] = useState(0);
   const [farthestFrame, setFarthestFrame] = useState(0);
-  const [isFirstRoll, setIsFirstRoll] = useState(true);
-  const [isFinalRoll, setIsFinalRoll] = useState(false)
+  const [isFirstRoll, setIsFirstRoll] = useState<boolean>(true);
+  const [isFinalRoll, setIsFinalRoll] = useState<boolean>(false)
   const [inputRoll, setInputRoll] = useState(0);
-  const [striking, setStriking] = useState(false);
-  const [gameComplete, setGameComplete] = useState(false)
+  const [striking, setStriking] = useState<boolean>(false);
+  const [gameComplete, setGameComplete] = useState<boolean>(false)
   const [pins, setPins] = useState(Array(10).fill(false)); // Track knocked-down pins
-  const [edited, setEdited] = useState(false);
+  const [edited, setEdited] = useState<boolean>(false);
   const [quickSelection, setQuickSelection] = useState('');
 
   // Swiping feature
@@ -44,6 +48,29 @@ const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent, toggleBow
   // Number of games
   const [numGames, setNumGames] = useState(1);
   
+  /**
+   * 
+   * @param game The game that needs to be displayed. 
+   */
+  const setGame = (game: tGame) =>{
+    setCurrentFrame(game.currentFrame)
+    setFarthestFrame(game.farthestFrame)
+    setIsFirstRoll(Boolean(game.isFirstRoll))
+    setIsFinalRoll(Boolean(game.isFinalRoll))
+    setStriking(Boolean(game.striking))
+    setGameComplete(Boolean(game.gameComplete))
+    setPins(game.pins)
+    setEdited(Boolean(game.edited))
+    setFrames(game.frames)
+    setNumGames(game.gameNum)
+  }
+
+  // Expose methods to the parent
+  useImperativeHandle(ref, () => ({
+    setGame,
+    clearGame,
+  }));
+
   // Load saved game on startup
   useEffect(() => {
     loadGame();
@@ -193,16 +220,11 @@ const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent, toggleBow
   const clearGame = async () => {
     
     if (gameComplete){
-     
-      sendDataToParent(frames);
       
-      toggleBowling(false);
       setNumGames(numGames+1)
     }
     setFirebaseInActive()
-    setFrames(Array(10).fill(null).map(() => ({ roll1: '', roll2: '', roll3: '', score: 0, 
-      firstBallPins: Array(10).fill(false),secondBallPins: Array(10).fill(false), 
-      isSpare: false, isStrike: false, visible: true, isSplit: false })));
+    setFrames(Array.from({ length: 10 }, () => ({ ...defaultFrame })));
     setCurrentFrame(0)
     setPins(Array(10).fill(false))
     setFarthestFrame(0)
@@ -289,6 +311,7 @@ const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent, toggleBow
     setCurrentFrame(currentFrame+1);
     setIsFirstRoll(true)
     if (currentFrame >= farthestFrame)setFarthestFrame(currentFrame+1)
+    updateGame();
   }
   //
   const showFrames = (frames:any) => {
@@ -327,6 +350,7 @@ const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent, toggleBow
       let count = updatedPins.filter(x => x==true).length
       setInputRoll(count)
       setPins(updatedPins);
+      updateGame();
     }
     else{
       const firstBallPins = frames[currentFrame].firstBallPins
@@ -337,6 +361,7 @@ const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent, toggleBow
         let count = (updatedPins.filter(x => x==true).length-firstBallCount)
         setInputRoll(count)
         setPins(updatedPins)
+        updateGame();
       }
     }
   };
@@ -380,6 +405,7 @@ const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent, toggleBow
           let count = (updatedPins.filter(x => x==true).length-firstBallCount)
           setInputRoll(count)
           setPins(updatedPins)
+          updateGame();
         }
       }
       else{
@@ -392,6 +418,7 @@ const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent, toggleBow
             let count = (updatedPins.filter(x => x==true).length-secondBallCount)
             setInputRoll(count)
             setPins(updatedPins)
+            updateGame();
           }
         }
         else{
@@ -455,6 +482,7 @@ const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent, toggleBow
       setIsFirstRoll(true)
       setPins(frames[index].firstBallPins)
       setEdited(true)
+      updateGame();
     }
   }
 
@@ -466,6 +494,7 @@ const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent, toggleBow
     setInputRoll(0);
     setIsFirstRoll(true);
     setEdited(false);
+    updateGame();
   }
   // Handle editing a previous frame.
   const handleEdit = () =>{
@@ -500,6 +529,29 @@ const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent, toggleBow
     return
   }
 
+  /**
+   * Packs and sends game data to parent
+   */
+  const updateGame = () =>{
+    const game: tGame = {
+      frames: frames,
+      currentFrame: currentFrame,
+      farthestFrame: farthestFrame,
+      isFirstRoll: isFirstRoll,
+      isFinalRoll: isFinalRoll,
+      striking: striking,
+      gameComplete: gameComplete,
+      edited: edited,
+      gameNum: numGames,
+      pins: pins
+    }
+    updateCurrentGame(game)
+  }
+
+  useEffect(() => {
+    updateGame()
+  }, [gameComplete, frames]);
+
   // Handle Tenth Frame Unique frame scoring and visuals.
   function handleLastFrame() {
     let rollValue = inputRoll;
@@ -519,6 +571,8 @@ const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent, toggleBow
       updatedFrames = showFrames(updatedFrames)
       setFrames(updatedFrames);
       setGameComplete(true)
+      toggleBowling(false);
+      sendDataToParent(frames);
       setStriking(false)
       return
     }
@@ -558,7 +612,6 @@ const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent, toggleBow
       if(!frame.isSplit)
         frame.isSplit = checkIsSplit(pins) && frame.roll1 == '10'
       setFrames(calculateTotalScore(updatedFrames));
-
       // User gets an extra shot if spare or strike
       if(frame.isSpare || frame.roll2 == '10'){
         setIsFinalRoll(true)
@@ -571,9 +624,12 @@ const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent, toggleBow
         setInputRoll(0)
       }
       else{
+        toggleBowling(false);
+        sendDataToParent(frames);
         setGameComplete(true)
         setStriking(false);
       }
+      
     }
   }
 
@@ -585,6 +641,51 @@ const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent, toggleBow
     else{
       handleManualInput();
     }
+  }
+
+  const handleNextShot = () =>{
+    // If its the first ball, go to last shot of current frame
+    if(isFirstRoll){
+      setIsFirstRoll(false)
+      setPins(frames[currentFrame].secondBallPins)
+      setEdited(true)
+    }
+    // else go to first shot of next frame
+    else{
+      setIsFirstRoll(true)
+      setCurrentFrame(currentFrame+1)
+      setPins(frames[currentFrame+1].firstBallPins)
+    }
+  }
+  const handlePreviousShot = () =>{
+    // If its the first ball, go to last shot of last frame
+    if(isFirstRoll){
+      // If last frame is a strike, show the first ball
+      if (frames[currentFrame-1].isStrike){
+        setCurrentFrame(currentFrame-1);
+        setPins(frames[currentFrame-1].firstBallPins)
+      }
+      else{
+        setIsFirstRoll(false)
+        setCurrentFrame(currentFrame-1);
+        setPins(frames[currentFrame-1].secondBallPins)
+      }
+    }
+    // else go to first shot of current frame
+    else{
+      setIsFirstRoll(true)
+      setPins(frames[currentFrame].firstBallPins)
+    }
+  }
+  const handleNextFrame = () =>{
+    setCurrentFrame(currentFrame+1);
+    setIsFirstRoll(true)
+    setPins(frames[currentFrame+1].firstBallPins)
+  }
+  const handlePreviousFrame = () =>{
+    setCurrentFrame(currentFrame-1);
+    setIsFirstRoll(true)
+    setPins(frames[currentFrame-1].firstBallPins)
   }
 
   // This will hold game logic like moving to the next frame on a strike or spare. 
@@ -714,17 +815,19 @@ const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent, toggleBow
         {/* Quick Select Buttons */}
         <View className="flex-col mt-10 items-center ">
           <TouchableOpacity 
+            disabled={!isFirstRoll&&currentFrame!=9}
             onPress={()=>{setInputRoll(10); setPins(Array(10).fill(true)); setQuickSelection('X');
               }}
             className="mx-5 pr-4 pl-2 py-2 rounded-lg items-center"
           >
-            <Text className="text-5xl text-white font-pextrabold">X</Text>
+            <Text className={`text-5xl ${!isFirstRoll&&currentFrame!=9 ? "text-gray-500" : "text-white"} font-pextrabold`}>X</Text>
           </TouchableOpacity>
           <TouchableOpacity 
+            disabled={isFirstRoll}
             onPress={()=>{instantSpareToggle(); setQuickSelection('/');}} 
             className="mx-5 mt-4 pr-4 pl-2 py-2 rounded-lg items-center"
           >
-            <Text className="text-5xl text-white font-pextrabold">/</Text>
+            <Text className={`text-5xl ${isFirstRoll ? "text-gray-500" : "text-white"} font-pextrabold`}>/</Text>
           </TouchableOpacity>
           <TouchableOpacity 
             onPress={quickSelect} 
@@ -735,37 +838,64 @@ const BowlingGame: React.FC<ChildComponentProps> = ({sendDataToParent, toggleBow
         </View>
         </View>
       
-
-
       {/* Manual Input Controls */}
-      <View className="flex-col mt-4 items-center">
-          
-        <View className='flex-row items-center' >
+      <View className="flex-col mt-4 items-center"> 
+        <View className='flex-row justify-evenly items-center' >
+          {/** Previous Frame button */}
           <TouchableOpacity 
-            onPress={edited?handleEdit:(currentFrame==9)?handleLastFrame:handleManualInput} 
-            className="m-2 bg-green-500 px-4 py-2 rounded-lg"
+            onPress={handlePreviousFrame} 
+            className="m-2  px-4 py-2 rounded-lg"
+            disabled={currentFrame==0} 
           >
-            <Text className="text-white font-bold">Enter Roll</Text>
+            <Image source={icons.previousFrame}
+              className='w-16 h-16'
+              resizeMode='contain'
+              style={currentFrame>0 ? {tintColor: "white"} : {tintColor: "gray"}}/>
           </TouchableOpacity>
+          {/** Previous shot button */}
           <TouchableOpacity 
-            onPress={gameComplete ? clearGame : ()=>{}}
-            className={`m-2 ${gameComplete ? 'bg-green-950' : 'bg-red-600'} px-4 py-2 rounded-lg `}
-            disabled={!gameComplete}
+            onPress={handlePreviousShot}
+            disabled={currentFrame==0 && isFirstRoll} 
+            className="mr-5 px-1 py-2 rounded-lg"
           >
-            <Text className="text-white font-bold">Next Game</Text>
+            <Image source={icons.previousShot}
+              className='w-10 h-10'
+              resizeMode='contain'
+              style={currentFrame==0 && isFirstRoll? {tintColor: "gray"} : {tintColor: "white"}}/>
           </TouchableOpacity>
+
+          {/** Next shot button */}
           <TouchableOpacity 
-            onPress={clearGame}
-            className={"m-2 bg-orange px-4 py-2 rounded-lg"}
+            onPress={handleNextShot}
+            disabled={currentFrame == farthestFrame} 
+            className="ml-5 px-1 py-2 rounded-lg"
           >
-            <Text className="text-white font-bold">Reset Game</Text>
+            <Image source={icons.nextShot}
+              className='w-10 h-10'
+              resizeMode='contain'
+              style={currentFrame== farthestFrame ? {tintColor: "gray"} : {tintColor: "white"}}/>
           </TouchableOpacity>
+          {/** Next Frame button */}
+          <TouchableOpacity 
+            onPress={edited?handleEdit:(currentFrame==9)?handleLastFrame:(currentFrame==farthestFrame)?
+              handleManualInput:handleNextFrame} 
+            className="m-2  px-4 py-2 rounded-lg"
+          >
+            <Image source={icons.nextFrame}
+              className='w-16 h-16'
+              resizeMode='contain'
+              style={{tintColor: "white"}}/>
+          </TouchableOpacity>
+
         </View>
+        
     </View>
-      </Animated.View>
+    
+    </Animated.View>
     
   
-  );
-  };
+    );
+  }
+);
   
   export default BowlingGame;

@@ -1,15 +1,16 @@
-import { View, Text, TouchableOpacity } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import { View, Text, TouchableOpacity, Image } from 'react-native'
+import React, { useEffect, useRef, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import BowlingGame from '../components/scoreboard/BowlingGame'
+import BowlingGame, { BowlingGameRef } from '../components/scoreboard/BowlingGame'
 import { useLocalSearchParams } from 'expo-router/build/hooks';
 import { router } from 'expo-router';
 import useBowlingStats from '../hooks/useBowlingStats';
-import { BowlingStats, SeriesStats } from "@/app/src/values/types";
-import { defaultSeriesStats } from "@/app/src/values/defaults";
+import { tGame, BowlingStats, SeriesStats } from "@/app/src/values/types";
+import { defaultFrame, defaultGame, defaultSeriesStats } from "@/app/src/values/defaults";
 import { updateFirebaseGameComplete, updateFirebaseLeagueWeekCount } from '../hooks/firebaseFunctions';
 import { ACTIVESESSION, INPROGRESS, SESSIONS, SESSIONSTARTED } from '../src/config/constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
+import icons from '@/constants/icons';
 
 
 const initialStats: SeriesStats = {
@@ -22,7 +23,13 @@ const game = () => {
   const [gamesData, setGamesData] = useState([{}])
   const [activeGame, setActiveGame] = useState(true)
   const [firstRender, setFirstRender] = useState(true)
-  const [seriesStats, setSeriesStats] = useState<SeriesStats>(initialStats) 
+  const [seriesStats, setSeriesStats] = useState<SeriesStats>(initialStats)
+  const [games, setGames] = useState<tGame[]>([])
+  const [currGame, setCurrGame] = useState<tGame>(defaultGame);
+  const [index, setIndex] = useState(0);
+
+  const childRef = useRef<BowlingGameRef>(null);
+
   let highGame = 0;
   let lowGame = 301;
   let sID = args.id as string;
@@ -30,6 +37,34 @@ const game = () => {
   let sName = args.name as string;
   let sType = args.type as string;
 
+
+  const previousGame = () =>{
+    
+    if (index > 0){
+      childRef.current?.setGame(games[index-1])
+      setIndex(index-1)
+    }
+  }
+
+  /**
+   * 
+   */
+  const nextGame = () =>{
+    // if we are in game history, pass next game
+    if (index < games.length-1){
+      childRef.current?.setGame(games[index+1])
+      setIndex(index+1)
+    }
+    else if (games[games.length-1].gameComplete){
+      childRef.current?.clearGame()
+      setIndex(games.length)
+    }
+  }
+
+  /**
+   * Called when a game is over 
+   * @param inProgress 
+   */
   const toggleActiveGame = (inProgress:boolean)=>{
     setActiveGame(inProgress)
     saveSession();
@@ -39,6 +74,17 @@ const game = () => {
   useEffect(() => {
     loadSession();
   }, []);
+
+  /**
+   * 
+   * @param game 
+   */
+  const updateCurrentGame = (game: tGame) =>{
+    let newGames = [...games];
+    newGames[game.gameNum-1] = game;
+    setGames(newGames)
+    setIndex(game.gameNum-1)
+  }
 
   /**
    * A game has just been bowled, update firebase.
@@ -186,6 +232,7 @@ const markSessionComplete = async () =>{
         pinCombinations: prevStats.pinCombinations,
       }))
   }
+
   /**
    * Wait for changes to the games Data and update firebase.
    */
@@ -214,17 +261,37 @@ const markSessionComplete = async () =>{
       <View className="items-center flex-1">
       
         <BowlingGame 
-        sendDataToParent={handleDataFromChild}
-        toggleBowling={toggleActiveGame}
+          ref={childRef}
+          sendDataToParent={handleDataFromChild}
+          toggleBowling={toggleActiveGame}
+          updateCurrentGame={updateCurrentGame}
         />
 
         {/* Button Positioned at Bottom Right */}
         <TouchableOpacity
           onPress={endSession}
           disabled = {activeGame}
-          className={`absolute bottom-5 right-5 ${activeGame ? "bg-red-700":"bg-green-800"} px-4 py-2 rounded-lg`}
+          className={`absolute bottom-9 left-1/2 -translate-x-1/2 ${activeGame ? "bg-red-700":"bg-green-800"} px-4 py-2 rounded-lg`}
         >
           <Text className="text-white font-bold">End Session</Text>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          onPress={nextGame} 
+          className="absolute bottom-8 right-5 mr-5 px-1 py-2 rounded-lg"
+        >
+          <Image source={icons.next}
+            className='w-10 h-10'
+            resizeMode='contain'
+            style={{tintColor: "white"}}/>
+        </TouchableOpacity>
+        <TouchableOpacity 
+          onPress={previousGame} 
+          className="absolute bottom-8 left-5 mr-5 px-1 py-2 rounded-lg"
+        >
+          <Image source={icons.previous}
+            className='w-10 h-10'
+            resizeMode='contain'
+            style={{tintColor: "white"}}/>
         </TouchableOpacity>
       </View>
     </SafeAreaView>

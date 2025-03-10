@@ -10,11 +10,13 @@ import { icons } from '@/constants';
 import { checkIfImageExists, getLocalImagePath, handleImageSelection } from '../hooks/ImageFunctions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { CURRENTUSER } from '../src/config/constants';
+import { UserData } from '../src/values/types';
+import { getFromStorage } from '../hooks/userDataFunctions';
 
 const Profile = () => {
   const currentUser = FIREBASE_AUTH.currentUser;
   const storage = getStorage();
-  const [userData, setUserData] = useState({
+  const [userData, setUserData] = useState<UserData>({
     username: "",
     email: "",
     age: "",
@@ -23,6 +25,7 @@ const Profile = () => {
     yearsBowling: "",
     highGame: "",
     highSeries: "",
+    profilepic: "",
   });
 
   const [loading, setLoading] = useState(true);
@@ -45,23 +48,21 @@ const Profile = () => {
     //   highGame: data.highGame ? data.highGame.toString() : "",
     //   highSeries: data.highSeries ? data.highSeries.toString() : "",
     // });
-
-    getProfilePic();
-
-    
+    getUserData()
+     
   
   }, []);
 
   const getUserData = async ()=> {
-    
-  }
-  const getProfilePic = async ()=>{
-    if( await checkIfImageExists(`${userData.username}.png`))
-      setProfileImage(getLocalImagePath(`${userData.username}.png`))
-    else {
-      setProfileImage(null)
-      console.log("No profile pic saved locally");
+    const user = await getFromStorage()
+    if(user){
+      setProfileImage(getLocalImagePath(`${user.username}.png`))
+      setUserData(user)
     }
+    else
+      console.log(`User is null`)
+
+    setLoading(false)
   }
 
   const handleEditToggle = () => {

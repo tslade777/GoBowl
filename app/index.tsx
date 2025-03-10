@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import { FIREBASE_AUTH } from "@/firebase.config";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import { fetchUserData } from "./hooks/firebaseFunctions";
+import * as FileSystem from 'expo-file-system';
 
 export default function RootLayout() {
   const [user, setUser] = useState<User | null>(null);
@@ -22,6 +23,13 @@ export default function RootLayout() {
         fetchUserData()
         // await AsyncStorage.removeItem("BOWLINGSTATE")
         // await AsyncStorage.clear()
+        const directory = FileSystem.documentDirectory;
+        if (directory) {
+          const fileList = await FileSystem.readDirectoryAsync(directory);
+          fileList.forEach((file) =>{
+            console.log(file)
+          })
+        }
       } catch(e){
         console.error(e);
       }

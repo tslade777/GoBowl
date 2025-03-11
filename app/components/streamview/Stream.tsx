@@ -246,8 +246,12 @@ const Stream = forwardRef<StreamRef, FriendProps>(({id,username,active}, ref) =>
           />
           </View>}
          
-        <Text className="text-lg text-orange font-bold">
-          {gameComplete ? "Game Complete" : `Frame ${currentFrame+1}` }</Text>
+        <View className=" flex-row  px-4">
+          <Text className="text-2xl text-orange pr-10 justify-between font-bold">
+          {gameComplete ? "Game Complete" : `Frame ${currentFrame+1}` }
+          </Text>
+          <Text className="text-teal pl-10 text-2xl font-bold ">Game: {index+1}</Text>
+        </View>
         
         {/* Select Pins - Arranged in Triangle Formation */}
         <View className="">

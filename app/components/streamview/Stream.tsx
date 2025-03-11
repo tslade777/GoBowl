@@ -40,17 +40,21 @@ const Stream = forwardRef<StreamRef, FriendProps>(({id,username,active}, ref) =>
   const [loading, setLoading] = useState(true);
 
 
-  // Load fire base game on start up
+  // 🛑 Ensure Unsubscription When Component Unmounts
   useEffect(() => {
-    console.log(`👍 User info gathered ${id}, user activity: ${active}`)
-    updateFirebaseCurrentGame()
-  }, []);
+    const unsubscribe = updateFirebaseCurrentGame();
+
+    return () => {
+      console.log("🛑 Component Unmounted, Unsubscribing from Firestore");
+      unsubscribe(); // Ensure Firestore listener is removed
+    };
+  }, []); // Runs only once on mount/unmount
 
   /**
    * Get updates from firebase and display them to the user
    * @returns nul
    */
-  const updateFirebaseCurrentGame = async () =>{
+  const updateFirebaseCurrentGame = () =>{
     const docRef = doc(db, 'activeUsers', id);
     const unsubscribe = onSnapshot(docRef, (docSnap) => {
         if (docSnap.exists()) {

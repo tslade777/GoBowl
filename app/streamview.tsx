@@ -1,4 +1,4 @@
-import { View, Text, SafeAreaView, Image } from 'react-native'
+import { View, Text, SafeAreaView, Image, TouchableOpacity } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { useLocalSearchParams } from 'expo-router'
 import Stream from './components/streamview/Stream';
@@ -31,7 +31,7 @@ const StreamView = () => {
     }, []);
 
   return (
-    <SafeAreaView className="flex-1 bg-primary h-full">
+    <SafeAreaView className="flex-column bg-primary h-full w-full">
       <View className="items-center">
         <View className="flex-row items-center space-x-3 mb-3">
           <Image
@@ -40,8 +40,29 @@ const StreamView = () => {
           />
           <Text className="text-white ml-3 text-3xl font-pbold">{username}</Text>
         </View>
-        <Stream id={id} username={username} active={isActive}/>
+        <View className="h-full">
+          <Stream id={id} username={username} active={isActive}/>
+        </View>
+        
       </View>
+      <TouchableOpacity 
+            onPress={()=>{}} 
+            className="absolute bottom-6 right-6 mr-5 px-1 py-2 rounded-lg"
+            >
+            <Image source={icons.next}
+              className='w-10 h-10'
+              resizeMode='contain'
+              style={{tintColor: "white"}}/>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            onPress={()=>{}} 
+            className="absolute bottom-6 left-6 mr-5 px-1 py-2 rounded-lg"
+            >
+            <Image source={icons.previous}
+              className='w-10 h-10'
+              resizeMode='contain'
+              style={{tintColor: "white"}}/>
+          </TouchableOpacity>
     </SafeAreaView>
   )
 }

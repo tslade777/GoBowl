@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, TextInput, PanResponder, Animated, ActivityIndicator  } from 'react-native';
+import { View, Text, TouchableOpacity, TextInput, Image, Animated, ActivityIndicator  } from 'react-native';
 import { useEffect, useRef, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Frame from '../scoreboard/Frame';
@@ -6,6 +6,7 @@ import TenthFrame from '../scoreboard/TenthFrame';
 import { FIREBASE_AUTH, db } from '../../../firebase.config'
 import { collection, query, where, doc, getDoc, updateDoc, setDoc, onSnapshot } from 'firebase/firestore';
 import { tGame } from '@/app/src/values/types';
+import icons from '@/constants/icons';
 
 interface FriendProps {
   id: string;
@@ -41,7 +42,15 @@ const Stream: React.FC<FriendProps> = ({id,username,active}) => {
     const docRef = doc(db, 'activeUsers', id);
     const unsubscribe = onSnapshot(docRef, (docSnap) => {
         if (docSnap.exists()) {
+          if(!docSnap.data().active){
+            // TODO:
+            // Session over, exit screen
+            // Show model to warn user that friend is done bowling.
+            // Don't kick them out. let them view friends games
+          }
+
           const gamesData: tGame[] = docSnap.data().games;
+          if (!games) return;
           const currentGame: tGame = gamesData[gamesData.length-1];
           setGames(gamesData||[])
           setFrames(currentGame.frames);
@@ -50,7 +59,6 @@ const Stream: React.FC<FriendProps> = ({id,username,active}) => {
           
           // // Possible show pins being knocked down with a small delay? animations?
           const updatedPins = [...currentGame.frames[currentGame.currentFrame].firstBallPins];
-          console.log(`Pins: ${currentGame.pins}`)
           setPins(currentGame.pins);
 
           setGameComplete(Boolean(currentGame.gameComplete));
@@ -223,11 +231,17 @@ const Stream: React.FC<FriendProps> = ({id,username,active}) => {
             <Text className="text-5xl text-white font-pextrabold">-</Text>
           </TouchableOpacity>
         </View>
+
+        
+
       </View>
+      <View className="">
+            
+        </View>
       </Animated.View>
     
   
-  );
+    );
   };
   
   export default Stream;

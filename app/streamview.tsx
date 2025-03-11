@@ -13,12 +13,13 @@ const StreamView = () => {
     const isActive = params.active === "true"; // Convert string to boolean
     const [profileImage, setProfileImage] = useState<string | null>(null);
 
-
+    /**
+     * Get the users Profile picture
+     */
     useEffect(() => {
       const getProfilePic = async () =>{
         if( await checkIfImageExists(`${username}.png`)){
           setProfileImage(getLocalImagePath(`${username}.png`))
-
         }
         else {
           console.log('📛 Image not found')
@@ -29,7 +30,6 @@ const StreamView = () => {
       
     }, []);
 
-    //console.log(`📸 Image path: ${profilePic}`)
   return (
     <SafeAreaView className="flex-1 bg-primary h-full">
       <View className="items-center">

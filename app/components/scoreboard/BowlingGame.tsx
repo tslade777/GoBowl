@@ -108,63 +108,11 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
     }, 500); // Delay to ensure rendering is complete
   }, []);
 
-  const updateFirebaseCurrentGame = async () =>{
-    try{
-      if (FIREBASE_AUTH.currentUser != null){
-        let result = FIREBASE_AUTH.currentUser.uid
-        await updateDoc(doc(db,"users", result),{
-          currentGame: {
-            currentFrame,
-            gameComplete,
-            frames,
-            isFirstRoll,
-          }
-        })
-      }
-    }catch(e){
-      console.error(e)
-    }
-  };
-
-  /**
-   * 
-   */
-  const setFirebaseActive = async () =>{
-    try{
-      if (FIREBASE_AUTH.currentUser != null){
-        let result = FIREBASE_AUTH.currentUser.uid
-        await setDoc(doc(db,"activeUsers", result),{
-          active: true,
-          id: result
-        })
-      }
-    }catch(e){
-      console.error(e)
-    }
-  };
-
-  // Tell firebase that the current user is No longer active
-  const setFirebaseInActive = async () =>{
-    try{
-      if (FIREBASE_AUTH.currentUser != null){
-        let result = FIREBASE_AUTH.currentUser.uid
-        await updateDoc(doc(db,"activeUsers", result),{
-          active: false,
-          id: result
-        })
-      }
-    }catch(e){
-      console.error(e)
-    }
-  };
-
   // Tell AsyncStorage a game is in progress.
   const gameStarted = async () =>{
     try{
       // Update firebase and local storage for game started/active
       toggleBowling(true);
-      updateFirebaseCurrentGame();
-      setFirebaseActive();
       await AsyncStorage.setItem(INPROGRESS, JSON.stringify(true));
     }
     catch (error) {
@@ -184,7 +132,6 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
         edited,
         gameComplete,
       };
-      updateFirebaseCurrentGame()
       await AsyncStorage.setItem(BOWLINGSTATE, JSON.stringify(gameState));
     } catch (error) {
       console.error('Error saving game:', error);
@@ -223,7 +170,6 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
       
       setNumGames(numGames+1)
     }
-    setFirebaseInActive()
     setFrames(Array.from({ length: 10 }, () => ({ ...defaultFrame })));
     setCurrentFrame(0)
     setPins(Array(10).fill(false))
@@ -546,6 +492,25 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
       pins: pins
     }
     updateCurrentGame(game)
+  }
+
+  /**
+   * Packs and sends game data to parent
+   */
+  const packGame = ():tGame =>{
+    const game: tGame = {
+      frames: frames,
+      currentFrame: currentFrame,
+      farthestFrame: farthestFrame,
+      isFirstRoll: isFirstRoll,
+      isFinalRoll: isFinalRoll,
+      striking: striking,
+      gameComplete: gameComplete,
+      edited: edited,
+      gameNum: numGames,
+      pins: pins
+    }
+    return game
   }
 
   useEffect(() => {

@@ -1,5 +1,5 @@
-import { addDoc, collection, doc, getDoc, getDocs, orderBy, query, Timestamp, updateDoc, where } from "firebase/firestore";
-import { Series, SeriesStats, UserData } from "../src/values/types";
+import { addDoc, collection, doc, getDoc, getDocs, orderBy, query, setDoc, Timestamp, updateDoc, where } from "firebase/firestore";
+import { Series, SeriesStats, tGame, UserData } from "../src/values/types";
 import { db, FIREBASE_AUTH, storage } from "@/firebase.config";
 import { format } from "date-fns";
 import { CURRENTUSER, SESSIONS } from "../src/config/constants";
@@ -188,7 +188,7 @@ const createNewLeauge = async (title: string) => {
 }
 
 /**
- * 
+ * Retreive and save the current users data from firebase
  * @returns 
  */
 const fetchUserData = async () => {
@@ -234,8 +234,10 @@ const fetchUserData = async () => {
   }
 };
 
+
+
 /**
- * 
+ * Upload image to firebase
  * @param localUri 
  * @param storagePath 
  * @returns 
@@ -265,7 +267,7 @@ const uploadImageToFirebase = async (localUri: string, storagePath: string): Pro
 };
 
 /**
- * 
+ * Download and save an image from fireabse 
  * @param imagePath 
  * @returns 
  */
@@ -301,7 +303,7 @@ const downloadImageFromFirebase = async (imagePath: string): Promise<string | nu
 
 
 /**
- * 
+ * Save the complete game in firebase
  * @param type types can {practice, open, league, tournament}
  * @param name 
  * @param leagueID 
@@ -336,10 +338,63 @@ const updateFirebaseGameComplete = async (type:string, name:string, leagueID:str
   }
 }
 
+
+/**
+   * 
+   */
+const setFirebaseActive = async () =>{
+  try{
+    if (FIREBASE_AUTH.currentUser != null){
+      let result = FIREBASE_AUTH.currentUser.uid
+      await setDoc(doc(db,"activeUsers", result),{
+        active: true,
+        id: result
+      })
+    }
+  }catch(e){
+    console.error(e)
+  }
+};
+
+
+/**
+ * 
+ */
+const setFirebaseInActive = async () =>{
+  try{
+    if (FIREBASE_AUTH.currentUser != null){
+      let result = FIREBASE_AUTH.currentUser.uid
+      await updateDoc(doc(db,"activeUsers", result),{
+        active: false,
+        id: result
+      })
+    }
+  }catch(e){
+    console.error(e)
+  }
+};
+
+
+/**
+ * Save the current game in firebase.
+ */
+const updateFirebaseActiveGames = async (game: tGame[]) =>{
+  try{
+    if (FIREBASE_AUTH.currentUser != null){
+      let result = FIREBASE_AUTH.currentUser.uid
+      await updateDoc(doc(db,"activeUsers", result),{
+        games: game,
+      })
+    }
+  }catch(e){
+    console.error(e)
+  }
+};
+
 export {getSessions, startFirebaseSession, 
   updateFirebaseLeagueWeekCount, createNewLeauge,
   updateFirebaseGameComplete, getLeagueSessions, uploadImageToFirebase, downloadImageFromFirebase,
-  fetchUserData};
+  fetchUserData, updateFirebaseActiveGames, setFirebaseActive, setFirebaseInActive};
 
 
   const defaultValue = {

@@ -7,8 +7,8 @@ import { router } from 'expo-router';
 import useBowlingStats from '../hooks/useBowlingStats';
 import { tGame, BowlingStats, SeriesStats } from "@/app/src/values/types";
 import { defaultFrame, defaultGame, defaultSeriesStats } from "@/app/src/values/defaults";
-import { updateFirebaseGameComplete, updateFirebaseLeagueWeekCount } from '../hooks/firebaseFunctions';
-import { ACTIVESESSION, INPROGRESS, SESSIONS, SESSIONSTARTED } from '../src/config/constants';
+import { setFirebaseActive, setFirebaseInActive, updateFirebaseActiveGames, updateFirebaseGameComplete, updateFirebaseLeagueWeekCount } from '../hooks/firebaseFunctions';
+import { ACTIVESESSION, BOWLINGSTATE, INPROGRESS, SESSIONS, SESSIONSTARTED } from '../src/config/constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import icons from '@/constants/icons';
 
@@ -25,7 +25,6 @@ const game = () => {
   const [firstRender, setFirstRender] = useState(true)
   const [seriesStats, setSeriesStats] = useState<SeriesStats>(initialStats)
   const [games, setGames] = useState<tGame[]>([])
-  const [currGame, setCurrGame] = useState<tGame>(defaultGame);
   const [index, setIndex] = useState(0);
 
   const childRef = useRef<BowlingGameRef>(null);
@@ -37,7 +36,9 @@ const game = () => {
   let sName = args.name as string;
   let sType = args.type as string;
 
-
+  /**
+   * Show previous game.
+   */
   const previousGame = () =>{
     
     if (index > 0){
@@ -47,7 +48,7 @@ const game = () => {
   }
 
   /**
-   * 
+   * Start then next game
    */
   const nextGame = () =>{
     // if we are in game history, pass next game
@@ -73,7 +74,12 @@ const game = () => {
   // Load saved game on startup
   useEffect(() => {
     loadSession();
+    setFirebaseActive();
   }, []);
+
+  const updateFireBase = ()=>{
+
+  }
 
   /**
    * 
@@ -83,6 +89,7 @@ const game = () => {
     let newGames = [...games];
     newGames[game.gameNum-1] = game;
     setGames(newGames)
+    updateFirebaseActiveGames(newGames)
     setIndex(game.gameNum-1)
   }
 
@@ -184,11 +191,16 @@ const saveSession = async () => {
   }
 }
 
+/**
+ * A session is complete, mark the user as inactive and clear the AsyncStorage
+ */
 const markSessionComplete = async () =>{
   try {
-    await AsyncStorage.clear()
+    const keysToRemove = [BOWLINGSTATE, INPROGRESS, ACTIVESESSION, SESSIONSTARTED]
+    await AsyncStorage.multiRemove(keysToRemove)
+    setFirebaseInActive()
   } catch (error) {
-    console.error('Error saving game:', error);
+    console.error('Error finishing session:', error);
   }
 }
 /**

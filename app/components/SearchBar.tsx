@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
-import { View, TextInput, FlatList, Text, TouchableOpacity, Keyboard } from "react-native";
+import { View, TextInput, FlatList,Image, Text, TouchableOpacity, Keyboard } from "react-native";
 import "react-native-gesture-handler";
 import { Friend } from "../src/values/types";
+import icons from "@/constants/icons";
 
 
 interface SearchBarProps {
@@ -67,12 +68,20 @@ const SearchBar: React.FC<SearchBarProps> = ({ data, onFocus, onSelect }) => {
             data={filteredData}
             keyExtractor={(item) => item.id}
             renderItem={({ item }) => (
-              <TouchableOpacity
+              
+                <TouchableOpacity
                 className="px-3 py-2 border-b border-gray-200 bg-white"
                 onPress={() => handleSelect(item)}
-              >
-                <Text className="text-black">{item.username}</Text>
-              </TouchableOpacity>
+                >
+                  <View className="flex-row ">
+                  <Image 
+                    className="w-10 h-10 rounded-full"
+                    source={item.profilePic ? { uri: item.profilePic } : icons.profile}/>
+                  <Text className="text-black ml-5 mt-2">{item.username}</Text>
+                  </View>
+                  
+                </TouchableOpacity>
+              
             )}
           />
         </View>

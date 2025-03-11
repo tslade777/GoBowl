@@ -95,16 +95,16 @@ const Friends = () => {
       setSearchLoading(true);
       const q = query(collection(db, 'users'));
       const querySnapshot = await getDocs(q);
-      const usersList: Friend[] = querySnapshot.docs
-        .map(doc => ({
+      const usersList: Friend[] = await Promise.all(
+        querySnapshot.docs.map(async (doc) => ({
           id: doc.data().id,
           username: doc.data().username,
-          profilePic: doc.data().profilePic || '',
-          active: false
+          profilePic: await getPic(doc.data().id, doc.data().username) || "",
+          active: false,
         }))
-        .filter(user => user.id !== currentUser.uid); // Exclude current user
+      );
 
-      setUsersData(usersList);
+      setUsersData(usersList.filter((user) => user.id !== currentUser.uid));
       console.log(`🔍 Found ${usersList.length} users.`);
     } catch (error) {
       console.error("❌ Error fetching users:", error);
@@ -112,6 +112,11 @@ const Friends = () => {
       setSearchLoading(false);
     }
   };
+
+  const getPic = async (id: string, username: string) : Promise<string> =>{
+    const url = await downloadImageFromFirebase(`profileImages/${id}/${username}.png`)
+    return url || ""
+  }
 
   // Add User to Friends List in Firebase
   const addFriend = async (user: Friend) => {
@@ -204,7 +209,6 @@ const Friends = () => {
    * Close the popup window.
    */
   const closeModal = () => {
-
     console.log("🚀 Closing modal...");
     console.log("🔍 Current selectedFriend:", selectedFriend);
     console.log("🔍 Type of setSelectedFriend:", typeof setSelectedFriend);

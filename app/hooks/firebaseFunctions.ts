@@ -5,7 +5,6 @@ import { format } from "date-fns";
 import { CURRENTUSER, SESSIONS } from "../src/config/constants";
 import { getDownloadURL, ref, uploadBytes } from "firebase/storage";
 import * as FileSystem from 'expo-file-system';
-import { checkIfImageExists, getLocalImagePath } from "./ImageFunctions";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 
 /**
@@ -295,7 +294,7 @@ const downloadImageFromFirebase = async (imagePath: string): Promise<string | nu
     console.log('Download successful:', downloadResult.uri);
     return downloadResult.uri;
   } catch (error) {
-    console.error('Error downloading image:', error);
+    console.warn('Error downloading image:', error);
     return null;
   }
 };

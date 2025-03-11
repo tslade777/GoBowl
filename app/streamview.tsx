@@ -1,7 +1,7 @@
 import { View, Text, SafeAreaView, Image, TouchableOpacity } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import { useLocalSearchParams } from 'expo-router'
-import Stream from './components/streamview/Stream';
+import Stream, { StreamRef } from './components/streamview/Stream';
 import icons from '@/constants/icons';
 import { checkIfImageExists, getLocalImagePath } from './hooks/ImageFunctions';
 
@@ -12,6 +12,7 @@ const StreamView = () => {
     const username = params.username as string
     const isActive = params.active === "true"; // Convert string to boolean
     const [profileImage, setProfileImage] = useState<string | null>(null);
+    const childRef = useRef<StreamRef>(null);
 
     /**
      * Get the users Profile picture
@@ -30,6 +31,18 @@ const StreamView = () => {
       
     }, []);
 
+    const next = () =>{
+      console.log(`Next Game`)
+      console.log(childRef.current)
+      childRef.current?.nextGame()
+    }
+
+    const previous = () =>{
+      console.log(`Previous Game`)
+      console.log(childRef.current)
+      childRef.current?.previousGame()
+    }
+
   return (
     <SafeAreaView className="flex-column bg-primary h-full w-full">
       <View className="items-center">
@@ -41,12 +54,12 @@ const StreamView = () => {
           <Text className="text-white ml-3 text-3xl font-pbold">{username}</Text>
         </View>
         <View className="h-full">
-          <Stream id={id} username={username} active={isActive}/>
+          <Stream ref={childRef} id={id} username={username} active={isActive}/>
         </View>
         
       </View>
       <TouchableOpacity 
-            onPress={()=>{}} 
+            onPress={next} 
             className="absolute bottom-6 right-6 mr-5 px-1 py-2 rounded-lg"
             >
             <Image source={icons.next}
@@ -55,7 +68,7 @@ const StreamView = () => {
               style={{tintColor: "white"}}/>
           </TouchableOpacity>
           <TouchableOpacity 
-            onPress={()=>{}} 
+            onPress={previous} 
             className="absolute bottom-6 left-6 mr-5 px-1 py-2 rounded-lg"
             >
             <Image source={icons.previous}

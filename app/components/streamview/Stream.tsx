@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity, TextInput, Image, Animated, ActivityIndicator  } from 'react-native';
-import { useEffect, useRef, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Frame from '../scoreboard/Frame';
 import TenthFrame from '../scoreboard/TenthFrame';
@@ -14,7 +14,12 @@ interface FriendProps {
   active: boolean;
 }
 
-const Stream: React.FC<FriendProps> = ({id,username,active}) => {
+export type StreamRef = {
+  nextGame: () => void;
+  previousGame: () => void;
+}
+
+const Stream = forwardRef<StreamRef, FriendProps>(({id,username,active}, ref) => {
   
   const [frames, setFrames] = useState(
     Array(10).fill(null).map(() => ({ roll1: '', roll2: '', roll3: '', score: 0 ,
@@ -27,6 +32,10 @@ const Stream: React.FC<FriendProps> = ({id,username,active}) => {
   const [isFirstRoll, setIsFirstRoll] = useState(false);
   const [gameComplete, setGameComplete] = useState(false)
   const [pins, setPins] = useState(Array(10).fill(false)); // Track knocked-down pins
+  const [index, setIndex] = useState(0);
+  const [currGameNum, setCurrGameNum] = useState(0);
+  const [gameNum, setGameNum] = useState(0);
+  const viewingHistoryRef = useRef(false);
 
   const [loading, setLoading] = useState(true);
 
@@ -34,10 +43,13 @@ const Stream: React.FC<FriendProps> = ({id,username,active}) => {
   // Load fire base game on start up
   useEffect(() => {
     console.log(`👍 User info gathered ${id}, user activity: ${active}`)
-
     updateFirebaseCurrentGame()
   }, []);
 
+  /**
+   * Get updates from firebase and display them to the user
+   * @returns nul
+   */
   const updateFirebaseCurrentGame = async () =>{
     const docRef = doc(db, 'activeUsers', id);
     const unsubscribe = onSnapshot(docRef, (docSnap) => {
@@ -49,25 +61,75 @@ const Stream: React.FC<FriendProps> = ({id,username,active}) => {
             // Don't kick them out. let them view friends games
           }
 
-          const gamesData: tGame[] = docSnap.data().games;
-          if (!games) return;
-          const currentGame: tGame = gamesData[gamesData.length-1];
-          setGames(gamesData||[])
-          setFrames(currentGame.frames);
-          setCurrentFrame(currentGame.currentFrame);
-          setIsFirstRoll(Boolean(currentGame.isFirstRoll));
-          
-          // // Possible show pins being knocked down with a small delay? animations?
-          const updatedPins = [...currentGame.frames[currentGame.currentFrame].firstBallPins];
-          setPins(currentGame.pins);
-
-          setGameComplete(Boolean(currentGame.gameComplete));
+          // The user is viewing previous games and shouldn't be pulled to the current game
+          if (viewingHistoryRef.current){
+            console.log(`📛 Viewing previous game`)
+            return
+          }
+          else{
+            console.log(`✅ Update current game`)
+            const gamesData: tGame[] = docSnap.data().games;
+            if (!gamesData) return;
+            const currentGame: tGame = gamesData[gamesData.length-1];
+            setGames(gamesData||[])
+            setCurrGameNum(currentGame.gameNum)
+            setFrames(currentGame.frames);
+            setCurrentFrame(currentGame.currentFrame);
+            setIsFirstRoll(Boolean(currentGame.isFirstRoll));
+            setIndex(gamesData.length-1)
+            
+            // // Possible show pins being knocked down with a small delay? animations?
+            const updatedPins = [...currentGame.frames[currentGame.currentFrame].firstBallPins];
+            setPins(currentGame.pins);
+  
+            setGameComplete(Boolean(currentGame.gameComplete));
+            setLoading(false);
+          }
         }
-        setLoading(false);
+        
       });
       return () => unsubscribe();
   };
 
+
+  // Expose methods to the parent
+    useImperativeHandle(ref, () => ({
+      nextGame,
+      previousGame,
+    }));
+
+  /**
+   * Show the next game in the history or the current game if it's next.
+   * @returns null
+   */
+  const nextGame = () =>{
+    
+    // Next game will be current game
+    if (index == games.length-2){
+      console.log(`➡️ Current game`)
+      viewingHistoryRef.current = false
+      updateFirebaseCurrentGame();
+    }
+    else if (index < games.length-2){
+      console.log(`➡️ Next game`)
+      viewingHistoryRef.current = true
+      setGame(games[index+1])
+      setIndex(index+1)
+    }
+    else return
+  }
+
+  const previousGame = () =>{
+    
+    // Next game will be current game
+    if (index > 0){
+      console.log(`⬅️ previous game`)
+      viewingHistoryRef.current = true
+      setGame(games[index-1])
+      setIndex(index-1)
+    }
+    else return
+  }
 
   /**
    * Set the Game as it's updated from firebase.
@@ -77,12 +139,10 @@ const Stream: React.FC<FriendProps> = ({id,username,active}) => {
     setCurrentFrame(game.currentFrame)
     setFarthestFrame(game.farthestFrame)
     setIsFirstRoll(Boolean(game.isFirstRoll))
-    //setIsFinalRoll(Boolean(game.isFinalRoll))
-    //setStriking(Boolean(game.striking))
     setGameComplete(Boolean(game.gameComplete))
     setPins(game.pins)
     setFrames(game.frames)
-    //setNumGames(game.gameNum)
+    setGameNum(game.gameNum)
   }
 
   
@@ -242,6 +302,7 @@ const Stream: React.FC<FriendProps> = ({id,username,active}) => {
     
   
     );
-  };
+  }
+);
   
   export default Stream;

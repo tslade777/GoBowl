@@ -69,7 +69,7 @@ const Friends = () => {
 
     const unsubscribe = onSnapshot(q, (snapshot) => {
       const activeUserIDs = snapshot.docs.map(doc => doc.data().id);
-      console.log(`🔥 Active users updated: ${activeUserIDs.length} users`);
+      
       setActiveFriends(activeUserIDs);
     });
 

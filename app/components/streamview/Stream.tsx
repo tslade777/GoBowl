@@ -5,6 +5,7 @@ import Frame from '../scoreboard/Frame';
 import TenthFrame from '../scoreboard/TenthFrame';
 import { FIREBASE_AUTH, db } from '../../../firebase.config'
 import { collection, query, where, doc, getDoc, updateDoc, setDoc, onSnapshot } from 'firebase/firestore';
+import { tGame } from '@/app/src/values/types';
 
 interface FriendProps {
   id: string;
@@ -19,6 +20,7 @@ const Stream: React.FC<FriendProps> = ({id,username,active}) => {
       firstBallPins: Array(10).fill(false),secondBallPins:Array(10).fill(false), 
       isSpare: false, isStrike: false, visible: false, isSplit: false }))
   );
+  const [games, setGames] = useState<tGame[]>([])
   const [currentFrame, setCurrentFrame] = useState(0);
   const [farthestFrame, setFarthestFrame] = useState(0);
   const [isFirstRoll, setIsFirstRoll] = useState(false);
@@ -26,7 +28,6 @@ const Stream: React.FC<FriendProps> = ({id,username,active}) => {
   const [pins, setPins] = useState(Array(10).fill(false)); // Track knocked-down pins
 
   const [loading, setLoading] = useState(true);
-
 
 
   // Load fire base game on start up
@@ -37,26 +38,46 @@ const Stream: React.FC<FriendProps> = ({id,username,active}) => {
   }, []);
 
   const updateFirebaseCurrentGame = async () =>{
-    const docRef = doc(db, 'users', id);
+    const docRef = doc(db, 'activeUsers', id);
     const unsubscribe = onSnapshot(docRef, (docSnap) => {
-          if (docSnap.exists()) {
-            const currentGame = docSnap.data().currentGame;
-            
-            setFrames(currentGame.frames);
-            setCurrentFrame(currentGame.currentFrame);
-            setIsFirstRoll(currentGame.isFirstRoll);
-            
-            // Possible show pins being knocked down with a small delay? animations?
-            const updatedPins = [...currentGame.frames[currentGame.currentFrame].firstBallPins];
+        if (docSnap.exists()) {
+          const gamesData: tGame[] = docSnap.data().games;
+          const currentGame: tGame = gamesData[gamesData.length-1];
+          setGames(gamesData||[])
+          setFrames(currentGame.frames);
+          setCurrentFrame(currentGame.currentFrame);
+          setIsFirstRoll(Boolean(currentGame.isFirstRoll));
+          
+          // // Possible show pins being knocked down with a small delay? animations?
+          const updatedPins = [...currentGame.frames[currentGame.currentFrame].firstBallPins];
+          console.log(`Pins: ${currentGame.pins}`)
+          setPins(currentGame.pins);
 
-            setPins(updatedPins);
-            setGameComplete(currentGame.gameComplete);
-          }
-          setLoading(false);
-        });
-        return () => unsubscribe();
+          setGameComplete(Boolean(currentGame.gameComplete));
+        }
+        setLoading(false);
+      });
+      return () => unsubscribe();
   };
 
+
+  /**
+   * Set the Game as it's updated from firebase.
+   * @param game The game that needs to be displayed. 
+   */
+  const setGame = (game: tGame) =>{
+    setCurrentFrame(game.currentFrame)
+    setFarthestFrame(game.farthestFrame)
+    setIsFirstRoll(Boolean(game.isFirstRoll))
+    //setIsFinalRoll(Boolean(game.isFinalRoll))
+    //setStriking(Boolean(game.striking))
+    setGameComplete(Boolean(game.gameComplete))
+    setPins(game.pins)
+    setFrames(game.frames)
+    //setNumGames(game.gameNum)
+  }
+
+  
   // Calculate and return the total score that will go into the frame provided.
   const calculateTotalScore = (frames:any) => {
     let totalScore = 0;

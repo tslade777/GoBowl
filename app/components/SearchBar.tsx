@@ -62,7 +62,7 @@ const SearchBar: React.FC<SearchBarProps> = ({ data, onFocus, onSelect }) => {
       />
       {/* Ensure Dropdown Appears Correctly */}
       {showDropdown && (
-        <View className="absolute top-14 left-0 right-0 bg-white border border-gray-300 rounded-lg max-h-40 z-50 shadow-lg">
+        <View className="absolute top-14 left-0 right-0 bg-white border border-gray-300 rounded-lg max-h-80 z-50 shadow-lg">
           <FlatList
             keyboardShouldPersistTaps="handled"
             data={filteredData}

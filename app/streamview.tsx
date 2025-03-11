@@ -4,6 +4,7 @@ import { useLocalSearchParams } from 'expo-router'
 import Stream, { StreamRef } from './components/streamview/Stream';
 import icons from '@/constants/icons';
 import { checkIfImageExists, getLocalImagePath } from './hooks/ImageFunctions';
+import { removeFirebaseWatching, setFirebaseWatching } from './hooks/firebaseFunctions';
 
 
 const StreamView = () => {
@@ -28,6 +29,11 @@ const StreamView = () => {
         }
       }
       getProfilePic()
+      setFirebaseWatching(id)
+
+      return ()=>{
+        removeFirebaseWatching(id)
+      }
       
     }, []);
 

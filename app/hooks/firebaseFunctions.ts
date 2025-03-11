@@ -1,4 +1,4 @@
-import { addDoc, collection, doc, getDoc, getDocs, orderBy, query, setDoc, Timestamp, updateDoc, where } from "firebase/firestore";
+import { addDoc, collection, doc, getDoc, getDocs, increment, onSnapshot, orderBy, query, setDoc, Timestamp, updateDoc, where } from "firebase/firestore";
 import { Series, SeriesStats, tGame, UserData } from "../src/values/types";
 import { db, FIREBASE_AUTH, storage } from "@/firebase.config";
 import { format } from "date-fns";
@@ -348,7 +348,8 @@ const setFirebaseActive = async () =>{
       let result = FIREBASE_AUTH.currentUser.uid
       await setDoc(doc(db,"activeUsers", result),{
         active: true,
-        id: result
+        id: result,
+        watching: 0,
       })
     }
   }catch(e){
@@ -374,6 +375,56 @@ const setFirebaseInActive = async () =>{
   }
 };
 
+/**
+ * 
+ */
+const setFirebaseWatching = async (id:string) =>{
+  try{
+    await updateDoc(doc(db,"activeUsers", id),{
+      watching: increment(1)
+    })
+    
+  }catch(e){
+    console.error(e)
+  }
+};
+
+/**
+ * 
+ */
+const removeFirebaseWatching = async (id:string) =>{
+  try{     
+    await updateDoc(doc(db,"activeUsers", id),{
+      watching: increment(-1)
+    })
+    
+  }catch(e){
+    console.error(e)
+  }
+};
+
+const getFirebaseWatching = (id:string)=>{
+  let viewerCount = 0;
+  const docRef = doc(db, "activeUsers", id);
+
+    console.log("📡 Subscribing to viewer count updates...");
+
+    // Listen for real-time changes
+    const unsubscribe = onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        viewerCount = data.watching || 0; // Update state with viewer count
+        console.log(`👀 Updated Viewer Count: ${data.watching}`);
+      } else {
+        viewerCount = 0; // Default to 0 if the document does not exist
+      }
+    });
+
+    unsubscribe();
+
+  return viewerCount
+}
+
 
 /**
  * Save the current game in firebase.
@@ -394,7 +445,8 @@ const updateFirebaseActiveGames = async (game: tGame[]) =>{
 export {getSessions, startFirebaseSession, 
   updateFirebaseLeagueWeekCount, createNewLeauge,
   updateFirebaseGameComplete, getLeagueSessions, uploadImageToFirebase, downloadImageFromFirebase,
-  fetchUserData, updateFirebaseActiveGames, setFirebaseActive, setFirebaseInActive};
+  fetchUserData, updateFirebaseActiveGames, setFirebaseActive, setFirebaseInActive, setFirebaseWatching, 
+  getFirebaseWatching, removeFirebaseWatching};
 
 
   const defaultValue = {

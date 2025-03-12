@@ -4,6 +4,7 @@ import { Slot, SplashScreen, Stack } from 'expo-router'
 import {useFonts } from 'expo-font'
 import "../global.css";
 import { Colors } from 'react-native/Libraries/NewAppScreen';
+import game from './screens/game';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -33,13 +34,16 @@ if(!fontsLoaded && !error) return null;
         <Stack.Screen name="index" options={{headerShown:
           false 
         }} />
-        <Stack.Screen name="screens/game" options={{
-          headerShadowVisible:false,
-          title:"",
-          headerStyle: {
-            backgroundColor: '#161622'
-          },
-          headerTintColor: 'white'
+        <Stack.Screen 
+          name="screens/game" 
+          options={{
+            headerShadowVisible:false,
+            headerTitleAlign:'center',
+            title:"",
+            headerStyle: {
+              backgroundColor: '#161622'
+            },
+            headerTintColor: 'white'
           }}/>
           <Stack.Screen name="screens/statsScreen" options={{
           headerShadowVisible:false,

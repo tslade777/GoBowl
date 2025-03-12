@@ -418,6 +418,7 @@ const getFirebaseWatching = (id:string)=>{
       } else {
         viewerCount = 0; // Default to 0 if the document does not exist
       }
+      return viewerCount
     });
 
     unsubscribe();

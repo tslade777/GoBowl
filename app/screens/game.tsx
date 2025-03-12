@@ -3,7 +3,7 @@ import React, { useEffect, useRef, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import BowlingGame, { BowlingGameRef } from '../components/scoreboard/BowlingGame'
 import { useLocalSearchParams } from 'expo-router/build/hooks';
-import { router } from 'expo-router';
+import { router, useNavigation } from 'expo-router';
 import useBowlingStats from '../hooks/useBowlingStats';
 import { tGame, BowlingStats, SeriesStats } from "@/app/src/values/types";
 import { defaultFrame, defaultGame, defaultSeriesStats } from "@/app/src/values/defaults";
@@ -11,6 +11,8 @@ import { setFirebaseActive, setFirebaseInActive, updateFirebaseActiveGames, upda
 import { ACTIVESESSION, BOWLINGSTATE, INPROGRESS, SESSIONS, SESSIONSTARTED } from '../src/config/constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import icons from '@/constants/icons';
+import { db, FIREBASE_AUTH } from '@/firebase.config';
+import { doc, onSnapshot } from 'firebase/firestore';
 
 
 const initialStats: SeriesStats = {
@@ -26,8 +28,13 @@ const game = () => {
   const [seriesStats, setSeriesStats] = useState<SeriesStats>(initialStats)
   const [games, setGames] = useState<tGame[]>([])
   const [index, setIndex] = useState(0);
+  const [numViewers, setNumViewers] = useState(0)
 
   const childRef = useRef<BowlingGameRef>(null);
+
+  const navigation = useNavigation()
+
+ 
 
   let highGame = 0;
   let lowGame = 301;
@@ -35,6 +42,64 @@ const game = () => {
   let lID = args.leagueID as string;
   let sName = args.name as string;
   let sType = args.type as string;
+  sName = sName == '' ? sType.slice(0,-8) : sName;
+  sName = sName.charAt(0).toUpperCase() + sName.slice(1);
+
+  useEffect(() => {
+    sName = sName == '' ? sType.slice(0,-8) : sName;
+    sName = sName.charAt(0).toUpperCase() + sName.slice(1);
+    navigation.setOptions({
+      headerTitle: () => (
+        <View className="flex-row items-center">
+          <Text className="text-white text-xl font-bold">🎳 {sName}</Text>
+        </View>
+      ),
+      headerRight: () => (
+        <View style={{ flexDirection: "row", alignItems: "center", marginRight: 15 }}>
+          <Image 
+            source={icons.eye}
+            className="w-8 h-8 mr-2" 
+            style={{ tintColor: "#16E60D"}}
+          />
+          <Text className="text-white text-xl font-bold">{numViewers}</Text>
+        </View>
+      ),
+    });
+  }, [numViewers]); // Update header when viewer count changes
+
+  // 🛑 Ensure Unsubscription When Component Unmounts
+  useEffect(() => {
+    const unsubscribe = getFirebaseWatching();
+
+    return () => {
+      console.log("🛑 Component Unmounted, Unsubscribing from Firestore");
+      unsubscribe(); // Ensure Firestore listener is removed
+    };
+  }, []); // Runs only once on mount/unmount
+  
+  const getFirebaseWatching = ()=>{
+    let currentUser = FIREBASE_AUTH.currentUser;
+    if (currentUser == null) return () => unsubscribe();
+    let viewerCount = 0;
+    const docRef = doc(db, "activeUsers", currentUser.uid);
+  
+      console.log("📡 Subscribing to viewer count updates...");
+  
+      // Listen for real-time changes
+      const unsubscribe = onSnapshot(docRef, (docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data();
+          viewerCount = data.watching || 0; // Update state with viewer count
+          setNumViewers(viewerCount)
+          console.log(`👀 Updated Viewer Count: ${data.watching}`);
+        } else {
+          viewerCount = 0; // Default to 0 if the document does not exist
+        }
+        setNumViewers(viewerCount)
+      });
+  
+      return () => unsubscribe();
+  }
 
   /**
    * Show previous game.
@@ -76,10 +141,6 @@ const game = () => {
     loadSession();
     setFirebaseActive();
   }, []);
-
-  const updateFireBase = ()=>{
-
-  }
 
   /**
    * 
@@ -245,6 +306,8 @@ const markSessionComplete = async () =>{
       }))
   }
 
+  
+
   /**
    * Wait for changes to the games Data and update firebase.
    */
@@ -270,8 +333,7 @@ const markSessionComplete = async () =>{
 
   return (
     <SafeAreaView className="flex-1 bg-primary h-full">
-      <View className="items-center flex-1">
-      
+      <View className="flex-1">
         <BowlingGame 
           ref={childRef}
           sendDataToParent={handleDataFromChild}

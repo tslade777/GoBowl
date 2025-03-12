@@ -19,6 +19,7 @@ import previousShot from "../assets/icons/previous_shot.png";
 import nextShot from "../assets/icons/next_shot.png";
 import previousFrame from "../assets/icons/previous_frame.png";
 import nextFrame from "../assets/icons/next_frame.png";
+import watching from "../assets/icons/watching.png";
 
 export default {
   play,
@@ -41,5 +42,6 @@ export default {
   previousFrame,
   nextFrame,
   previousShot,
-  nextShot
+  nextShot, 
+  watching
 };

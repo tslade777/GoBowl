@@ -67,39 +67,42 @@ const game = () => {
     });
   }, [numViewers]); // Update header when viewer count changes
 
-  // 🛑 Ensure Unsubscription When Component Unmounts
   useEffect(() => {
     const unsubscribe = getFirebaseWatching();
-
+  
     return () => {
       console.log("🛑 Component Unmounted, Unsubscribing from Firestore");
-      unsubscribe(); // Ensure Firestore listener is removed
+      unsubscribe(); 
     };
-  }, []); // Runs only once on mount/unmount
+  }, []); 
   
-  const getFirebaseWatching = ()=>{
+  const getFirebaseWatching = () => {
     let currentUser = FIREBASE_AUTH.currentUser;
-    if (currentUser == null) return () => unsubscribe();
-    let viewerCount = 0;
+    if (currentUser == null) return () => {};
+  
     const docRef = doc(db, "activeUsers", currentUser.uid);
   
-      console.log("📡 Subscribing to viewer count updates...");
+    console.log("📡 Subscribing to viewer count updates...");
   
-      // Listen for real-time changes
-      const unsubscribe = onSnapshot(docRef, (docSnap) => {
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          viewerCount = data.watching || 0; // Update state with viewer count
-          setNumViewers(viewerCount)
-          console.log(`👀 Updated Viewer Count: ${data.watching}`);
-        } else {
-          viewerCount = 0; // Default to 0 if the document does not exist
-        }
-        setNumViewers(viewerCount)
-      });
+    // Listen for real-time changes
+    const unsubscribe = onSnapshot(docRef, (docSnap) => {
+      if (docSnap.exists()) {
+        const data = docSnap.data();
+        const newViewerCount = data.watching || 0;
   
-      return () => unsubscribe();
-  }
+        // 🔹 Only update state if the viewer count has changed
+        setNumViewers((prevCount) => {
+          if (prevCount !== newViewerCount) {
+            console.log(`👀 Updated Viewer Count: ${newViewerCount}`);
+            return newViewerCount;
+          }
+          return prevCount; // Prevent unnecessary re-renders
+        });
+      }
+    });
+  
+    return () => unsubscribe();
+  };
 
   /**
    * Show previous game.

@@ -73,6 +73,7 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
 
   // Load saved game on startup
   useEffect(() => {
+    
     loadGame();
   }, []);
 
@@ -157,6 +158,7 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
         setFarthestFrame(farthestFrame)
         setEdited(edited)
         setGameComplete(gameComplete)
+        console.log(`Loading game from Async`)
       }
     } catch (error) {
       console.error('Error loading game:', error);
@@ -351,7 +353,6 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
           let count = (updatedPins.filter(x => x==true).length-firstBallCount)
           setInputRoll(count)
           setPins(updatedPins)
-          updateGame();
         }
       }
       else{
@@ -364,7 +365,6 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
             let count = (updatedPins.filter(x => x==true).length-secondBallCount)
             setInputRoll(count)
             setPins(updatedPins)
-            updateGame();
           }
         }
         else{
@@ -428,7 +428,6 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
       setIsFirstRoll(true)
       setPins(frames[index].firstBallPins)
       setEdited(true)
-      updateGame();
     }
   }
 
@@ -440,7 +439,6 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
     setInputRoll(0);
     setIsFirstRoll(true);
     setEdited(false);
-    updateGame();
   }
   // Handle editing a previous frame.
   const handleEdit = () =>{
@@ -514,8 +512,8 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
   }
 
   useEffect(() => {
-    updateGame()
-  }, [gameComplete, frames]);
+    //updateGame()
+  }, [frames]);
 
   // Handle Tenth Frame Unique frame scoring and visuals.
   function handleLastFrame() {
@@ -539,6 +537,7 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
       toggleBowling(false);
       sendDataToParent(frames);
       setStriking(false)
+      updateGame()
       return
     }
 
@@ -594,7 +593,7 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
         setGameComplete(true)
         setStriking(false);
       }
-      
+      updateGame()
     }
   }
 
@@ -711,7 +710,8 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
       setFrames(calculateTotalScore(updatedFrames));
       frameComplete()
     }
-    saveGame();  
+    saveGame();
+    updateGame()  
   };
 
     return (

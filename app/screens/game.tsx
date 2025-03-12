@@ -260,6 +260,7 @@ const saveSession = async () => {
  */
 const markSessionComplete = async () =>{
   try {
+    console.log(`Session complete, clearing async`)
     const keysToRemove = [BOWLINGSTATE, INPROGRESS, ACTIVESESSION, SESSIONSTARTED]
     await AsyncStorage.multiRemove(keysToRemove)
     setFirebaseInActive()

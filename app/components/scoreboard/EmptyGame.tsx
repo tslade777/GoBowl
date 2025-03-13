@@ -24,6 +24,7 @@ const BowlingGame: React.FC<GameInfo> = ({gameData, gameNum}) => {
   // Update frame selection. Call back for frame touch event.
   // Only update if 
   const handleFrameTouch = (index: number) => {
+      console.log(`✅ Screen touch detected`)
       setCurrentFrame(index);
       setPins(frames[index].firstBallPins)
   }

@@ -73,7 +73,6 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
 
   // Load saved game on startup
   useEffect(() => {
-    
     loadGame();
   }, []);
 
@@ -96,6 +95,11 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
   useEffect(()=>{
     saveGame();
   }, [frames, currentFrame])
+
+  // Save game 
+  useEffect(()=>{
+    updateGame();
+  }, [gameComplete])
 
   useEffect(() => {
     setTimeout(() => {
@@ -511,10 +515,6 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
     return game
   }
 
-  useEffect(() => {
-    //updateGame()
-  }, [frames]);
-
   // Handle Tenth Frame Unique frame scoring and visuals.
   function handleLastFrame() {
     let rollValue = inputRoll;
@@ -535,9 +535,9 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
       setFrames(updatedFrames);
       setGameComplete(true)
       toggleBowling(false);
-      sendDataToParent(frames);
+      
       setStriking(false)
-      updateGame()
+      sendDataToParent(updatedFrames);
       return
     }
 
@@ -589,12 +589,11 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
       }
       else{
         toggleBowling(false);
-        sendDataToParent(frames);
         setGameComplete(true)
         setStriking(false);
       }
-      updateGame()
     }
+    updateGame()
   }
 
   const quickSelect = ()=>{

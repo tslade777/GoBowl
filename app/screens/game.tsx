@@ -310,8 +310,6 @@ const markSessionComplete = async () =>{
       }))
   }
 
-  
-
   /**
    * Wait for changes to the games Data and update firebase.
    */

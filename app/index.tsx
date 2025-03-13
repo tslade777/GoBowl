@@ -23,13 +23,13 @@ export default function RootLayout() {
         fetchUserData()
         // await AsyncStorage.removeItem("BOWLINGSTATE")
         // await AsyncStorage.clear()
-        const directory = FileSystem.documentDirectory;
-        if (directory) {
-          const fileList = await FileSystem.readDirectoryAsync(directory);
-          fileList.forEach((file) =>{
-            console.log(file)
-          })
-        }
+        // const directory = FileSystem.documentDirectory;
+        // if (directory) {
+        //   const fileList = await FileSystem.readDirectoryAsync(directory);
+        //   fileList.forEach((file) =>{
+        //     console.log(file)
+        //   })
+        // }
       } catch(e){
         console.error(e);
       }

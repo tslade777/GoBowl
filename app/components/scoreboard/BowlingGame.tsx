@@ -94,12 +94,8 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
   // Save game 
   useEffect(()=>{
     saveGame();
-  }, [frames, currentFrame])
-
-  // Save game 
-  useEffect(()=>{
     updateGame();
-  }, [gameComplete])
+  }, [frames, currentFrame])
 
   useEffect(() => {
     setTimeout(() => {
@@ -263,7 +259,6 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
     setCurrentFrame(currentFrame+1);
     setIsFirstRoll(true)
     if (currentFrame >= farthestFrame)setFarthestFrame(currentFrame+1)
-    updateGame();
   }
   //
   const showFrames = (frames:any) => {
@@ -302,7 +297,6 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
       let count = updatedPins.filter(x => x==true).length
       setInputRoll(count)
       setPins(updatedPins);
-      updateGame();
     }
     else{
       const firstBallPins = frames[currentFrame].firstBallPins
@@ -313,7 +307,6 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
         let count = (updatedPins.filter(x => x==true).length-firstBallCount)
         setInputRoll(count)
         setPins(updatedPins)
-        updateGame();
       }
     }
   };
@@ -593,7 +586,6 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
         setStriking(false);
       }
     }
-    updateGame()
   }
 
   const quickSelect = ()=>{
@@ -709,8 +701,7 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
       setFrames(calculateTotalScore(updatedFrames));
       frameComplete()
     }
-    saveGame();
-    updateGame()  
+    saveGame(); 
   };
 
     return (

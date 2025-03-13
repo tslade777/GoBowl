@@ -41,6 +41,7 @@ export default function RootLayout() {
     })
   }, [])
   return (
+    
   <SafeAreaView className="bg-primary h-full">
     <ScrollView contentContainerStyle={{height: '100%'}}>
     

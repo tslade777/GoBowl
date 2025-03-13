@@ -1,10 +1,7 @@
-import { View, Text, TouchableOpacity, TextInput, PanResponder, Animated  } from 'react-native';
-import { useEffect, useRef, useState } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { View, Text, Animated, TouchableOpacity  } from 'react-native';
+import {useState } from 'react';
 import Frame from './Frame';
 import TenthFrame from './TenthFrame';
-import { FIREBASE_AUTH, db } from '../../../firebase.config'
-import { collection, query, where, doc, getDoc, updateDoc, setDoc, arrayUnion } from 'firebase/firestore';
 import { Game } from '@/app/src/values/types';
 
 type GameInfo = {
@@ -12,7 +9,7 @@ type GameInfo = {
   gameNum: number;
 };
 
-const BowlingGame: React.FC<GameInfo> = ({gameData, gameNum}) => {
+const EmptyGame: React.FC<GameInfo> = ({gameData, gameNum}) => {
   const [frames, setFrames] = useState(gameData.game);
 
 
@@ -24,24 +21,28 @@ const BowlingGame: React.FC<GameInfo> = ({gameData, gameNum}) => {
   // Update frame selection. Call back for frame touch event.
   // Only update if 
   const handleFrameTouch = (index: number) => {
-      console.log(`✅ Screen touch detected`)
       setCurrentFrame(index);
       setPins(frames[index].firstBallPins)
   }
     return (
-      <Animated.View className="items-center p-1  rounded-lg "  >
+      <View className="items-center p-1 rounded-lg">
         {/* Frames Display */}
         <View className="flex-row space-x-1" >
         {frames.slice(0, 9).map((frame, index) => (
-          <TouchableOpacity key={index} onPress={() => handleFrameTouch(index)}>
+          <TouchableOpacity
+            onPressIn={()=>handleFrameTouch(index)}
+            delayPressIn={0}
+            delayPressOut={0}
+            key={index}
+            onPress={() => {}}>
             <Frame 
-            key={index} 
-            frameNumber={index + 1} 
-            roll1={frame.isStrike ? 'X' : frame.roll1 == '0' ? '-' : frame.roll1} 
-            roll2={frame.isSpare ? '/' : frame.roll2 == '0' ? '-' : frame.roll2} 
-            total={frame.score.toString()}
-            isSelected= {currentFrame==index}
-            isSplit={frame.isSplit} 
+              key={index} 
+              frameNumber={index + 1} 
+              roll1={frame.isStrike ? 'X' : frame.roll1 == '0' ? '-' : frame.roll1} 
+              roll2={frame.isSpare ? '/' : frame.roll2 == '0' ? '-' : frame.roll2} 
+              total={frame.score.toString()}
+              isSelected= {currentFrame==index}
+              isSplit={frame.isSplit} 
             />      
           </TouchableOpacity>
         ))}
@@ -87,9 +88,9 @@ const BowlingGame: React.FC<GameInfo> = ({gameData, gameNum}) => {
         ))}
         </View>
         </View>
-      </Animated.View>
+      </View>
     
   );
   };
   
-  export default BowlingGame;
+  export default EmptyGame;

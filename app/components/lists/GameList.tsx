@@ -1,4 +1,4 @@
-import { View, Text, FlatList, TouchableOpacity } from 'react-native'
+import { View, Text, FlatList, TouchableOpacity, SafeAreaView } from 'react-native'
 import React from 'react'
 
 // Single Item Component
@@ -28,13 +28,16 @@ const BowlingGameItem = ({ game, onPress, index }: { game: any; onPress: () => v
 
 const GameList = ({ data, onItemPress }: { data: any[]; onItemPress: (item: any, gameNum: number) => void }) => {
     return (
-        <View className="flex-1 w-full h-50">
-            <FlatList
-                data={data}
-                keyExtractor={(item,index) => index.toString()}
-                renderItem={({ item,index }) => <BowlingGameItem game={item} onPress={() => onItemPress(item,index+1)} index={index+1} />}
-            />
-        </View>
+        <SafeAreaView className="flex-1 bg-primary h-full">
+            <View className="flex-1 w-full h-50">
+                <FlatList
+                    data={data}
+                    keyExtractor={(item,index) => index.toString()}
+                    renderItem={({ item,index }) => <BowlingGameItem game={item} onPress={() => onItemPress(item,index+1)} index={index+1} />}
+                />
+            </View>
+        </SafeAreaView>
+        
     );
 };
 

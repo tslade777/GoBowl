@@ -13,7 +13,7 @@ const Frame = ({
     isSplit = false
 }) => {
     return (
-        <View className="items-center">
+        <View className="items-center ">
             {/* Frame Number Label */}
             <Text className={`text-2xl ${isSelected ? "text-orange" : "text-white"} font-bold mb-1`}>
                 {frameNumber}

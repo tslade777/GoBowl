@@ -1,4 +1,4 @@
-import { View, Text, Touchable, TouchableOpacity } from 'react-native';
+import { View, Text, Touchable, TouchableOpacity, SafeAreaView } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import SeriesList from '../lists/SeriesList';
 import { Game, Series } from '@/app/src/values/types';
@@ -31,7 +31,8 @@ interface StatsTabProps {
     }
 
     return (
-        <View className="flex-1  bg-primary">
+        <SafeAreaView className="flex-1 bg-primary h-full">
+                <View className="flex-1  bg-primary">
             {showGames ? (
                 <><View className="mt-4 mx-4 flex-row items-center justify-between w-full">
                     <TouchableOpacity 
@@ -49,6 +50,8 @@ interface StatsTabProps {
             }
             
         </View>
+        </SafeAreaView>
+        
     );
 };
 

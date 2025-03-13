@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-import { View, Text } from "react-native";
+import { View, Text, SafeAreaView } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import StatsTab from "../components/Tabs/stats";
 import SessionsTab from "../components/Tabs/sessions";
@@ -27,7 +27,8 @@ const StatsScreen = () => {
     }
 
     return (
-      <View className="flex-1 bg-primary">
+      <SafeAreaView className="flex-1 bg-primary h-full">
+        <View className="flex-1 bg-primary">
         {/* Page Title */}
         <View className="py-4 px-6 justify-center items-center bg-blue-500">
           <Text className="text-orange text-3xl font-pbold">{title} Stats</Text>
@@ -67,6 +68,7 @@ const StatsScreen = () => {
           </Tab.Screen>
         </Tab.Navigator>
       </View>
+      </SafeAreaView>
     );
   };
 

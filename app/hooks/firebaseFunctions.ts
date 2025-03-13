@@ -234,8 +234,6 @@ const fetchUserData = async () => {
   }
 };
 
-
-
 /**
  * Upload image to firebase
  * @param localUri 
@@ -258,7 +256,6 @@ const uploadImageToFirebase = async (localUri: string, storagePath: string): Pro
 
     // Get the download URL
     const downloadURL = await getDownloadURL(storageRef);
-    console.log('🥳Image uploaded to Firebase:', downloadURL);
     return downloadURL;
   } catch (error) {
     console.error('📛Error uploading image:', error);
@@ -286,17 +283,14 @@ const downloadImageFromFirebase = async (imagePath: string): Promise<string | nu
     // Check if file already exists to prevent redundant downloads
     const fileExists = await FileSystem.getInfoAsync(localFilePath);
     if (fileExists.exists) {
-      console.log('File already exists:', localFilePath);
       return localFilePath;
     }
 
     // Download the file
     const downloadResult = await FileSystem.downloadAsync(url, localFilePath);
 
-    console.log('Download successful:', downloadResult.uri);
     return downloadResult.uri;
   } catch (error) {
-    console.warn('Error downloading image:', error);
     return null;
   }
 };

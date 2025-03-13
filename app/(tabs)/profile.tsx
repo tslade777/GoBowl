@@ -32,25 +32,9 @@ const Profile = () => {
   const [editing, setEditing] = useState(false);
   const [originalData, setOriginalData] = useState(userData);
   const [profileImage, setProfileImage] = useState<string | null>(null);
-  const [localImage, setLocalImage] = useState<string | null>(null);
-  const [uploadedUrl, setUploadedUrl] = useState<string | null>(null);
 
   useEffect(() => {
-
-
-    // setUserData({
-    //   username: data.username || "N/A",
-    //   email: data.email || "N/A",
-    //   age: data.age ? data.age.toString() : "",
-    //   bowlingHand: data.bowlingHand || "",
-    //   favoriteBall: data.favoriteBall || "",
-    //   yearsBowling: data.yearsBowling ? data.yearsBowling.toString() : "",
-    //   highGame: data.highGame ? data.highGame.toString() : "",
-    //   highSeries: data.highSeries ? data.highSeries.toString() : "",
-    // });
     getUserData()
-     
-  
   }, []);
 
   const getUserData = async ()=> {
@@ -128,13 +112,11 @@ const Profile = () => {
 
   
   /**
-   * 
+   * Select an upload image to firebase
    */
   const selectAndUploadImage = async () => {
     const result = await handleImageSelection(`profileImages/${currentUser?.uid}`, userData.username);
     if (result) {
-      setLocalImage(result.localPath);
-      setUploadedUrl(result.downloadURL);
       setProfileImage(result.localPath)
     }
   };

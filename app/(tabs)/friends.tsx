@@ -1,19 +1,17 @@
 import { View, Text, FlatList, ActivityIndicator, TouchableOpacity, TouchableWithoutFeedback, Keyboard, 
-  Platform, ActionSheetIOS, Modal } from 'react-native';
+  Platform, ActionSheetIOS, Modal, Image } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { collection, doc, getDocs, onSnapshot, query, where, setDoc, updateDoc } from 'firebase/firestore';
-import { FIREBASE_AUTH, db, storage } from '@/firebase.config';
+import { FIREBASE_AUTH, db } from '@/firebase.config';
 import SearchBar from "../components/SearchBar";
 import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from "react-native-reanimated";
 import { router } from 'expo-router';
 import { Friend } from '../src/values/types';
 import { defaultFriend } from '../src/values/defaults';
 import LiveListItem from '../components/lists/ListItems/FriendsListItem';
-import { getDownloadURL, ref } from 'firebase/storage';
-import Profile from './profile';
-import * as FileSystem from "expo-file-system";
 import { downloadImageFromFirebase } from '../hooks/firebaseFunctions';
+import icons from '@/constants/icons';
 
 
 const Friends = () => {
@@ -21,7 +19,6 @@ const Friends = () => {
   const [activeFriends, setActiveFriends] = useState<string[]>([]);
   const [usersData, setUsersData] = useState<Friend[]>([]);
   const [loading, setLoading] = useState(true);
-  const [showOptions, setShowOptions] = useState(false);
   const [searchLoading, setSearchLoading] = useState(false);
   const [isRendered, setIsRendered] = useState(false);
   const [isModalVisible, setIsModalVisible] = useState(false);
@@ -52,10 +49,8 @@ const Friends = () => {
     const unsubscribe = onSnapshot(docRef, (docSnap) => {
       if (docSnap.exists()) {
         const friendsList: Friend[] = docSnap.data().friendsList || [];
-        console.log(`📜 Friends list loaded: ${friendsList.length} friends`);
         setFriends(friendsList);
       } else {
-        console.log("📭 No friends list found.");
       }
       setLoading(false);
     });
@@ -88,7 +83,6 @@ const Friends = () => {
 
   // Fetch All Users on SearchBar Focus (Prevents Unnecessary Fetches)
   const fetchUserData = async () => {
-    console.log(`🔍 looking for users`);
     try {
       if (!currentUser || usersData.length > 0) return; // Prevent unnecessary re-fetch
 
@@ -105,7 +99,6 @@ const Friends = () => {
       );
 
       setUsersData(usersList.filter((user) => user.id !== currentUser.uid));
-      console.log(`🔍 Found ${usersList.length} users.`);
     } catch (error) {
       console.error("❌ Error fetching users:", error);
     } finally {
@@ -140,7 +133,6 @@ const Friends = () => {
       setFriends(updatedFriends);
       // Save to Firestore
       await setDoc(doc(db, "userFriends", currentUser.uid), { friendsList: updatedFriends });
-      console.log(`✅ ${user.username} added to friends list.`);
     } catch (error) {
       console.error("❌ Error adding friend:", error);
     }
@@ -187,7 +179,6 @@ const Friends = () => {
    */
   const handlePress = (friend: Friend) =>{
     if (friend.active){
-      console.log(friend.profilePic)
       // Route to stream page
       router.push({
         pathname: "../streamview",
@@ -209,11 +200,6 @@ const Friends = () => {
    * Close the popup window.
    */
   const closeModal = () => {
-    console.log("🚀 Closing modal...");
-    console.log("🔍 Current selectedFriend:", selectedFriend);
-    console.log("🔍 Type of setSelectedFriend:", typeof setSelectedFriend);
-
-    console.log("🚀 Closing modal...");
 
     // ✅ Instantly hide the modal
     setIsModalVisible(false);
@@ -286,9 +272,16 @@ const Friends = () => {
                   className="bg-gray-300 p-6 opacity-2 rounded-3xl shadow-lg w-80"
                   style={animatedStyle}
                 >
-                  <Text className="text-3xl font-pbold text-center mb-4 text-black">
-                  {selectedFriend?.username || "Unknown User"}  {/* ✅ Prevents crash */}
-                  </Text>
+                  <View className="flex-row justify-center mb-4 items-center">
+                    <Image
+                        source={selectedFriend.profilePic ? { uri: selectedFriend.profilePic } : icons.profile}
+                        className="w-10 h-10 rounded-full"
+                      />
+                    <Text className="text-3xl font-pbold text-center ml-2 mt-1 text-black">
+                    {selectedFriend?.username || "Unknown User"}  {/* ✅ Prevents crash */}
+                    </Text>
+                  </View>
+                  
 
                   <TouchableOpacity
                     className="bg-blue p-3 rounded-xl mb-2"

@@ -69,35 +69,12 @@ const FriendProfile = () => {
   }
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
+    <SafeAreaView className='bg-primary h-full'>
+      <View className='flex-col'>
         <View style={styles.titleContainer}>
           <Text style={styles.title}>Profile</Text>
           </View>
       </View>
-
-      {loading ? (
-        <ActivityIndicator size="large" color="#007BFF" style={{ marginTop: 20 }} />
-      ) : (
-        <View style={styles.content}>
-           
-            <Image source={profileImage ? { uri: profileImage } : icons.profile} style={styles.profileImage} />
-          
-          <Text style={styles.info}>Username: {userData.username}</Text>
-          <Text style={styles.info}>Email: {userData.email}</Text>
-
-          
-            <>
-              <Text style={styles.info}>Age: {userData.age}</Text>
-              <Text style={styles.info}>Bowling Hand: {userData.bowlingHand}</Text>
-              <Text style={styles.info}>Favorite Ball: {userData.favoriteBall}</Text>
-              <Text style={styles.info}>Years Bowling: {userData.yearsBowling}</Text>
-              <Text style={styles.info}>High Game: {userData.highGame}</Text>
-              <Text style={styles.info}>High Series: {userData.highSeries}</Text>
-            </>
-          
-        </View>
-      )}
     </SafeAreaView>
   );
 };

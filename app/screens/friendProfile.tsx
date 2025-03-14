@@ -12,7 +12,7 @@ import { UserData } from '../src/values/types';
 import { getFromStorage } from '../hooks/userDataFunctions';
 import { fetchUserDataByID } from '../hooks/firebaseFunctions';
 
-const Profile = () => {
+const FriendProfile = () => {
   const params = useLocalSearchParams();
   const currentUser = FIREBASE_AUTH.currentUser;
   const storage = getStorage();
@@ -34,7 +34,15 @@ const Profile = () => {
   const [profileImage, setProfileImage] = useState<string | null>(null);
 
   useEffect(() => {
-    getUserData()
+    if( Object.keys(params).length > 0){
+      const id = params.id as string;
+      const username = params.username as string
+      setProfileImage(getLocalImagePath(`${username}.png`))
+      getProfileData(id)
+    }else{
+      console.log(`Parameters NOT found`)
+      getUserData()
+    }
   }, []);
 
   const getUserData = async ()=> {
@@ -237,7 +245,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
     alignItems: 'center',
     width: '90%',
-    marginTop: 20,
+    marginTop: 0,
   },
   titleContainer: {
     flex: 1,
@@ -300,4 +308,4 @@ const styles = StyleSheet.create({
     marginBottom: 10 },
 });
 
-export default Profile;
+export default FriendProfile;

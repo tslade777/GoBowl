@@ -85,7 +85,14 @@ if(!fontsLoaded && !error) return null;
           },
           headerTintColor: 'white'
           }}/>
-
+          <Stack.Screen name="screens/friendProfile" options={{
+          headerShadowVisible:false,
+          title:"",
+          headerStyle: {
+            backgroundColor: '#161622'
+          },
+          headerTintColor: 'white'
+          }}/>
           <Stack.Screen 
             name="screens/previousGame" 
             options={{

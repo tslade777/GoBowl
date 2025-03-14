@@ -191,7 +191,14 @@ const Friends = () => {
       })
     }
     else{
-      console.log('❌ User is not live, maybe look at stats?')
+      router.push({
+        pathname: "/screens/friendProfile",
+        params: {
+          id: friend.id,
+          profilePic: friend.profilePic,
+          username: friend.username
+        }
+      })
     }
 
   }

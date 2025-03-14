@@ -235,6 +235,49 @@ const fetchUserData = async () => {
 };
 
 /**
+ * Retreive and save the current users data from firebase
+ * @returns 
+ */
+const fetchUserDataByID = async (id:string) => {
+    try {
+      const userRef = doc(db, `users/${id}`);
+      const userDoc = await getDoc(userRef);
+  
+      if (userDoc.exists()) {
+        const data = userDoc.data();
+        let user:UserData = {
+          username: data.username || "N/A",
+          email: data.email || "N/A",
+          age: data.age ? data.age.toString() : "",
+          bowlingHand: data.bowlingHand || "",
+          favoriteBall: data.favoriteBall || "",
+          yearsBowling: data.yearsBowling ? data.yearsBowling.toString() : "",
+          highGame: data.highGame ? data.highGame.toString() : "",
+          highSeries: data.highSeries ? data.highSeries.toString() : "",
+          profilepic: `${data.username}.png` || "",
+        }
+        return user;
+      }
+      else{
+        let user:UserData = {
+          username: "N/A",
+          email: "N/A",
+          age: "N/A",
+          bowlingHand: "N/A",
+          favoriteBall: "N/A",
+          yearsBowling: "N/A",
+          highGame: "N/A",
+          highSeries: "N/A",
+          profilepic: "N/A",
+        }
+        return user
+      }
+    } catch (error) {
+      console.error("Error fetching user data: ", error);
+    }
+};
+
+/**
  * Upload image to firebase
  * @param localUri 
  * @param storagePath 
@@ -441,7 +484,7 @@ export {getSessions, startFirebaseSession,
   updateFirebaseLeagueWeekCount, createNewLeauge,
   updateFirebaseGameComplete, getLeagueSessions, uploadImageToFirebase, downloadImageFromFirebase,
   fetchUserData, updateFirebaseActiveGames, setFirebaseActive, setFirebaseInActive, setFirebaseWatching, 
-  getFirebaseWatching, removeFirebaseWatching};
+  getFirebaseWatching, removeFirebaseWatching, fetchUserDataByID};
 
 
   const defaultValue = {

@@ -3,8 +3,6 @@ import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 're
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Frame from './Frame';
 import TenthFrame from './TenthFrame';
-import { FIREBASE_AUTH, db } from '../../../firebase.config'
-import { doc, updateDoc, setDoc } from 'firebase/firestore';
 import { BOWLINGSTATE, INPROGRESS, SPLITS } from '@/app/src/config/constants';
 import icons from '@/constants/icons';
 import { defaultFrame } from '@/app/src/values/defaults';

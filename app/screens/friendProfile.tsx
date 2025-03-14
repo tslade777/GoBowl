@@ -68,155 +68,25 @@ const FriendProfile = () => {
     setLoading(false)
   }
 
-  const handleEditToggle = () => {
-    setOriginalData(userData);
-    setEditing(true);
-  };
-  
-  const handleCancelEdit = () => {
-    setUserData(originalData);
-    setEditing(false);
-  };
-
-  const handleSaveChanges = async () => {
-    if (!currentUser) return;
-    try {
-      const userRef = doc(db, `users/${currentUser.uid}`);
-      const userDoc = await getDoc(userRef);
-  
-      if (userDoc.exists()) {
-        const storedData = userDoc.data();
-        const newData = {
-          age: parseInt(userData.age) || 0,
-          bowlingHand: userData.bowlingHand,
-          favoriteBall: userData.favoriteBall,
-          yearsBowling: parseInt(userData.yearsBowling) || 0,
-          highGame: parseInt(userData.highGame) || 0,
-          highSeries: parseInt(userData.highSeries) || 0,
-        };
-  
-        const isSame = (Object.keys(newData) as Array<keyof typeof newData>).every(
-          (key) => storedData[key] === newData[key]
-        );
-  
-        if (isSame) {
-          alert("No changes made.");
-          setEditing(false);
-          return;
-        }
-  
-        await updateDoc(userRef, newData);
-        setEditing(false);
-        alert("Profile updated successfully!");
-      }
-    } catch (error) {
-      console.error("Error updating profile:", error);
-      alert("Failed to update profile.");
-    }
-  };
-  
-
-  const handleLogout = async () => {
-    try {
-      if (currentUser) {
-        const userRef = doc(db, `users/${currentUser.uid}`);
-        await updateDoc(userRef, { active: false });
-      }
-      console.log("User logged out successfully");
-      router.replace('/(auth)/sign-in');
-    } catch (error) {
-      console.error("Error logging out: ", error);
-    }
-  };
-
-  
-  /**
-   * Select an upload image to firebase
-   */
-  const selectAndUploadImage = async () => {
-    const result = await handleImageSelection(`profileImages/${currentUser?.uid}`, userData.username);
-    if (result) {
-      setProfileImage(result.localPath)
-    }
-  };
-
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
         <View style={styles.titleContainer}>
           <Text style={styles.title}>Profile</Text>
           </View>
-
-          {editing ? (
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity onPress={handleSaveChanges} style={styles.editButton}>
-                <Text style={styles.editButtonText}>Save</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={handleCancelEdit} style={styles.cancelButton}>
-                <Text style={styles.cancelButtonText}>Cancel</Text>
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <TouchableOpacity onPress={handleEditToggle} style={styles.editButton}>
-              <Text style={styles.editButtonText}>Edit</Text>
-            </TouchableOpacity>
-          )}
       </View>
 
       {loading ? (
         <ActivityIndicator size="large" color="#007BFF" style={{ marginTop: 20 }} />
       ) : (
         <View style={styles.content}>
-           <TouchableOpacity onPress={selectAndUploadImage} activeOpacity={0.7}>
+           
             <Image source={profileImage ? { uri: profileImage } : icons.profile} style={styles.profileImage} />
-          </TouchableOpacity>
+          
           <Text style={styles.info}>Username: {userData.username}</Text>
           <Text style={styles.info}>Email: {userData.email}</Text>
 
-          {editing ? (
-            <>
-              <TextInput
-                style={styles.input}
-                placeholder="Age"
-                keyboardType="numeric"
-                value={userData.age}
-                onChangeText={(text) => setUserData({ ...userData, age: text })}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Bowling Hand (Left, Right, Two Hands)"
-                value={userData.bowlingHand}
-                onChangeText={(text) => setUserData({ ...userData, bowlingHand: text })}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Favorite Ball"
-                value={userData.favoriteBall}
-                onChangeText={(text) => setUserData({ ...userData, favoriteBall: text })}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Years Bowling"
-                keyboardType="numeric"
-                value={userData.yearsBowling}
-                onChangeText={(text) => setUserData({ ...userData, yearsBowling: text })}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="High Game"
-                keyboardType="numeric"
-                value={userData.highGame}
-                onChangeText={(text) => setUserData({ ...userData, highGame: text })}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="High Series"
-                keyboardType="numeric"
-                value={userData.highSeries}
-                onChangeText={(text) => setUserData({ ...userData, highSeries: text })}
-              />
-            </>
-          ) : (
+          
             <>
               <Text style={styles.info}>Age: {userData.age}</Text>
               <Text style={styles.info}>Bowling Hand: {userData.bowlingHand}</Text>
@@ -225,9 +95,7 @@ const FriendProfile = () => {
               <Text style={styles.info}>High Game: {userData.highGame}</Text>
               <Text style={styles.info}>High Series: {userData.highSeries}</Text>
             </>
-          )}
-
-          <Button title="LOG OUT" onPress={handleLogout} color="#F24804" />
+          
         </View>
       )}
     </SafeAreaView>

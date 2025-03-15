@@ -196,7 +196,9 @@ const Friends = () => {
         params: {
           id: friend.id,
           profilePic: friend.profilePic,
-          username: friend.username
+          username: friend.username,
+          friends: 'true',
+          live: friend.active.toString()
         }
       })
     }

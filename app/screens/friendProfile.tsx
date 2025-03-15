@@ -9,6 +9,8 @@ import { UserData } from '../src/values/types';
 import { getFromStorage } from '../hooks/userDataFunctions';
 import { fetchUserDataByID } from '../hooks/firebaseFunctions';
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
+import Bio from '../components/Tabs/bio';
+import StatComparison from '../components/Tabs/statComparison';
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -72,8 +74,8 @@ const FriendProfile = () => {
   }
 
   return (
-    <SafeAreaView className='flex-1 bg-primary h-full'>
-      <View className='flex-col'>
+    <SafeAreaView className='bg-primary h-full'>
+      <View className='flex-1'>
         {/** Top Section. Profile picture, username, friends */}
         <View className='flex-row justify-between'>
           <View className='flex-row ml-5'>
@@ -91,37 +93,38 @@ const FriendProfile = () => {
           </View>
         </View>
         {/* Nested Top Tabs */}
-        <View className='flex-row mt-5'>
+        <View className='flex-1 h-full bg-primary mt-5'>
         <Tab.Navigator
-        screenOptions={{
-          tabBarStyle: {
-            backgroundColor: "#1E293B",
-            borderRadius: 15,
-            marginHorizontal: 10,
-            marginTop: 5,
-            borderTopLeftRadius: 20, // Rounded top-left corner
-            borderTopRightRadius: 20, // Rounded top-right corner
-            borderBottomRightRadius: 0,
-            borderBottomLeftRadius: 0,
-          },
-          tabBarLabelStyle: {
-            fontSize: 20,
-            fontWeight: "bold",
-            textTransform: "capitalize", // Makes text look cleaner
-          },
-          tabBarIndicatorStyle: {
-            backgroundColor: "#57FFFF", // Active tab indicator color
-            height: 4, // Thicker indicator for better visibility
-          },
-          tabBarActiveTintColor: "#57FFFF", // Active tab text color
-          tabBarInactiveTintColor: "white", // Inactive tab text color
-        }}
-        >
+          className='bg-primary w-full'
+          screenOptions={{
+            tabBarStyle: {
+              backgroundColor: "#1E293B",
+              borderRadius: 15,
+              marginHorizontal: 10,
+              marginTop: 5,
+              borderTopLeftRadius: 20, // Rounded top-left corner
+              borderTopRightRadius: 20, // Rounded top-right corner
+              borderBottomRightRadius: 0,
+              borderBottomLeftRadius: 0,
+            },
+            tabBarLabelStyle: {
+              fontSize: 20,
+              fontWeight: "bold",
+              textTransform: "capitalize", // Makes text look cleaner
+            },
+            tabBarIndicatorStyle: {
+              backgroundColor: "#57FFFF", // Active tab indicator color
+              height: 4, // Thicker indicator for better visibility
+            },
+            tabBarActiveTintColor: "#57FFFF", // Active tab text color
+            tabBarInactiveTintColor: "white", // Inactive tab text color
+          }}
+          >
           <Tab.Screen name="Bio">
-              {() => <Text>Bio</Text>}
+              {() => <Bio data={userData}/>}
           </Tab.Screen>
           <Tab.Screen name="Stats">
-          {() => <Text>Stats</Text>}
+          {() => <StatComparison/>}
           </Tab.Screen>
         </Tab.Navigator>
         </View>

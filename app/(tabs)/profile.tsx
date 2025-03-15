@@ -11,6 +11,12 @@ import { getLocalImagePath, handleImageSelection } from '../hooks/ImageFunctions
 import { UserData } from '../src/values/types';
 import { getFromStorage } from '../hooks/userDataFunctions';
 import { fetchUserDataByID } from '../hooks/firebaseFunctions';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import StatComparison from '../components/Tabs/statComparison';
+import Bio from '../components/Tabs/bio';
+import ProfileBio from '../components/Tabs/profileBio';
+
+const Tab = createMaterialTopTabNavigator();
 
 const Profile = () => {
   const params = useLocalSearchParams();
@@ -28,10 +34,12 @@ const Profile = () => {
     profilepic: "",
   });
 
+  
   const [loading, setLoading] = useState(true);
   const [editing, setEditing] = useState(false);
   const [originalData, setOriginalData] = useState(userData);
   const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [editedData, setEditedData] = useState<UserData>({ ...userData });
 
   useEffect(() => {
     getUserData()
@@ -42,6 +50,7 @@ const Profile = () => {
     if(user){
       setProfileImage(getLocalImagePath(`${user.username}.png`))
       setUserData(user)
+      setEditedData(user)
     }
     else
       console.log(`User is null`)
@@ -61,8 +70,17 @@ const Profile = () => {
   }
 
   const handleEditToggle = () => {
-    setOriginalData(userData);
-    setEditing(true);
+    // Save
+    if (editing){
+      console.log('Saved')
+      setEditing(false)
+      setUserData(editedData);
+      handleSaveChanges(editedData);
+    }
+    // edit
+    else{
+      setEditing(true)
+    }
   };
   
   const handleCancelEdit = () => {
@@ -70,7 +88,7 @@ const Profile = () => {
     setEditing(false);
   };
 
-  const handleSaveChanges = async () => {
+  const handleSaveChanges = async (editedData:UserData) => {
     if (!currentUser) return;
     try {
       const userRef = doc(db, `users/${currentUser.uid}`);
@@ -79,12 +97,12 @@ const Profile = () => {
       if (userDoc.exists()) {
         const storedData = userDoc.data();
         const newData = {
-          age: parseInt(userData.age) || 0,
-          bowlingHand: userData.bowlingHand,
-          favoriteBall: userData.favoriteBall,
-          yearsBowling: parseInt(userData.yearsBowling) || 0,
-          highGame: parseInt(userData.highGame) || 0,
-          highSeries: parseInt(userData.highSeries) || 0,
+          age: parseInt(editedData.age) || 0,
+          bowlingHand: editedData.bowlingHand,
+          favoriteBall: editedData.favoriteBall,
+          yearsBowling: parseInt(editedData.yearsBowling) || 0,
+          highGame: parseInt(editedData.highGame) || 0,
+          highSeries: parseInt(editedData.highSeries) || 0,
         };
   
         const isSame = (Object.keys(newData) as Array<keyof typeof newData>).every(
@@ -92,18 +110,15 @@ const Profile = () => {
         );
   
         if (isSame) {
-          alert("No changes made.");
           setEditing(false);
           return;
         }
   
         await updateDoc(userRef, newData);
         setEditing(false);
-        alert("Profile updated successfully!");
       }
     } catch (error) {
       console.error("Error updating profile:", error);
-      alert("Failed to update profile.");
     }
   };
   
@@ -121,7 +136,15 @@ const Profile = () => {
     }
   };
 
-  
+  const handleUserDataChange = (field: keyof UserData, value: string) => {
+    console.log(`UPDATE: ${field} : ${value}`)
+    setEditedData((prevData) => ({
+      ...prevData,
+      [field]: value, // Update only when needed
+    }));
+    
+  };
+
   /**
    * Select an upload image to firebase
    */
@@ -133,176 +156,73 @@ const Profile = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.header}>
-        <View style={styles.titleContainer}>
-          <Text style={styles.title}>Profile</Text>
+    <SafeAreaView className='bg-primary h-full'>
+      <View className='flex-1 mt-2'>
+        {/** Top Section. Profile picture, username, friends */}
+        <View className='flex-row justify-between'>
+          <View className='flex-row ml-5'>
+            <Image 
+              className={`w-48 h-48 rounded-full border-white border-4`}
+              source={profileImage ? { uri: profileImage } : icons.profile}/>
+            
+            <Text className='text-white text-4xl font-pbold align-bottom mb-4'>{userData.username}</Text>
           </View>
-
-          {editing ? (
-            <View style={styles.buttonContainer}>
-              <TouchableOpacity onPress={handleSaveChanges} style={styles.editButton}>
-                <Text style={styles.editButtonText}>Save</Text>
-              </TouchableOpacity>
-              <TouchableOpacity onPress={handleCancelEdit} style={styles.cancelButton}>
-                <Text style={styles.cancelButtonText}>Cancel</Text>
-              </TouchableOpacity>
-            </View>
-          ) : (
-            <TouchableOpacity onPress={handleEditToggle} style={styles.editButton}>
-              <Text style={styles.editButtonText}>Edit</Text>
+          <View className='flex-row mr-5 mt-32'>
+            <TouchableOpacity onPress={()=>{handleEditToggle()}}>
+              <Image 
+                  className='w-8 h-8 mt-2'
+                  style={{tintColor:"#57FFFF"}}
+                  source={editing ? icons.save : icons.editProfile}/>
             </TouchableOpacity>
-          )}
-      </View>
-
-      {loading ? (
-        <ActivityIndicator size="large" color="#007BFF" style={{ marginTop: 20 }} />
-      ) : (
-        <View style={styles.content}>
-          <TouchableOpacity onPress={()=>{console.log(`Add image pressed`)}}>
-                        <Image 
-                          className='w-10 h-10 rounded-full absolute bottom-2 right-0'
-                          source={icons.addImage}/>
-                      </TouchableOpacity>
-           <TouchableOpacity onPress={selectAndUploadImage} activeOpacity={0.7}>
-            <Image source={profileImage ? { uri: profileImage } : icons.profile} style={styles.profileImage} />
-          </TouchableOpacity>
-          <Text style={styles.info}>Username: {userData.username}</Text>
-          <Text style={styles.info}>Email: {userData.email}</Text>
-
-          {editing ? (
-            <>
-              <TextInput
-                style={styles.input}
-                placeholder="Age"
-                keyboardType="numeric"
-                value={userData.age}
-                onChangeText={(text) => setUserData({ ...userData, age: text })}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Bowling Hand (Left, Right, Two Hands)"
-                value={userData.bowlingHand}
-                onChangeText={(text) => setUserData({ ...userData, bowlingHand: text })}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Favorite Ball"
-                value={userData.favoriteBall}
-                onChangeText={(text) => setUserData({ ...userData, favoriteBall: text })}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="Years Bowling"
-                keyboardType="numeric"
-                value={userData.yearsBowling}
-                onChangeText={(text) => setUserData({ ...userData, yearsBowling: text })}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="High Game"
-                keyboardType="numeric"
-                value={userData.highGame}
-                onChangeText={(text) => setUserData({ ...userData, highGame: text })}
-              />
-              <TextInput
-                style={styles.input}
-                placeholder="High Series"
-                keyboardType="numeric"
-                value={userData.highSeries}
-                onChangeText={(text) => setUserData({ ...userData, highSeries: text })}
-              />
-            </>
-          ) : (
-            <>
-              <Text style={styles.info}>Age: {userData.age}</Text>
-              <Text style={styles.info}>Bowling Hand: {userData.bowlingHand}</Text>
-              <Text style={styles.info}>Favorite Ball: {userData.favoriteBall}</Text>
-              <Text style={styles.info}>Years Bowling: {userData.yearsBowling}</Text>
-              <Text style={styles.info}>High Game: {userData.highGame}</Text>
-              <Text style={styles.info}>High Series: {userData.highSeries}</Text>
-            </>
-          )}
-
-          <Button title="LOG OUT" onPress={handleLogout} color="#F24804" />
+          </View>
         </View>
-      )}
+        {/* Nested Top Tabs */}
+        <View className='flex-1 h-full bg-primary mt-5'>
+        <Tab.Navigator
+          className='bg-primary w-full'
+          screenOptions={{
+            tabBarStyle: {
+              backgroundColor: "#1E293B",
+              borderRadius: 15,
+              marginHorizontal: 10,
+              marginTop: 5,
+              borderTopLeftRadius: 20, // Rounded top-left corner
+              borderTopRightRadius: 20, // Rounded top-right corner
+              borderBottomRightRadius: 0,
+              borderBottomLeftRadius: 0,
+            },
+            tabBarLabelStyle: {
+              fontSize: 20,
+              fontWeight: "bold",
+              textTransform: "capitalize", // Makes text look cleaner
+            },
+            tabBarIndicatorStyle: {
+              backgroundColor: "#57FFFF", // Active tab indicator color
+              height: 4, // Thicker indicator for better visibility
+            },
+            tabBarActiveTintColor: "#57FFFF", // Active tab text color
+            tabBarInactiveTintColor: "white", // Inactive tab text color
+          }}
+          >
+          <Tab.Screen name="Bio">
+              {() => <ProfileBio data={userData} editing={editing} onUpdate={handleUserDataChange}/>}
+          </Tab.Screen>
+          <Tab.Screen name="Stats">
+          {() => <StatComparison/>}
+          </Tab.Screen>
+        </Tab.Navigator>
+        </View>
+        <View>
+        <TouchableOpacity 
+          onPress={handleLogout} 
+          className="bg-red-500 px-4 py-2 rounded-2xl mx-2 mb-2"
+        >
+          <Text className="text-white text-center text-xl font-pbold">Logout</Text>
+        </TouchableOpacity>
+        </View>
+      </View>
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#121212',
-    alignItems: 'center',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    width: '90%',
-    marginTop: 20,
-  },
-  titleContainer: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: 'white',
-  },
-  editButton: {
-    backgroundColor: '#007BFF',
-    padding: 8,
-    borderRadius: 5,
-  },
-  editButtonText: {
-    color: 'white',
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  content: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  info: {
-    fontSize: 18,
-    color: 'white',
-    marginBottom: 10,
-  },
-  input: {
-    backgroundColor: 'white',
-    color: 'black',
-    fontSize: 16,
-    padding: 10,
-    marginBottom: 10,
-    borderRadius: 5,
-    width: '80%',
-  },
-  cancelButton: {
-    backgroundColor: '#6c757d',
-    padding: 8,
-    borderRadius: 5,
-    marginTop: 10,
-  },
-  cancelButtonText: {
-    color: 'white',
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  buttonContainer: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  profileImage: { 
-    width: 100, 
-    height: 100, 
-    borderRadius: 50, 
-    marginBottom: 10 },
-});
 
 export default Profile;

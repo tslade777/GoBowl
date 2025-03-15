@@ -121,7 +121,7 @@ const FriendProfile = () => {
           }}
           >
           <Tab.Screen name="Bio">
-              {() => <Bio data={userData}/>}
+              {() => <Bio data={userData} editing={false}/>}
           </Tab.Screen>
           <Tab.Screen name="Stats">
           {() => <StatComparison/>}

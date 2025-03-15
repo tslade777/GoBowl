@@ -24,6 +24,7 @@ import friendAdded from "../assets/icons/friend_added.png";
 import addFriend from "../assets/icons/add_friend.png";
 import addImage from "../assets/icons/add_image.png";
 import editProfile from "../assets/icons/edit_profile.png";
+import save from "../assets/icons/save.png";
 
 export default {
   play,
@@ -51,5 +52,6 @@ export default {
   watching,
   addFriend,
   addImage,
-  editProfile
+  editProfile,
+  save,
 };

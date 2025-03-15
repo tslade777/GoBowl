@@ -20,6 +20,10 @@ import nextShot from "../assets/icons/next_shot.png";
 import previousFrame from "../assets/icons/previous_frame.png";
 import nextFrame from "../assets/icons/next_frame.png";
 import watching from "../assets/icons/watching.png";
+import friendAdded from "../assets/icons/friend_added.png";
+import addFriend from "../assets/icons/add_friend.png";
+import addImage from "../assets/icons/add_image.png";
+import editProfile from "../assets/icons/edit_profile.png";
 
 export default {
   play,
@@ -43,5 +47,9 @@ export default {
   nextFrame,
   previousShot,
   nextShot, 
-  watching
+  friendAdded,
+  watching,
+  addFriend,
+  addImage,
+  editProfile
 };

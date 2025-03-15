@@ -71,86 +71,24 @@ const FriendProfile = () => {
   return (
     <SafeAreaView className='bg-primary h-full'>
       <View className='flex-col'>
-        <View style={styles.titleContainer}>
-          <Text style={styles.title}>Profile</Text>
+        <View className='flex-row justify-between'>
+          <View className='flex-row ml-5'>
+            <Image 
+              className='w-48 h-48 rounded-full border-orange border-4'
+              source={profileImage ? { uri: profileImage } : icons.profile}/>
+            
+            <Text className='text-white text-4xl font-pbold align-bottom mb-4'>{userData.username}</Text>
           </View>
+          <View className='flex-row mr-5 mt-32'>
+            <Image 
+                className='w-10 h-10'
+                style={{tintColor:'teal'}}
+                source={icons.friendAdded}/>
+          </View>
+        </View>
       </View>
     </SafeAreaView>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#121212',
-    alignItems: 'center',
-  },
-  header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    width: '90%',
-    marginTop: 0,
-  },
-  titleContainer: {
-    flex: 1,
-    alignItems: 'center',
-  },
-  title: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: 'white',
-  },
-  editButton: {
-    backgroundColor: '#007BFF',
-    padding: 8,
-    borderRadius: 5,
-  },
-  editButtonText: {
-    color: 'white',
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  content: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  info: {
-    fontSize: 18,
-    color: 'white',
-    marginBottom: 10,
-  },
-  input: {
-    backgroundColor: 'white',
-    color: 'black',
-    fontSize: 16,
-    padding: 10,
-    marginBottom: 10,
-    borderRadius: 5,
-    width: '80%',
-  },
-  cancelButton: {
-    backgroundColor: '#6c757d',
-    padding: 8,
-    borderRadius: 5,
-    marginTop: 10,
-  },
-  cancelButtonText: {
-    color: 'white',
-    fontSize: 14,
-    fontWeight: 'bold',
-  },
-  buttonContainer: {
-    flexDirection: 'column',
-    alignItems: 'center',
-    marginTop: 10,
-  },
-  profileImage: { 
-    width: 100, 
-    height: 100, 
-    borderRadius: 50, 
-    marginBottom: 10 },
-});
 
 export default FriendProfile;

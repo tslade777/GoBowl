@@ -159,6 +159,11 @@ const Profile = () => {
         <ActivityIndicator size="large" color="#007BFF" style={{ marginTop: 20 }} />
       ) : (
         <View style={styles.content}>
+          <TouchableOpacity onPress={()=>{console.log(`Add image pressed`)}}>
+                        <Image 
+                          className='w-10 h-10 rounded-full absolute bottom-2 right-0'
+                          source={icons.addImage}/>
+                      </TouchableOpacity>
            <TouchableOpacity onPress={selectAndUploadImage} activeOpacity={0.7}>
             <Image source={profileImage ? { uri: profileImage } : icons.profile} style={styles.profileImage} />
           </TouchableOpacity>

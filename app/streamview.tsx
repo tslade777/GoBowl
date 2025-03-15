@@ -1,10 +1,11 @@
 import { View, Text, SafeAreaView, Image, TouchableOpacity } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
-import { useLocalSearchParams } from 'expo-router'
+import { router, useLocalSearchParams } from 'expo-router'
 import Stream, { StreamRef } from './components/streamview/Stream';
 import icons from '@/constants/icons';
 import { checkIfImageExists, getLocalImagePath } from './hooks/ImageFunctions';
 import { removeFirebaseWatching, setFirebaseWatching } from './hooks/firebaseFunctions';
+import { Friend } from './src/values/types';
 
 
 const StreamView = () => {
@@ -49,16 +50,35 @@ const StreamView = () => {
       childRef.current?.previousGame()
     }
 
+    const showProfile = () =>{
+      router.push({
+              pathname: "/screens/friendProfile",
+              params: {
+                id: id,
+                profilePic: profileImage,
+                username: username,
+                friends: 'true',
+                live: isActive.toString()
+              }
+            })
+    }
+
   return (
     <SafeAreaView className="flex-column bg-primary h-full w-full">
       <View className="items-center">
-        <View className="flex-row items-center space-x-3 mb-3">
-          <Image
-            source={profileImage ? {uri:profileImage} : icons.profile}
-            className="w-16 h-16 rounded-full mr-2"
-          />
-          <Text className="text-white ml-3 text-3xl font-pbold">{username}</Text>
-        </View>
+        
+          <TouchableOpacity onPress={()=>{showProfile()}}>
+            <View className="flex-row items-center space-x-3 mb-3">
+              <Image
+                source={profileImage ? {uri:profileImage} : icons.profile}
+                className="w-16 h-16 rounded-full mr-2"
+              />
+              <Text className="text-white ml-3 text-3xl font-pbold">{username}</Text>
+            </View>
+          </TouchableOpacity>
+          
+          
+        
         <View className="h-full">
           <Stream ref={childRef} id={id} username={username} active={isActive}/>
         </View>

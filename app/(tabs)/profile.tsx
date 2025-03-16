@@ -1,4 +1,4 @@
-import { View, Text, Button, TextInput, StyleSheet, ActivityIndicator, TouchableOpacity, Image } from 'react-native';
+import { View, Text, Button, TextInput, StyleSheet, ActivityIndicator, TouchableOpacity, Image, Dimensions } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { getStorage } from 'firebase/storage';
 import "../../global.css";
@@ -17,6 +17,8 @@ import Bio from '../components/Tabs/bio';
 import ProfileBio from '../components/Tabs/profileBio';
 
 const Tab = createMaterialTopTabNavigator();
+const { width, height } = Dimensions.get("window"); // Get screen size
+const editButtonMarginTop = 5; // Adjust based on screen size
 
 const Profile = () => {
   const params = useLocalSearchParams();
@@ -72,7 +74,6 @@ const Profile = () => {
   const handleEditToggle = () => {
     // Save
     if (editing){
-      console.log('Saved')
       setEditing(false)
       setUserData(editedData);
       handleSaveChanges(editedData);
@@ -137,7 +138,6 @@ const Profile = () => {
   };
 
   const handleUserDataChange = (field: keyof UserData, value: string) => {
-    console.log(`UPDATE: ${field} : ${value}`)
     setEditedData((prevData) => ({
       ...prevData,
       [field]: value, // Update only when needed
@@ -162,13 +162,20 @@ const Profile = () => {
         <View className='flex-row justify-between'>
           <View className='flex-row ml-5'>
             <Image 
-              className={`w-48 h-48 rounded-full border-white border-4`}
+              className={`border-white border-4`}
+              resizeMode='contain'
+              style={{ width: width * 0.3, height: width * 0.3, borderRadius: width * 0.2 }}
               source={profileImage ? { uri: profileImage } : icons.profile}/>
+              
+              <Image 
+              className={`absolute w-10 h-10`}
+              resizeMode='contain'
+              source={icons.addImage}/>
             
             <Text className='text-white text-4xl font-pbold align-bottom mb-4'>{userData.username}</Text>
           </View>
-          <View className='flex-row mr-5 mt-32'>
-            <TouchableOpacity onPress={()=>{handleEditToggle()}}>
+          <View className='flex-row mr-5'>
+            <TouchableOpacity onPress={()=>{handleEditToggle()}} style={{ marginTop: editButtonMarginTop }}>
               <Image 
                   className='w-8 h-8 mt-2'
                   style={{tintColor:"#57FFFF"}}

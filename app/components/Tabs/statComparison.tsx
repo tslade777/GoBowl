@@ -16,8 +16,6 @@ const StatComparison = ({friendID}:{friendID:string}) => {
 
   useEffect(()=>{
     getStats();
-    console.log(`My stats: ${JSON.stringify(myStats)}`)
-    console.log(`\n\nFriends stats: ${JSON.stringify(friendStats)}`)
   },[])
   
   const getStats = async ()=>{

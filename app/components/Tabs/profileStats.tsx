@@ -22,8 +22,8 @@ const ProfileStats = ({data}:{data:SeriesStats}) => {
     <View className="flex-1 bg-primary">
         {/* Product Labels */}
         <View className="flex-row justify-between px-4 mt-5 mb-2">
-          <Text className="text-orange font-bold text-2xl text-center flex-1">Them</Text>
-          <Text className="text-teal font-bold text-2xl text-center flex-1">You</Text>
+          
+         
         </View>
       <ScrollView 
         contentContainerStyle={{ padding: 6, paddingBottom: 20 }}

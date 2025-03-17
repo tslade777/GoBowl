@@ -221,7 +221,7 @@ const Profile = () => {
           <Tab.Screen name="Bio">
               {() => <ProfileBio data={userData} editing={editing} onUpdate={handleUserDataChange}/>}
           </Tab.Screen>
-          <Tab.Screen name="Stats">
+          <Tab.Screen name="Total Stats">
           {() => <ProfileStats data={statData}/>}
           </Tab.Screen>
         </Tab.Navigator>

@@ -37,8 +37,7 @@ export default function RootLayout() {
   useEffect(() =>{
     onAuthStateChanged(FIREBASE_AUTH, async (user)=>{
       setUser(user);
-      const stats = await getAllStats();
-            console.log(`Stats: ${JSON.stringify(stats)}`)
+      
     })
   }, [])
   return (

@@ -1,6 +1,7 @@
 import { View, Text, ScrollView } from 'react-native'
 import React from 'react'
 import { LinearGradient } from "expo-linear-gradient";
+import { SeriesStats } from '@/app/src/values/types';
 
 const stats = [
     { label: "Average Score", productA: 190, productB: 210 },
@@ -30,8 +31,20 @@ const StatComparison = () => {
         
 
         {stats.map((stat, index) => {
-          const percentageA = (stat.productA / maxStat) * 100;
-          const percentageB = (stat.productB / maxStat) * 100;
+          let percentageA = 0;
+          let percentageB = 0;
+          if (stat.label.includes('%')){
+              percentageA = stat.productA;
+              percentageB = stat.productB;
+          }
+          else if(stat.label == "High Series"){
+              percentageA = (stat.productA/900)*100;
+              percentageB = (stat.productB/900)*100;
+          }
+          else{
+              percentageA = (stat.productA/300)*100;
+              percentageB = (stat.productB/300)*100;
+          }
 
           return (
             <View key={index} className="mb-6">

@@ -8,7 +8,7 @@ import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { router, useLocalSearchParams } from 'expo-router';
 import { icons } from '@/constants';
 import { getLocalImagePath, handleImageSelection } from '../hooks/ImageFunctions';
-import { UserData } from '../src/values/types';
+import { SeriesStats, UserData } from '../src/values/types';
 import { getFromStorage } from '../hooks/userDataFunctions';
 import { fetchUserDataByID } from '../hooks/firebaseFunctions';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
@@ -16,6 +16,8 @@ import StatComparison from '../components/Tabs/statComparison';
 import Bio from '../components/Tabs/bio';
 import ProfileBio from '../components/Tabs/profileBio';
 import getAllStats from '../hooks/allStats';
+import { defaultSeriesStats } from '../src/values/defaults';
+import ProfileStats from '../components/Tabs/profileStats';
 
 const Tab = createMaterialTopTabNavigator();
 const { width, height } = Dimensions.get("window"); // Get screen size
@@ -43,6 +45,7 @@ const Profile = () => {
   const [originalData, setOriginalData] = useState(userData);
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [editedData, setEditedData] = useState<UserData>({ ...userData });
+  const [statData, setStatData] = useState<SeriesStats>(defaultSeriesStats)
 
   useEffect(() => {
     getUserData()
@@ -50,7 +53,8 @@ const Profile = () => {
   }, []);
 
   const getUserData = async ()=> {
-    
+    const stats = await getAllStats();
+    setStatData(stats)
     const user = await getFromStorage()
     if(user){
       setProfileImage(getLocalImagePath(`${user.username}.png`))
@@ -218,7 +222,7 @@ const Profile = () => {
               {() => <ProfileBio data={userData} editing={editing} onUpdate={handleUserDataChange}/>}
           </Tab.Screen>
           <Tab.Screen name="Stats">
-          {() => <StatComparison/>}
+          {() => <ProfileStats data={statData}/>}
           </Tab.Screen>
         </Tab.Navigator>
         </View>

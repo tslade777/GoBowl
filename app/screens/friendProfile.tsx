@@ -33,6 +33,7 @@ const FriendProfile = () => {
   const [loading, setLoading] = useState(true);
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const [active, setActive] = useState(false);
+  const [friendID, setFriendID] = useState("")
 
   useEffect(() => {
     if( Object.keys(params).length > 0){
@@ -44,6 +45,7 @@ const FriendProfile = () => {
       setFriendAdded(friends=="true")
       setProfileImage(getLocalImagePath(`${username}.png`))
       getProfileData(id)
+      setFriendID(id)
     }else{
       console.log(`Parameters NOT found`)
       getUserData()
@@ -124,7 +126,7 @@ const FriendProfile = () => {
               {() => <Bio data={userData} editing={false}/>}
           </Tab.Screen>
           <Tab.Screen name="Stats">
-          {() => <StatComparison/>}
+          {() => <StatComparison friendID={friendID}/>}
           </Tab.Screen>
         </Tab.Navigator>
         </View>

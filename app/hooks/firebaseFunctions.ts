@@ -56,6 +56,50 @@ async function getSessions(sessionType: string): Promise<Series[]>{
  * @param sessionType {practiceSessions, openSessions, tournamentSessions}
  * @returns 
  */
+async function getSessionsByID(id: string, sessionType: string): Promise<Series[]>{
+  const currentUser = FIREBASE_AUTH.currentUser;
+  if (!currentUser) {
+      console.warn("No user logged in.");
+      return [];
+  }
+
+  try {
+      // Firestore query to filter by user ID and order by date
+      const practiceQ = query(
+          collection(db, sessionType),
+          where("userID", "==", id),
+          orderBy("date", "desc") // Order newest first
+      );
+
+      // Fetch data **once** (no real-time updates)
+      const querySnapshot = await getDocs(practiceQ);
+
+      // Process and return data
+      const sessions: Series[] = querySnapshot.docs.map((doc) => {
+          const data = doc.data();
+          return {
+              id: doc.id,
+              date: data.date ? (data.date as Timestamp).toDate() : new Date(),
+              games: Array.isArray(data.games) ? data.games : [],
+              notes: data.notes || "",
+              title: data.title || "No Title",
+              userID: data.userID || "",
+              stats: data.stats ? data.stats : [],
+          };
+      });
+
+      return sessions;
+  } catch (error) {
+      console.error("Error fetching sessions:", error);
+      return [];
+  }
+};
+
+/**
+ * Retrieve the session data from a specific session
+ * @param sessionType {practiceSessions, openSessions, tournamentSessions}
+ * @returns 
+ */
 async function getLeagueSessions(leagueID: string): Promise<Series[]>{
   const currentUser = FIREBASE_AUTH.currentUser;
   if (!currentUser) {
@@ -494,6 +538,37 @@ async function getLeagues() {
   }
 }
 
+async function getLeaguesByID(id:string) {
+  const currentUser = FIREBASE_AUTH.currentUser;
+  if (!currentUser) {
+    console.warn("No user logged in.");
+    return;
+  }
+
+  try {
+    // Reference to the user's "Leagues" collection inside "leagueSessions"
+    const nestedCollectionRef = collection(db, SESSIONS.league, currentUser.uid, "Leagues");
+
+    // Fetch data once
+    const querySnapshot = await getDocs(nestedCollectionRef);
+    const leagues: League[] = querySnapshot.docs.map((doc) => {
+      const data = doc.data();
+      return {
+        title: data.title || "No Title",
+        stats: data.stats || [],
+        weeks: data.weeks || 0,
+        leagueID: data.leagueID || "no id",
+        dateModified: data.date ? (data.date as Timestamp).toDate() : new Date()
+      };
+    });
+
+    // Pass the retrieved leagues to the callback function
+    return leagues;
+  } catch (error) {
+    console.error("Error fetching leagues:", error);
+  }
+}
+
 /**
  * Save the current game in firebase.
  */
@@ -514,7 +589,7 @@ export {getSessions, startFirebaseSession,
   updateFirebaseLeagueWeekCount, createNewLeauge,
   updateFirebaseGameComplete, getLeagueSessions, uploadImageToFirebase, downloadImageFromFirebase,
   fetchUserData, updateFirebaseActiveGames, setFirebaseActive, setFirebaseInActive, setFirebaseWatching, 
-  getFirebaseWatching, removeFirebaseWatching, fetchUserDataByID, getLeagues};
+  getFirebaseWatching, removeFirebaseWatching, fetchUserDataByID, getLeagues, getLeaguesByID, getSessionsByID};
 
 
   const defaultValue = {

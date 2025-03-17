@@ -6,7 +6,6 @@ import { SESSIONS } from "../src/config/constants";
 import parseTotalSessionStats from "./parseTotalSessionStats";
 
 
-
 /**
  * Retrieve the session data from a specific session
  * @param sessionType {practiceSessions, openSessions, tournamentSessions}

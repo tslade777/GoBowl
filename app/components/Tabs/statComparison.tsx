@@ -1,22 +1,43 @@
 import { View, Text, ScrollView } from 'react-native'
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { LinearGradient } from "expo-linear-gradient";
 import { SeriesStats } from '@/app/src/values/types';
+import getAllStats from '@/app/hooks/allStats';
+import getAllStatsByID from '@/app/hooks/allStatsByID';
+import { defaultSeriesStats } from '@/app/src/values/defaults';
 
-const stats = [
-    { label: "Average Score", productA: 190, productB: 210 },
-    { label: "Strikes %", productA: 65, productB: 80 },
-    { label: "Spares %", productA: 50, productB: 70 },
-    { label: "Splits Converted", productA: 30, productB: 45 },
-    { label: "High Game", productA: 250, productB: 280 },
-    { label: "Games Played", productA: 120, productB: 140 },
-    { label: "High Series", productA: 150, productB: 200 },
-    { label: "Ten Pin %", productA: 190, productB: 110 },
-  ];
+
 
   const maxStat = 300;
 
-const StatComparison = () => {
+const StatComparison = ({friendID}:{friendID:string}) => {
+  const [myStats,setMyStats] = useState(defaultSeriesStats)
+  const [friendStats,setFriendStats] = useState(defaultSeriesStats)
+
+  useEffect(()=>{
+    getStats();
+    console.log(`My stats: ${JSON.stringify(myStats)}`)
+    console.log(`\n\nFriends stats: ${JSON.stringify(friendStats)}`)
+  },[])
+  
+  const getStats = async ()=>{
+    let stats = await getAllStats();
+    setMyStats(stats)
+    stats = await getAllStatsByID(friendID)
+    setFriendStats(stats)
+    
+  }
+
+  const stats = [
+    { label: "Average Score", you: myStats.average, them: friendStats.average },
+    { label: "High Game", you: myStats.highGame, them: friendStats.highGame },
+    { label: "High Series", you: 0, them: 70 },
+    { label: "Games Played", you: myStats.numberOfGames, them: friendStats.numberOfGames },
+    { label: "Strike %", you: myStats.strikePercentage, them: friendStats.strikePercentage },
+    { label: "Spare %", you: myStats.sparePercentage, them: friendStats.sparePercentage },
+    { label: "Single Pin %", you: myStats.singlePinSparePercentage, them: friendStats.singlePinSparePercentage },
+    { label: "Split %", you: myStats.splitsPercentage, them: friendStats.splitsPercentage },
+  ];
   return (
     <View className="flex-1 bg-primary">
         {/* Product Labels */}
@@ -34,16 +55,21 @@ const StatComparison = () => {
           let percentageA = 0;
           let percentageB = 0;
           if (stat.label.includes('%')){
-              percentageA = stat.productA;
-              percentageB = stat.productB;
+              percentageA = stat.you;
+              percentageB = stat.them;
           }
           else if(stat.label == "High Series"){
-              percentageA = (stat.productA/900)*100;
-              percentageB = (stat.productB/900)*100;
+              percentageA = (stat.you/900)*100;
+              percentageB = (stat.them/900)*100;
           }
+          else if (stat.label == "Games Played"){
+            const divisor = stat.you > stat.them ? stat.you : stat.them;
+            percentageA = (stat.you/divisor)*100;
+            percentageB = (stat.them/divisor)*100;
+        }
           else{
-              percentageA = (stat.productA/300)*100;
-              percentageB = (stat.productB/300)*100;
+              percentageA = (stat.you/300)*100;
+              percentageB = (stat.them/300)*100;
           }
 
           return (
@@ -57,27 +83,27 @@ const StatComparison = () => {
                     start={{ x: 1, y: 0 }}
                     end={{ x: 0, y: 0 }}
                     style={{
-                      width: `${percentageA}%`,
+                      width: `${percentageB}%`,
                       height: "100%",
                       borderTopLeftRadius: 12,
                       borderBottomLeftRadius: 12,
                     }}
                   />
                 </View>
-                <Text className="text-orange text-xl font-bold w-12 text-center">{stat.productA}</Text>
+                <Text className="text-orange text-xl font-bold w-16 mx-1 text-center">{Number.isInteger(stat.them) ? stat.them.toString() : stat.them.toFixed(2)}</Text>
 
                 {/* Spacer */}
-                <Text className="text-white font-psemibold text-xl mx-2">VS</Text>
+                <Text className="text-white font-psemibold text-xl mx-1">VS</Text>
 
                 {/* Product B Progress Bar (Left to Right) */}
-                <Text className="text-teal text-xl font-bold w-12 text-center">{stat.productB}</Text>
+                <Text className="text-teal text-xl font-bold w-16 mx-1 text-center">{Number.isInteger(stat.you) ? stat.you.toString() : stat.you.toFixed(2)}</Text>
                 <View className="flex-1 bg-gray-700 rounded-full h-6 overflow-hidden">
                   <LinearGradient
                     colors={["#1bcfcf", "#57FFFF"]}
                     start={{ x: 0, y: 0 }}
                     end={{ x: 1, y: 0 }}
                     style={{
-                      width: `${percentageB}%`,
+                      width: `${percentageA}%`,
                       height: "100%",
                       borderTopRightRadius: 12,
                       borderBottomRightRadius: 12,

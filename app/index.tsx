@@ -8,9 +8,8 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import {onAuthStateChanged, User} from "firebase/auth"
 import { useEffect, useState } from "react";
 import { FIREBASE_AUTH } from "@/firebase.config";
-import AsyncStorage from "@react-native-async-storage/async-storage";
 import { fetchUserData } from "./hooks/firebaseFunctions";
-import * as FileSystem from 'expo-file-system';
+import getAllStats from "./hooks/allStats";
 
 export default function RootLayout() {
   const [user, setUser] = useState<User | null>(null);
@@ -36,8 +35,10 @@ export default function RootLayout() {
   //console.log("DONE")
 }
   useEffect(() =>{
-    onAuthStateChanged(FIREBASE_AUTH, (user)=>{
+    onAuthStateChanged(FIREBASE_AUTH, async (user)=>{
       setUser(user);
+      const stats = await getAllStats();
+            console.log(`Stats: ${JSON.stringify(stats)}`)
     })
   }, [])
   return (

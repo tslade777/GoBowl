@@ -15,6 +15,7 @@ import { createMaterialTopTabNavigator } from '@react-navigation/material-top-ta
 import StatComparison from '../components/Tabs/statComparison';
 import Bio from '../components/Tabs/bio';
 import ProfileBio from '../components/Tabs/profileBio';
+import getAllStats from '../hooks/allStats';
 
 const Tab = createMaterialTopTabNavigator();
 const { width, height } = Dimensions.get("window"); // Get screen size
@@ -45,9 +46,11 @@ const Profile = () => {
 
   useEffect(() => {
     getUserData()
+    
   }, []);
 
   const getUserData = async ()=> {
+    
     const user = await getFromStorage()
     if(user){
       setProfileImage(getLocalImagePath(`${user.username}.png`))

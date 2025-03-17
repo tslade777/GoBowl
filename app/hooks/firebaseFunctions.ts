@@ -1,5 +1,5 @@
 import { addDoc, collection, doc, getDoc, getDocs, increment, onSnapshot, orderBy, query, setDoc, Timestamp, updateDoc, where } from "firebase/firestore";
-import { Series, SeriesStats, tGame, UserData } from "../src/values/types";
+import { League, Series, SeriesStats, tGame, UserData } from "../src/values/types";
 import { db, FIREBASE_AUTH, storage } from "@/firebase.config";
 import { format } from "date-fns";
 import { CURRENTUSER, SESSIONS } from "../src/config/constants";
@@ -463,6 +463,36 @@ const getFirebaseWatching = (id:string)=>{
   return viewerCount
 }
 
+async function getLeagues() {
+  const currentUser = FIREBASE_AUTH.currentUser;
+  if (!currentUser) {
+    console.warn("No user logged in.");
+    return;
+  }
+
+  try {
+    // Reference to the user's "Leagues" collection inside "leagueSessions"
+    const nestedCollectionRef = collection(db, SESSIONS.league, currentUser.uid, "Leagues");
+
+    // Fetch data once
+    const querySnapshot = await getDocs(nestedCollectionRef);
+    const leagues: League[] = querySnapshot.docs.map((doc) => {
+      const data = doc.data();
+      return {
+        title: data.title || "No Title",
+        stats: data.stats || [],
+        weeks: data.weeks || 0,
+        leagueID: data.leagueID || "no id",
+        dateModified: data.date ? (data.date as Timestamp).toDate() : new Date()
+      };
+    });
+
+    // Pass the retrieved leagues to the callback function
+    return leagues;
+  } catch (error) {
+    console.error("Error fetching leagues:", error);
+  }
+}
 
 /**
  * Save the current game in firebase.
@@ -484,7 +514,7 @@ export {getSessions, startFirebaseSession,
   updateFirebaseLeagueWeekCount, createNewLeauge,
   updateFirebaseGameComplete, getLeagueSessions, uploadImageToFirebase, downloadImageFromFirebase,
   fetchUserData, updateFirebaseActiveGames, setFirebaseActive, setFirebaseInActive, setFirebaseWatching, 
-  getFirebaseWatching, removeFirebaseWatching, fetchUserDataByID};
+  getFirebaseWatching, removeFirebaseWatching, fetchUserDataByID, getLeagues};
 
 
   const defaultValue = {

@@ -51,14 +51,16 @@ const StreamView = () => {
     }
 
     const showProfile = () =>{
+      const friend: Friend = {
+        id: id,
+        username: username,
+        profilePic: profileImage || "",
+        active: isActive
+      }
       router.push({
               pathname: "/screens/friendProfile",
               params: {
-                id: id,
-                profilePic: profileImage,
-                username: username,
-                friends: 'true',
-                live: isActive.toString()
+                friend: JSON.stringify(friend),
               }
             })
     }

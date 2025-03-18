@@ -113,29 +113,12 @@ const Friends = () => {
 
   // Add User to Friends List in Firebase
   const addFriend = async (user: Friend) => {
-    try {
-      if (!currentUser) return;
-
-      // Prevent adding duplicates
-      if (friends.some(friend => friend.id === user.id)) {
-        console.log("⚠ User is already in friends list.");
-        return;
+    router.push({
+      pathname: "/screens/friendProfile",
+      params: {
+        friend: JSON.stringify(user),
       }
-      try{
-        const imageUrl = await downloadImageFromFirebase(`profileImages/${user.id}/${user.username}.png`)
-        user.profilePic = imageUrl || '';
-        const updatedFriends = [...friends, user];
-        setFriends(updatedFriends);
-      }catch(e){
-        console.log(e)
-      }
-      const updatedFriends = [...friends, user];
-      setFriends(updatedFriends);
-      // Save to Firestore
-      await setDoc(doc(db, "userFriends", currentUser.uid), { friendsList: updatedFriends });
-    } catch (error) {
-      console.error("❌ Error adding friend:", error);
-    }
+    })
   };
   
 
@@ -194,11 +177,7 @@ const Friends = () => {
       router.push({
         pathname: "/screens/friendProfile",
         params: {
-          id: friend.id,
-          profilePic: friend.profilePic,
-          username: friend.username,
-          friends: 'true',
-          live: friend.active.toString()
+          friend: JSON.stringify(friend),
         }
       })
     }
@@ -267,7 +246,8 @@ const Friends = () => {
             showsVerticalScrollIndicator={false}
             ItemSeparatorComponent={() => <View className="" />}
             renderItem={({ item }) => (
-              <LiveListItem username={item.username} profilePicture={item.profilePic} active={item.active} onHold={()=>{handleLongPress(item)}} onTouch={()=>{handlePress(item)}}></LiveListItem>
+              <LiveListItem username={item.username} profilePicture={item.profilePic} active={item.active} 
+              onHold={()=>{handleLongPress(item)}} onTouch={()=>{handlePress(item)}}></LiveListItem>
             )}
           />
         )}

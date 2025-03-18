@@ -173,11 +173,13 @@ const Profile = () => {
               resizeMode='contain'
               style={{ width: width * 0.3, height: width * 0.3, borderRadius: width * 0.2 }}
               source={profileImage ? { uri: profileImage } : icons.profile}/>
+              <TouchableOpacity className={`absolute w-10 h-10`} onPress={selectAndUploadImage}>
+              <Image
+              className={`w-10 h-10`}
+                resizeMode='contain'
+                source={icons.addImage}/>
+              </TouchableOpacity>
               
-              <Image 
-              className={`absolute w-10 h-10`}
-              resizeMode='contain'
-              source={icons.addImage}/>
             
             <Text className='text-white text-4xl font-pbold align-bottom mb-4'>{userData.username}</Text>
           </View>

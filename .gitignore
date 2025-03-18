@@ -36,6 +36,6 @@ yarn-error.*
 *.tsbuildinfo
 
 # Android
-* Android
+Android
 
 app-example

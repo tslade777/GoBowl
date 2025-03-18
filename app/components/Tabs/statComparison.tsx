@@ -88,13 +88,15 @@ const StatComparison = ({friendID}:{friendID:string}) => {
                     }}
                   />
                 </View>
-                <Text className="text-orange text-xl font-bold w-16 mx-1 text-center">{Number.isInteger(stat.them) ? stat.them.toString() : stat.them.toFixed(2)}</Text>
+                <Text className="text-orange text-xl font-bold w-16 mx-1 text-center">
+                  {Number.isInteger(stat.them) ? stat.them.toString() : stat.them.toFixed(2)}</Text>
 
                 {/* Spacer */}
                 <Text className="text-white font-psemibold text-xl mx-1">VS</Text>
 
                 {/* Product B Progress Bar (Left to Right) */}
-                <Text className="text-teal text-xl font-bold w-16 mx-1 text-center">{Number.isInteger(stat.you) ? stat.you.toString() : stat.you.toFixed(2)}</Text>
+                <Text className="text-teal text-xl font-bold w-16 mx-1 text-center">
+                  {Number.isInteger(stat.you) ? stat.you.toString() : stat.you.toFixed(2)}</Text>
                 <View className="flex-1 bg-gray-700 rounded-full h-6 overflow-hidden">
                   <LinearGradient
                     colors={["#1bcfcf", "#57FFFF"]}

@@ -62,7 +62,8 @@ const ProfileStats = ({data}:{data:SeriesStats}) => {
                 
 
                 {/* Product B Progress Bar (Left to Right) */}
-                <Text className=" text-teal text-xl font-bold w-20 text-center">{stat.you.toFixed(2)}</Text>
+                <Text className=" text-teal text-xl font-bold w-20 text-center">{
+                Number.isInteger(stat.you) ? stat.you.toString() : stat.you.toFixed(2)}</Text>
                 <View className="flex-1 bg-gray-700 rounded-full h-6 overflow-hidden">
                   <LinearGradient
                     colors={["#1bcfcf", "#57FFFF"]}

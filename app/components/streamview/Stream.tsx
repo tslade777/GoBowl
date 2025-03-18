@@ -71,7 +71,6 @@ const Stream = forwardRef<StreamRef, FriendProps>(({id,username,active}, ref) =>
             return
           }
           else{
-            console.log(`✅ Update current game`)
             const gamesData: tGame[] = docSnap.data().games;
             if (!gamesData) return;
             const currentGame: tGame = gamesData[gamesData.length-1];

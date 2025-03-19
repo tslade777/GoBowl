@@ -10,6 +10,7 @@ import { useEffect, useState } from "react";
 import { FIREBASE_AUTH } from "@/firebase.config";
 import { fetchUserData } from "./hooks/firebaseFunctions";
 import getAllStats from "./hooks/allStats";
+import ErrorBoundary from "./hooks/ErrorBoundary";
 
 export default function RootLayout() {
   const [user, setUser] = useState<User | null>(null);
@@ -41,8 +42,8 @@ export default function RootLayout() {
     })
   }, [])
   return (
-    
-  <SafeAreaView className="bg-primary h-full">
+    <ErrorBoundary>
+      <SafeAreaView className="bg-primary h-full">
     <ScrollView contentContainerStyle={{height: '100%'}}>
     
       <View className="w-full justify-center items-center min-h-full px-4">
@@ -69,7 +70,9 @@ export default function RootLayout() {
       </View>
     </ScrollView>
     <StatusBar backgroundColor="#161622" style='light' />
-  </SafeAreaView>);
+  </SafeAreaView>
+    </ErrorBoundary>
+  );
 }
 
 

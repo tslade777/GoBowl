@@ -22,6 +22,7 @@ export default function RootLayout() {
   },[])
     const clearAll = async () => {
       try{
+        console.error(`Fetching UserData. Index line 25.`)
         fetchUserData()
         // await AsyncStorage.removeItem("BOWLINGSTATE")
         // await AsyncStorage.clear()

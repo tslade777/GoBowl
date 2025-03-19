@@ -14,6 +14,7 @@ import { defaultSeriesStats } from '../src/values/defaults';
 import ProfileBio from '../components/Tabs/profileBio';
 import ProfileStats from '../components/Tabs/profileStats';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import { fetchUserData, fetchUserDataByID } from '../hooks/firebaseFunctions';
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -46,13 +47,13 @@ const Profile = () => {
 
     const getUserData = async () => {
       try {
-        console.error("Fetching user data...");
+        console.error("Fetching user data... Profile line 50");
         const stats = await getAllStats();
-        console.error(`Stats retrieved: ${JSON.stringify(stats)}`)
         if (isMounted) setStatData(stats);
-
-        const user = await getFromStorage();
-        console.error(`User found: ${JSON.stringify(user)}`)
+        let user = await getFromStorage();
+        if(!user && currentUser)
+            user = await fetchUserDataByID(currentUser.uid);
+        console.error(`User found: ${JSON.stringify(user)} Profile line 56`)
         if (isMounted && user) {
           setProfileImage(getLocalImagePath(`${user.username}.png`));
           setUserData(user);

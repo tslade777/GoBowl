@@ -238,7 +238,10 @@ const createNewLeauge = async (title: string) => {
 const fetchUserData = async () => {
   
   let currentUser = FIREBASE_AUTH.currentUser;
-  if (currentUser == null) return;
+  if (currentUser == null) {
+    console.error(`Current user is null. Firebase Functions line 242.`)
+    return;
+  }
   else{
     try {
       const userRef = doc(db, `users/${currentUser.uid}`);
@@ -257,7 +260,7 @@ const fetchUserData = async () => {
           highSeries: data.highSeries ? data.highSeries.toString() : "",
           profilepic: `${data.username}.png` || "",
         }
-        console.error(`User found: ${JSON.stringify(user)}`)
+        console.error(`User found: ${JSON.stringify(user)} Firebase Functions line 263.`)
         AsyncStorage.setItem(CURRENTUSER, JSON.stringify(user));
       }
       else{
@@ -284,7 +287,7 @@ const fetchUserData = async () => {
  * Retreive and save the current users data from firebase
  * @returns 
  */
-const fetchUserDataByID = async (id:string) => {
+const fetchUserDataByID = async (id:string): Promise<UserData | null> => {
     try {
       const userRef = doc(db, `users/${id}`);
       const userDoc = await getDoc(userRef);
@@ -320,6 +323,7 @@ const fetchUserDataByID = async (id:string) => {
       }
     } catch (error) {
       console.error("Error fetching user data: ", error);
+      return null
     }
 };
 

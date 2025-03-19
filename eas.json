@@ -17,5 +17,9 @@
   },
   "submit": {
     "production": {}
-  }
+  },
+  "android": {
+  "permissions": ["INTERNET"]
+}
+
 }

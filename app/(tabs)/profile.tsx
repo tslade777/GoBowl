@@ -182,7 +182,6 @@ const Profile = () => {
           <View className='flex-row ml-5'>
             <Image 
               className={`border-white border-4`}
-              resizeMode='contain'
               style={{ width: width * 0.3, height: width * 0.3, borderRadius: width * 0.2 }}
               source={profileImage ? { uri: profileImage } : icons.profile}/>
               <TouchableOpacity className={`absolute w-10 h-10`} onPress={selectAndUploadImage}>

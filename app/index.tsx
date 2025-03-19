@@ -22,8 +22,7 @@ export default function RootLayout() {
   },[])
     const clearAll = async () => {
       try{
-        console.error(`Fetching UserData. Index line 25.`)
-        fetchUserData()
+        
         // await AsyncStorage.removeItem("BOWLINGSTATE")
         // await AsyncStorage.clear()
         // const directory = FileSystem.documentDirectory;
@@ -41,7 +40,8 @@ export default function RootLayout() {
   useEffect(() =>{
     onAuthStateChanged(FIREBASE_AUTH, async (user)=>{
       setUser(user);
-      
+      console.error(`Fetching UserData. Index line 25.`)
+      fetchUserData()
     })
   }, [])
   return (

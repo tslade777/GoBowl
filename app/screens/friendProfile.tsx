@@ -1,4 +1,4 @@
-import { View, Text, Button, TextInput, StyleSheet, ActivityIndicator, TouchableOpacity, Image } from 'react-native';
+import { View, Text, Button, TextInput, StyleSheet, ActivityIndicator, TouchableOpacity, Image, Dimensions } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import "../../global.css";
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -15,6 +15,9 @@ import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { db, FIREBASE_AUTH } from '@/firebase.config';
 
 const Tab = createMaterialTopTabNavigator();
+
+const { width, height } = Dimensions.get("window"); // Get screen size
+const editButtonMarginTop = 5; // Adjust based on screen size
 
 const FriendProfile = () => {
   const params = useLocalSearchParams();
@@ -66,7 +69,10 @@ const FriendProfile = () => {
       setProfileImage(getLocalImagePath(`${parsedFriend.username}.png`))
       getProfileData(parsedFriend.id)
       setFriendID(parsedFriend.id)
-      setFriendAdded(usersFriends.some(user => user.id === parsedFriend.id))
+      if(usersFriends.length == 0)
+        setFriendAdded(false)
+      else
+        setFriendAdded(usersFriends.some(user => user.id === parsedFriend.id))
     }else{
       console.log(`Parameters NOT found`)
     }
@@ -84,6 +90,8 @@ const FriendProfile = () => {
       getParams(friendsList);
     } else {
       console.log(`Failed to get friends list`)
+      setFriends([]);
+      getParams([]);
     }
     setLoading(false);
         
@@ -145,20 +153,22 @@ const FriendProfile = () => {
         <View className='flex-row justify-between'>
           <View className='flex-row ml-5'>
             <Image 
-              className={`w-48 h-48 rounded-full ${active ? 'border-orange': 'border-white'} border-4`}
+              className={`rounded-full ${active ? 'border-orange': 'border-white'} border-4`}
+              style={{ width: width * 0.3, height: width * 0.3, borderRadius: width * 0.2 }}
               source={profileImage ? { uri: profileImage } : icons.profile}/>
             
-            <Text className='text-white text-4xl font-pbold align-bottom mb-4'>{userData.username}</Text>
+            <Text className='text-white text-4xl font-pbold align-bottom ml-2 mb-4'>{userData.username}</Text>
           </View>
           <View className='flex-row mr-5 mt-32'>
-            <TouchableOpacity className='w-10 h-10' onPress={friendAdded ? removeFriend : addFriend}>
+            
+            
+          </View>
+          <TouchableOpacity className='absolute top-5 right-5 w-10 h-10' onPress={friendAdded ? removeFriend : addFriend}>
             <Image 
                 className='w-10 h-10'
                 style={friendAdded ? {tintColor:"#57FFFF"} : {tintColor:"#F24804"}}
                 source={friendAdded ? icons.friendAdded : icons.addFriend}/>
             </TouchableOpacity>
-            
-          </View>
         </View>
         {/* Nested Top Tabs */}
         <View className='flex-1 h-full bg-primary mt-5'>

@@ -1,5 +1,5 @@
-import { View, Text,  TouchableOpacity, Image, Dimensions } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import { View, Text,  TouchableOpacity, Image, Dimensions, ActivityIndicator } from 'react-native';
+import React, { Suspense, useEffect, useState } from 'react';
 import "../../global.css";
 import { FIREBASE_AUTH, db } from '@/firebase.config';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -9,11 +9,13 @@ import { icons } from '@/constants';
 import { getLocalImagePath, handleImageSelection } from '../hooks/ImageFunctions';
 import { SeriesStats, UserData } from '../src/values/types';
 import { getFromStorage } from '../hooks/userDataFunctions';
-
 import getAllStats from '../hooks/allStats';
 import { defaultSeriesStats } from '../src/values/defaults';
+import ProfileBio from '../components/Tabs/profileBio';
+import ProfileStats from '../components/Tabs/profileStats';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 
-
+const Tab = createMaterialTopTabNavigator();
 
 const { width, height } = Dimensions.get("window"); // Get screen size
 const editButtonMarginTop = 5; // Adjust based on screen size
@@ -121,6 +123,15 @@ const Profile = () => {
     }
   };
 
+  const handleUserDataChange = (field: keyof UserData, value: string) => {
+    setEditedData((prevData) => ({
+      ...prevData,
+      [field]: value, // Update only when needed
+    }));
+    
+  };
+
+
   /**
    * Select an upload image to firebase
    */
@@ -163,7 +174,25 @@ const Profile = () => {
         </View>
         {/* Nested Top Tabs */}
         <View className='flex-1 h-full bg-primary mt-5'>
-        
+        <Suspense fallback={<ActivityIndicator size="large" color="#F24804" />}>
+        <Tab.Navigator
+          screenOptions={{
+            lazy: true, // Lazy load tabs (fixes freezing issues)
+            tabBarStyle: { backgroundColor: "#1E293B", borderRadius: 15, marginHorizontal: 10, marginTop: 5 },
+            tabBarLabelStyle: { fontSize: 20, fontWeight: "bold", textTransform: "capitalize" },
+            tabBarIndicatorStyle: { backgroundColor: "#F24804", height: 4 },
+            tabBarActiveTintColor: "#F24804",
+            tabBarInactiveTintColor: "white",
+          }}
+          >
+          <Tab.Screen name="Bio">
+              {() => <ProfileBio data={userData} editing={editing} onUpdate={handleUserDataChange}/>}
+          </Tab.Screen>
+          <Tab.Screen name="Total Stats">
+          {() => <ProfileStats data={statData}/>}
+          </Tab.Screen>
+        </Tab.Navigator>
+        </Suspense>
         </View>
         <View>
         <TouchableOpacity 

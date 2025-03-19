@@ -11,6 +11,9 @@ import { FIREBASE_AUTH } from "@/firebase.config";
 import { fetchUserData } from "./hooks/firebaseFunctions";
 import getAllStats from "./hooks/allStats";
 import ErrorBoundary from "./hooks/ErrorBoundary";
+import { enableScreens } from "react-native-screens";
+
+enableScreens();
 
 export default function RootLayout() {
   const [user, setUser] = useState<User | null>(null);

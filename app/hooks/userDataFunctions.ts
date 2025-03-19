@@ -7,7 +7,9 @@ export const getFromStorage = async (): Promise<UserData | null> => {
     try {
         const jsonVal = await AsyncStorage.getItem(CURRENTUSER);
 
-        if (!jsonVal)return null;
+        if (!jsonVal){
+          console.log(`null user. nothing saved`)
+          return null;}
 
         const data  = JSON.parse(jsonVal);
 
@@ -22,7 +24,7 @@ export const getFromStorage = async (): Promise<UserData | null> => {
           highSeries: data.highSeries,
           profilepic: data.profilepic
         }
-        
+        console.log(`User found ${JSON.stringify(user)}`)
       return user
     } catch (error) {
       console.error("Error getting data", error);

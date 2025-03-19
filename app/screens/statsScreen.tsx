@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from "react";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-import { View, Text, SafeAreaView } from "react-native";
+import { View, Text, SafeAreaView, ActivityIndicator } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 import StatsTab from "../components/Tabs/stats";
 import SessionsTab from "../components/Tabs/sessions";
@@ -25,6 +25,10 @@ const StatsScreen = () => {
       const sessions = await getSessions(type);
       setSessionData(sessions)
     }
+  
+    if (!sessionData) {
+      return <ActivityIndicator size="large" color="#F24804" />;
+    }
 
     return (
       <SafeAreaView className="flex-1 bg-primary h-full">
@@ -36,36 +40,17 @@ const StatsScreen = () => {
   
         {/* Nested Top Tabs */}
         <Tab.Navigator
-        screenOptions={{
-          tabBarStyle: {
-            backgroundColor: "#1E293B",
-            borderRadius: 15,
-            marginHorizontal: 10,
-            marginTop: 5,
-            borderTopLeftRadius: 20, // Rounded top-left corner
-            borderTopRightRadius: 20, // Rounded top-right corner
-            borderBottomRightRadius: 0,
-            borderBottomLeftRadius: 0,
-          },
-          tabBarLabelStyle: {
-            fontSize: 20,
-            fontWeight: "bold",
-            textTransform: "capitalize", // Makes text look cleaner
-          },
-          tabBarIndicatorStyle: {
-            backgroundColor: "#F24804", // Active tab indicator color
-            height: 4, // Thicker indicator for better visibility
-          },
-          tabBarActiveTintColor: "#F24804", // Active tab text color
-          tabBarInactiveTintColor: "white", // Inactive tab text color
-        }}
-      >
-          <Tab.Screen name="Stats">
-              {() => <StatsTab sessionData={sessionData} />}
-          </Tab.Screen>
-          <Tab.Screen name="Sessions">
-          {() => <SessionsTab sessionsData={sessionData} />}
-          </Tab.Screen>
+          screenOptions={{
+            lazy: true, // Lazy load tabs (fixes freezing issues)
+            tabBarStyle: { backgroundColor: "#1E293B", borderRadius: 15, marginHorizontal: 10, marginTop: 5 },
+            tabBarLabelStyle: { fontSize: 20, fontWeight: "bold", textTransform: "capitalize" },
+            tabBarIndicatorStyle: { backgroundColor: "#F24804", height: 4 },
+            tabBarActiveTintColor: "#F24804",
+            tabBarInactiveTintColor: "white",
+          }}
+        >
+          <Tab.Screen name="Stats">{() => <StatsTab sessionData={sessionData} />}</Tab.Screen>
+          <Tab.Screen name="Sessions">{() => <SessionsTab sessionsData={sessionData} />}</Tab.Screen>
         </Tab.Navigator>
       </View>
       </SafeAreaView>

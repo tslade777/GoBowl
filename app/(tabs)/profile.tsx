@@ -195,7 +195,6 @@ const Profile = () => {
         {/* Nested Top Tabs */}
         <View className='flex-1 h-full bg-primary mt-5'>
         <Tab.Navigator
-          className='bg-primary w-full'
           screenOptions={{
             tabBarStyle: {
               backgroundColor: "#1E293B",

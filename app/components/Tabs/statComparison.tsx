@@ -11,8 +11,8 @@ import { defaultSeriesStats } from '@/app/src/values/defaults';
   const maxStat = 300;
 
 const StatComparison = ({friendID}:{friendID:string}) => {
-  const [myStats,setMyStats] = useState(defaultSeriesStats)
-  const [friendStats,setFriendStats] = useState(defaultSeriesStats)
+  const [myStats,setMyStats] = useState<SeriesStats>(defaultSeriesStats)
+  const [friendStats,setFriendStats] = useState<SeriesStats>(defaultSeriesStats)
 
   useEffect(()=>{
     getStats();
@@ -21,8 +21,9 @@ const StatComparison = ({friendID}:{friendID:string}) => {
   const getStats = async ()=>{
     let stats = await getAllStats();
     setMyStats(stats)
-    stats = await getAllStatsByID(friendID)
-    setFriendStats(stats)
+    let friendStats = await getAllStatsByID(friendID)
+    console.log(`Friend Stats: ${JSON.stringify(friendStats)}`)
+    setFriendStats(friendStats)
     
   }
 

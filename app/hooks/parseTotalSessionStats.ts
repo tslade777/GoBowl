@@ -31,7 +31,6 @@ import { defaultSeriesStats } from '../src/values/defaults';
           break;
         case "totalShots":
           initialStats.totalShots +=value;
-          initialStats.strikePercentage = (initialStats.totalStrikes / initialStats.totalShots)*100;
           break;
         case "openFrames":
           initialStats.openFrames +=value;
@@ -47,7 +46,7 @@ import { defaultSeriesStats } from '../src/values/defaults';
           break;
         case "totalStrikes":
           initialStats.totalStrikes += value;
-          initialStats.strikePercentage = (initialStats.totalStrikes / initialStats.totalShots)*100;
+          initialStats.strikePercentage = (initialStats.totalStrikes / initialStats.strikeOpportunities)*100;
           break;
         case "highGame":
           initialStats.highGame = Math.max(initialStats.highGame, value);

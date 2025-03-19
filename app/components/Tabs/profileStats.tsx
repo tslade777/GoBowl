@@ -33,22 +33,18 @@ const ProfileStats = ({data}:{data:SeriesStats}) => {
 
         {stats.map((stat, index) => {
             let percentageA = 0;
-            let percentageB = 0;
+            
             if (stat.label.includes('%')){
                 percentageA = stat.you;
-                percentageB = stat.you;
             }
             else if(stat.label == "High Series"){
                 percentageA = (stat.you/900)*100;
-                percentageB = (stat.them/900)*100;
             }
             else if (stat.label == "Games Played"){
                 percentageA = 100;
-                percentageB = 100;
             }
             else{
                 percentageA = ((stat.you/300)*100);
-                percentageB = (stat.them/300)*100;
             }
           
 

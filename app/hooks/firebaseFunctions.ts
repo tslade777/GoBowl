@@ -236,6 +236,7 @@ const createNewLeauge = async (title: string) => {
  * @returns 
  */
 const fetchUserData = async () => {
+  
   let currentUser = FIREBASE_AUTH.currentUser;
   if (currentUser == null) return;
   else{
@@ -256,6 +257,7 @@ const fetchUserData = async () => {
           highSeries: data.highSeries ? data.highSeries.toString() : "",
           profilepic: `${data.username}.png` || "",
         }
+        console.error(`User found: ${JSON.stringify(user)}`)
         AsyncStorage.setItem(CURRENTUSER, JSON.stringify(user));
       }
       else{

@@ -1,6 +1,6 @@
 import { StatusBar } from "expo-status-bar";
 import { ScrollView, Text, View, Image } from "react-native";
-import { Redirect, router, Tabs } from "expo-router";
+import {  router } from "expo-router";
 import "../global.css";
 import { images } from '../constants'
 import CustomButton from "./components/buttons/CustomButton";
@@ -9,7 +9,6 @@ import {onAuthStateChanged, User} from "firebase/auth"
 import { useEffect, useState } from "react";
 import { FIREBASE_AUTH } from "@/firebase.config";
 import { fetchUserData } from "./hooks/firebaseFunctions";
-import getAllStats from "./hooks/allStats";
 import ErrorBoundary from "./hooks/ErrorBoundary";
 import { enableScreens } from "react-native-screens";
 

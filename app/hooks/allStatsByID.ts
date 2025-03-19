@@ -12,7 +12,6 @@ import parseTotalSessionStats from "./parseTotalSessionStats";
  * @returns 
  */
 const getAllStatsByID = async (id:string): Promise<SeriesStats> => {
-    console.log(`Friends ID: ${id}`)
     let totalSessions: Series[] = []
     
    
@@ -22,7 +21,6 @@ const getAllStatsByID = async (id:string): Promise<SeriesStats> => {
     if (leagues){
         leagues.forEach(async element => {
             let leagueSessions = await getLeagueSessionsByID(id, element.leagueID)
-            console.log(`League sessions: ${JSON.stringify(element)}`) 
             totalSessions = [...totalSessions, ...leagueSessions]
         });
     }

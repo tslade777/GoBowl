@@ -22,7 +22,6 @@ const StatComparison = ({friendID}:{friendID:string}) => {
     let stats = await getAllStats();
     setMyStats(stats)
     let friendStats = await getAllStatsByID(friendID)
-    console.log(`Friend Stats: ${JSON.stringify(friendStats)}`)
     setFriendStats(friendStats)
     
   }

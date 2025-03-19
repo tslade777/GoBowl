@@ -12,7 +12,7 @@
       "supportsTablet": true
     },
     "android": {
-      "permissions":[],
+      "permissions": [],
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/adaptive-icon.png",
         "backgroundColor": "#ffffff"
@@ -46,6 +46,12 @@
       "eas": {
         "projectId": "d010f054-0435-4d79-923a-916cf88a502b"
       }
+    },
+    "runtimeVersion": {
+      "policy": "appVersion"
+    },
+    "updates": {
+      "url": "https://u.expo.dev/d010f054-0435-4d79-923a-916cf88a502b"
     }
   }
 }

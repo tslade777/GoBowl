@@ -42,6 +42,7 @@ const Profile = () => {
   const [statData, setStatData] = useState<SeriesStats>(defaultSeriesStats)
 
   useEffect(() => {
+    console.error(`Getting user`)
     getUserData()
     
   }, []);
@@ -54,9 +55,10 @@ const Profile = () => {
       setProfileImage(getLocalImagePath(`${user.username}.png`))
       setUserData(user)
       setEditedData(user)
+      console.error(`User found: ${JSON.stringify(user)}`)
     }
     else
-      console.log(`User is null`)
+      console.error(`User is null`)
 
     setLoading(false)
   }
@@ -116,7 +118,7 @@ const Profile = () => {
         const userRef = doc(db, `users/${currentUser.uid}`);
         await updateDoc(userRef, { active: false });
       }
-      console.log("User logged out successfully");
+      console.error("User logged out successfully");
       router.replace('/(auth)/sign-in');
     } catch (error) {
       console.error("Error logging out: ", error);

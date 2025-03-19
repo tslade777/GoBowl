@@ -42,13 +42,42 @@ const Profile = () => {
   const [statData, setStatData] = useState<SeriesStats>(defaultSeriesStats)
 
   useEffect(() => {
-    console.error(`Getting user`)
-    getUserData()
+    let isMounted = true;
+
+    const getUserData = async () => {
+      try {
+        console.error("Fetching user data...");
+        const stats = await getAllStats();
+        console.error(`Stats retrieved: ${JSON.stringify(stats)}`)
+        if (isMounted) setStatData(stats);
+
+        const user = await getFromStorage();
+        console.error(`User found: ${JSON.stringify(user)}`)
+        if (isMounted && user) {
+          setProfileImage(getLocalImagePath(`${user.username}.png`));
+          setUserData(user);
+          setEditedData(user);
+        }
+
+        if (!isMounted) return;
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching user data:", error);
+      }
+    };
+
+    getUserData();
+
+    return () => {
+      isMounted = false; // Prevent state update after unmount
+    };
     
   }, []);
 
   const getUserData = async ()=> {
+    console.error(`Getting Data`)
     const stats = await getAllStats();
+    console.error(`Stats retrieved: ${JSON.stringify(stats)}`)
     setStatData(stats)
     const user = await getFromStorage()
     if(user){

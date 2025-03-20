@@ -602,7 +602,7 @@ const getLeaguesByID = async (id:string): Promise<League[] | null> => {
     // Pass the retrieved leagues to the callback function
     return leagues;
   } catch (error) {
-    console.error("📛 Error fetching leagues:", error);
+    console.error(`📛 [line 605] Error fetching leagues for userID: ${id}:`, error, " fireabaseFunctions.ts");
     return null
   }
 }

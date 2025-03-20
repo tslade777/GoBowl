@@ -4,7 +4,7 @@ import "../../global.css";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams } from 'expo-router';
 import { icons } from '@/constants';
-import { getLocalImagePath, handleImageSelection } from '../hooks/ImageFunctions';
+import { checkIfImageExists, getLocalImagePath, handleImageSelection } from '../hooks/ImageFunctions';
 import { Friend, UserData } from '../src/values/types';
 import { fetchUserDataByID } from '../hooks/firebaseFunctions';
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
@@ -13,6 +13,7 @@ import StatComparison from '../components/Tabs/statComparison';
 import { defaultFriend } from '../src/values/defaults';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { db, FIREBASE_AUTH } from '@/firebase.config';
+import RNFS from 'react-native-fs';
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -49,7 +50,7 @@ const FriendProfile = () => {
    * Get the passed in parameters to be used for the friends profile page. 
    * @param usersFriends 
    */
-  const getParams = (usersFriends:Friend[])=>{
+  const getParams = async (usersFriends:Friend[])=>{
     if( Object.keys(params).length > 0){
       const {friend, friends, friendsList} = params as { 
         friend: string 
@@ -69,8 +70,12 @@ const FriendProfile = () => {
 
       // get friends list
       setActive(Boolean(parsedFriend.active))
-      const localPath = getLocalImagePath(`${parsedFriend.username}.png`);
-      setProfileImage(localPath)
+
+      if (await checkIfImageExists(`${parsedFriend.username}.png`)){
+        const localPath = getLocalImagePath(`${parsedFriend.username}.png`);
+        setProfileImage(localPath)
+      }
+
       getProfileData(parsedFriend.id)
       setFriendID(parsedFriend.id)
       if(usersFriends.length == 0)
@@ -81,6 +86,8 @@ const FriendProfile = () => {
       console.error(`📛 Parameters NOT found`)
     }
   }
+
+
 
   /**
    * Get the friends list from firebase
@@ -170,7 +177,9 @@ const FriendProfile = () => {
             <Image 
               className={`rounded-full ${active ? 'border-orange': 'border-white'} border-4`}
               style={{ width: width * 0.3, height: width * 0.3, borderRadius: width * 0.2 }}
-              source={profileImage ? { uri: profileImage } : icons.profile}/>
+              source={profileImage && profileImage != "" ? { uri: profileImage } : icons.profile}
+              onError={() => {setProfileImage("");console.log('Image failed to load:', profileImage);}}
+            />
             
             <Text className='text-white text-4xl font-pbold align-bottom ml-2 mb-4'>{userData.username}</Text>
           </View>

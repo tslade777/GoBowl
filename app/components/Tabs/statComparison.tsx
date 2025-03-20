@@ -20,7 +20,6 @@ const StatComparison = ({friendID}:{friendID:string}) => {
     setMyStats(stats)
     let friendStats = await getAllStatsByID(friendID)
     setFriendStats(friendStats)
-    
   }
 
   const stats = [

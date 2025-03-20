@@ -13,7 +13,6 @@ import StatComparison from '../components/Tabs/statComparison';
 import { defaultFriend } from '../src/values/defaults';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { db, FIREBASE_AUTH } from '@/firebase.config';
-import RNFS from 'react-native-fs';
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -43,6 +42,12 @@ const FriendProfile = () => {
   const [newFriend, setNewFriend] = useState<Friend>()
 
   useEffect(() => {
+    const {friend, friends, friendsList} = params as { 
+      friend: string 
+      friends: string; 
+      friendsList?: string; 
+    };
+    setFriendID(friend)
     getFriendsList();
   }, []);
 

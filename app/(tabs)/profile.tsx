@@ -47,13 +47,13 @@ const Profile = () => {
 
     const getUserData = async () => {
       try {
-        console.error("Fetching user data... Profile line 50");
+        console.warn("Fetching user data... Profile line 50");
         const stats = await getAllStats();
         if (isMounted) setStatData(stats);
         let user = await getFromStorage();
         if(!user && currentUser)
             user = await fetchUserDataByID(currentUser.uid);
-        console.error(`User found: ${JSON.stringify(user)} Profile line 56`)
+        console.warn(`User found: ${JSON.stringify(user)} Profile line 56`)
         if (isMounted && user) {
           setProfileImage(getLocalImagePath(`${user.username}.png`));
           setUserData(user);
@@ -63,7 +63,7 @@ const Profile = () => {
         if (!isMounted) return;
         setLoading(false);
       } catch (error) {
-        console.error("Error fetching user data:", error);
+        console.warn("Error fetching user data:", error);
       }
     };
 
@@ -76,19 +76,19 @@ const Profile = () => {
   }, []);
 
   const getUserData = async ()=> {
-    console.error(`Getting Data`)
+    console.warn(`Getting Data`)
     const stats = await getAllStats();
-    console.error(`Stats retrieved: ${JSON.stringify(stats)}`)
+    console.warn(`Stats retrieved: ${JSON.stringify(stats)}`)
     setStatData(stats)
     const user = await getFromStorage()
     if(user){
       setProfileImage(getLocalImagePath(`${user.username}.png`))
       setUserData(user)
       setEditedData(user)
-      console.error(`User found: ${JSON.stringify(user)}`)
+      console.warn(`User found: ${JSON.stringify(user)}`)
     }
     else
-      console.error(`User is null`)
+      console.warn(`User is null`)
 
     setLoading(false)
   }
@@ -137,7 +137,7 @@ const Profile = () => {
         setEditing(false);
       }
     } catch (error) {
-      console.error("Error updating profile:", error);
+      console.warn("Error updating profile:", error);
     }
   };
   
@@ -148,10 +148,10 @@ const Profile = () => {
         const userRef = doc(db, `users/${currentUser.uid}`);
         await updateDoc(userRef, { active: false });
       }
-      console.error("User logged out successfully");
+      console.warn("User logged out successfully");
       router.replace('/(auth)/sign-in');
     } catch (error) {
-      console.error("Error logging out: ", error);
+      console.warn("Error logging out: ", error);
     }
   };
 

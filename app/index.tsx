@@ -40,7 +40,7 @@ export default function RootLayout() {
   useEffect(() =>{
     onAuthStateChanged(FIREBASE_AUTH, async (user)=>{
       setUser(user);
-      console.error(`Fetching UserData. Index line 25.`)
+      console.warn(`Fetching UserData. Index line 25.`)
       fetchUserData()
     })
   }, [])

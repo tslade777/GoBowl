@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { View, Text } from 'react-native';
 
 const TenthFrame = ({ 
@@ -11,6 +12,7 @@ const TenthFrame = ({
   isSelected = false,
   isSplit = false 
 }) => {
+  
   return (
     <View className="items-center">
       {/* Frame Number Label */}
@@ -23,12 +25,12 @@ const TenthFrame = ({
       >
         {/* Rolls */}
         <View className="flex-row">
-           {/* TODO: Tenth frame isn't displaying split correctly*/}
+           {/* TODO: Tenth frame isn't displaying*/}
         <View className={`flex-1 items-center justify-center  border-r border-black`}>
-          <Text className={`text-lg ${isSplit && roll1=='10' ? 'text-red-500':'text-black'} font-bold`}>{roll1}</Text>
+          <Text className={`text-lg ${(isSplit && roll1 != 'X') ? 'text-red-500':'text-black'} font-bold`}>{roll1}</Text>
         </View>
         <View className={`flex-1 items-center justify-center  border-r border-black`}>
-          <Text className={`text-lg ${isSplit && roll1!='10' ? 'text-red-500':'text-black'} font-bold`}>{roll2}</Text>
+          <Text className={`text-lg ${isSplit && roll1 == "X" ? 'text-red-500':'text-red'} font-bold`}>{roll2}</Text>
         </View>
         <View className={`flex-1 items-center justify-center`}>
           <Text className={`text-lg text-black font-bold`}>{roll3}</Text>
@@ -46,3 +48,5 @@ const TenthFrame = ({
 };
 
 export default TenthFrame;
+
+

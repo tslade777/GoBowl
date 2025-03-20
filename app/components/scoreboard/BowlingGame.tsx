@@ -565,6 +565,7 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
       }
       if(!frame.isSplit)
         frame.isSplit = checkIsSplit(pins) && frame.roll1 == '10'
+      
       setFrames(calculateTotalScore(updatedFrames));
       // User gets an extra shot if spare or strike
       if(frame.isSpare || frame.roll2 == '10'){

@@ -156,7 +156,11 @@ const Profile = () => {
   };
 
   if (loading) {
-      return <ActivityIndicator size="large" className="mt-10" />;
+    
+      return (<SafeAreaView className='bg-primary h-full'>
+            <ActivityIndicator className='absolute top-1/2 left-1/2' size='large' color='#F24804' />
+          </SafeAreaView>
+      );
   }
 
   return (

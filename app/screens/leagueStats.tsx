@@ -33,7 +33,6 @@ const LeagueStats = () => {
    * @param item League that was clicked
    */
   function handleLeaguePress(item: any): void {
-    console.log(`🎳 League clicked. ID: ${item.leagueID}`)
     router.push({pathname:"/screens/statsScreenLeagues", params: {
         leagueID: item.leagueID,
         leagueName: item.title

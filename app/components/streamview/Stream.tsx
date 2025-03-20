@@ -1,12 +1,10 @@
 import { View, Text, TouchableOpacity, TextInput, Image, Animated, ActivityIndicator  } from 'react-native';
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import Frame from '../scoreboard/Frame';
 import TenthFrame from '../scoreboard/TenthFrame';
-import { FIREBASE_AUTH, db } from '../../../firebase.config'
-import { collection, query, where, doc, getDoc, updateDoc, setDoc, onSnapshot } from 'firebase/firestore';
+import { db } from '../../../firebase.config'
+import { doc, onSnapshot } from 'firebase/firestore';
 import { tGame } from '@/app/src/values/types';
-import icons from '@/constants/icons';
 
 interface FriendProps {
   id: string;
@@ -67,7 +65,6 @@ const Stream = forwardRef<StreamRef, FriendProps>(({id,username,active}, ref) =>
 
           // The user is viewing previous games and shouldn't be pulled to the current game
           if (viewingHistoryRef.current){
-            console.log(`📛 Viewing previous game`)
             return
           }
           else{
@@ -109,12 +106,10 @@ const Stream = forwardRef<StreamRef, FriendProps>(({id,username,active}, ref) =>
     
     // Next game will be current game
     if (index == games.length-2){
-      console.log(`➡️ Current game`)
       viewingHistoryRef.current = false
       updateFirebaseCurrentGame();
     }
     else if (index < games.length-2){
-      console.log(`➡️ Next game`)
       viewingHistoryRef.current = true
       setGame(games[index+1])
       setIndex(index+1)
@@ -126,7 +121,6 @@ const Stream = forwardRef<StreamRef, FriendProps>(({id,username,active}, ref) =>
     
     // Next game will be current game
     if (index > 0){
-      console.log(`⬅️ previous game`)
       viewingHistoryRef.current = true
       setGame(games[index-1])
       setIndex(index-1)
@@ -146,68 +140,6 @@ const Stream = forwardRef<StreamRef, FriendProps>(({id,username,active}, ref) =>
     setPins(game.pins)
     setFrames(game.frames)
     setGameNum(game.gameNum)
-  }
-
-  
-  // Calculate and return the total score that will go into the frame provided.
-  const calculateTotalScore = (frames:any) => {
-    let totalScore = 0;
-    for (var i = 0; i < 10; i++){
-      let frame = { ...frames[i] };
-      let firstThrowScore = frame.roll1 == '' ? 0 : parseInt(frame.roll1);
-      let secondThrowScore = ((firstThrowScore == 10 || frame.roll2 == '')? 0 : parseInt(frame.roll2));
-
-      // The 9th frame will always depend solely on the tenth frame.
-      if(i==8){
-        totalScore += firstThrowScore + secondThrowScore;
-        // BONUS: Use the first two rolls of the tenth frame.
-        if (frame.isStrike){
-          let bonus = frames[9].roll1 == '' ? 0 : parseInt(frames[9].roll1);
-          bonus += frames[9].roll2 == '' ? 0 : parseInt(frames[9].roll2);
-          totalScore += bonus;
-        }
-        // BONUS: Use the first roll of the tenth frame
-        else if(frame.isSpare){
-          totalScore += frames[9].roll1 == '' ? 0 : parseInt(frames[9].roll1);
-        }
-        // Score is just total plus current frame. NO BONUS
-        else totalScore += firstThrowScore + secondThrowScore
-      }
-      // Tenth frame will only depend on itself. NO BONUS
-      else if (i==9){
-        totalScore += frames[9].roll1 == '' ? 0 : parseInt(frames[9].roll1);
-        totalScore += frames[9].roll2 == '' ? 0 : parseInt(frames[9].roll2);
-        totalScore += frames[9].roll3 == '' ? 0 : parseInt(frames[9].roll3);
-      }
-      // Case when current shot is a strike
-      else if(frame.isStrike){
-        totalScore +=10;
-        // BONUS: If next shot is strike, take the first ball from two frames ahead
-        if (frames[i+1].isStrike){
-          totalScore += 10; 
-          totalScore += frames[i+2].roll1 == '' ? 0:parseInt(frames[i+2].roll1);
-        }
-        // BONUS: Next frame is not a strike but current is
-        else {
-          let nextRoll1 = frames[i+1].roll1 == '' ? 0 : parseInt(frames[i+1].roll1);
-          let nextRoll2 = frames[i+1].roll2 == '' ? 0 : parseInt(frames[i+1].roll2);
-          totalScore += (nextRoll1 + nextRoll2);
-        }
-      }
-      // BONUS: Current frame is a spare
-      else if (frame.isSpare){
-        let nextRoll1 = frames[i+1].roll1 == '' ? 0 : parseInt(frames[i+1].roll1);
-        totalScore += nextRoll1 + firstThrowScore + secondThrowScore;
-      }
-      // Current frame is an open, just use current frame scores only. No bonus
-      else{
-        totalScore += firstThrowScore + secondThrowScore;
-      }
-      // update the frame score.
-      frame.score = totalScore;
-      frames[i] = frame;
-    }
-    return frames
   }
   
   // Update frame selection. Call back for frame touch event.

@@ -6,15 +6,12 @@ import getAllStats from '@/app/hooks/allStats';
 import getAllStatsByID from '@/app/hooks/allStatsByID';
 import { defaultSeriesStats } from '@/app/src/values/defaults';
 
-
-
-  const maxStat = 300;
-
 const StatComparison = ({friendID}:{friendID:string}) => {
   const [myStats,setMyStats] = useState<SeriesStats>(defaultSeriesStats)
   const [friendStats,setFriendStats] = useState<SeriesStats>(defaultSeriesStats)
 
   useEffect(()=>{
+    // TODO: add loading icon for getStats
     getStats();
   },[])
   

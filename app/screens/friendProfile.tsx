@@ -1,8 +1,8 @@
-import { View, Text, Button, TextInput, StyleSheet, ActivityIndicator, TouchableOpacity, Image, Dimensions } from 'react-native';
+import { View, Text, TouchableOpacity, Image, Dimensions } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import "../../global.css";
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { router, useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams } from 'expo-router';
 import { icons } from '@/constants';
 import { getLocalImagePath, handleImageSelection } from '../hooks/ImageFunctions';
 import { Friend, UserData } from '../src/values/types';
@@ -17,7 +17,6 @@ import { db, FIREBASE_AUTH } from '@/firebase.config';
 const Tab = createMaterialTopTabNavigator();
 
 const { width, height } = Dimensions.get("window"); // Get screen size
-const editButtonMarginTop = 5; // Adjust based on screen size
 
 const FriendProfile = () => {
   const params = useLocalSearchParams();
@@ -46,6 +45,10 @@ const FriendProfile = () => {
     getFriendsList();
   }, []);
 
+  /**
+   * Get the passed in parameters to be used for the friends profile page. 
+   * @param usersFriends 
+   */
   const getParams = (usersFriends:Friend[])=>{
     if( Object.keys(params).length > 0){
       const {friend, friends, friendsList} = params as { 
@@ -61,7 +64,7 @@ const FriendProfile = () => {
         if(parsedFriend)
           setNewFriend(parsedFriend)
       } catch (error) {
-        console.error("Error parsing friend data:", error);
+        console.error("📛 Error parsing friend data:", error);
       }
 
       // get friends list
@@ -76,10 +79,14 @@ const FriendProfile = () => {
       else
         setFriendAdded(usersFriends.some(user => user.id === parsedFriend.id))
     }else{
-      console.log(`Parameters NOT found`)
+      console.error(`📛 Parameters NOT found`)
     }
   }
 
+  /**
+   * Get the friends list from firebase
+   * @returns 
+   */
   const getFriendsList = async () =>{
     const currentUser = FIREBASE_AUTH.currentUser;
     if (!currentUser) return;
@@ -91,26 +98,29 @@ const FriendProfile = () => {
       setFriends(friendsList);
       getParams(friendsList);
     } else {
-      console.log(`Failed to get friends list`)
       setFriends([]);
       getParams([]);
     }
     setLoading(false);
         
   }
+
+  /**
+   * Get the profile data of the friend being viewed.
+   * @param id 
+   */
   const getProfileData = async (id:string)=> {
     const user = await fetchUserDataByID(id)
     if(user){
       setUserData(user)
     }
     else
-      console.log(`User is null`)
-
+      console.error(`📛 User is null id: ${id}`)
     setLoading(false)
   }
 
   /**
-   * 
+   * Remove the friend from the friends list.
    * @returns 
    */
   const removeFriend = async () =>{
@@ -123,10 +133,14 @@ const FriendProfile = () => {
           await updateDoc(doc(db, "userFriends", currentUser.uid), { friendsList: updatedFriends });
           setFriendAdded(false)
         } catch (error) {
-          console.error("❌ Error removing friend:", error);
+          console.error("📛 Error removing friend:", error);
         }
   }
 
+  /**
+   * Add the friend to the friends list in firebase
+   * @returns 
+   */
   const addFriend = async () => {
     if (FIREBASE_AUTH.currentUser == null) return
 
@@ -134,7 +148,6 @@ const FriendProfile = () => {
       if(!fList) return
       // Prevent adding duplicates
       if (fList.some(user => user.id === friendID)) {
-        console.log("⚠ User is already in friends list.");
         return;
       }
       if(!newFriend)return;
@@ -144,10 +157,11 @@ const FriendProfile = () => {
       // Save to Firestore
       await setDoc(doc(db, "userFriends", FIREBASE_AUTH.currentUser.uid), { friendsList: updatedFriends });
     } catch (error) {
-      console.error("❌ Error adding friend:", error);
+      console.error("📛 Error adding friend:", error);
     }
   };
 
+  // TODO: Add loading indicator
   return (
     <SafeAreaView className='bg-primary h-full'>
       <View className='flex-1'>

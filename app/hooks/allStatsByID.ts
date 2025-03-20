@@ -1,7 +1,5 @@
-import { FIREBASE_AUTH } from "@/firebase.config";
 import { Series, SeriesStats } from "../src/values/types";
-import { getLeagues, getLeaguesByID, getLeagueSessions, getLeagueSessionsByID, getSessions, getSessionsByID } from "./firebaseFunctions";
-import { defaultSeriesStats } from "../src/values/defaults";
+import { getLeaguesByID, getLeagueSessionsByID, getSessionsByID } from "./firebaseFunctions";
 import { SESSIONS } from "../src/config/constants";
 import parseTotalSessionStats from "./parseTotalSessionStats";
 

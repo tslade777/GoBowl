@@ -1,4 +1,4 @@
-import { View, Text, SafeAreaView } from 'react-native'
+import { View } from 'react-native'
 import React from 'react'
 import BioItem from './BioItem'
 import { UserData } from '@/app/src/values/types';

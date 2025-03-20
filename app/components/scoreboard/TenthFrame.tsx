@@ -23,7 +23,7 @@ const TenthFrame = ({
       >
         {/* Rolls */}
         <View className="flex-row">
-          
+           {/* TODO: Tenth frame isn't displaying split correctly*/}
         <View className={`flex-1 items-center justify-center  border-r border-black`}>
           <Text className={`text-lg ${isSplit && roll1=='10' ? 'text-red-500':'text-black'} font-bold`}>{roll1}</Text>
         </View>

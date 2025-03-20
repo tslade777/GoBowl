@@ -6,7 +6,7 @@ import TenthFrame from './TenthFrame';
 import { BOWLINGSTATE, INPROGRESS, SPLITS } from '@/app/src/config/constants';
 import icons from '@/constants/icons';
 import { defaultFrame } from '@/app/src/values/defaults';
-import { tFrame,tGame } from '@/app/src/values/types';
+import { tGame } from '@/app/src/values/types';
 
 
 type ChildComponentProps = {
@@ -115,7 +115,7 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
       await AsyncStorage.setItem(INPROGRESS, JSON.stringify(true));
     }
     catch (error) {
-      console.error('Error setting game in progress:', error);
+      console.error('📛 Error setting game in progress:', error);
     }
   };
 
@@ -133,7 +133,7 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
       };
       await AsyncStorage.setItem(BOWLINGSTATE, JSON.stringify(gameState));
     } catch (error) {
-      console.error('Error saving game:', error);
+      console.error('📛 Error saving game:', error);
     }
   };
 
@@ -156,10 +156,9 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
         setFarthestFrame(farthestFrame)
         setEdited(edited)
         setGameComplete(gameComplete)
-        console.log(`Loading game from Async`)
       }
     } catch (error) {
-      console.error('Error loading game:', error);
+      console.error('📛 Error loading game:', error);
     }
   };
 
@@ -186,7 +185,7 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
       await AsyncStorage.setItem(INPROGRESS, JSON.stringify(false));
     }
     catch (error) {
-      console.error('Error setting game in progress:', error);
+      console.error('📛 Error setting game in progress:', error);
     }
   };
 

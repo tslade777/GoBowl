@@ -23,7 +23,7 @@ const handleImageSelection = async (storagePath: string, userName: string) => {
   
       return { localPath, downloadURL };
     } catch (error) {
-      console.error('Error handling image selection:', error);
+      console.error('📛 Error handling image selection:', error);
       return null;
     }
   };
@@ -43,10 +43,9 @@ const handleImageSelection = async (storagePath: string, userName: string) => {
       // Copy image to local directory
       await FileSystem.copyAsync({ from: imageUri, to: localPath });
   
-      console.log('Image saved locally at:', localPath);
       return localPath;
     } catch (error) {
-      console.error('Error saving image locally:', error);
+      console.error('📛 Error saving image locally:', error);
       return null;
     }
   };
@@ -59,7 +58,6 @@ const handleImageSelection = async (storagePath: string, userName: string) => {
     // Request permissions
     const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
     if (status !== 'granted') {
-      console.log('Permission denied');
       return null;
     }
   

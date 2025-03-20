@@ -1,9 +1,8 @@
-import { View, Text, Image, Keyboard } from 'react-native'
+import { View, Image, Keyboard } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import "../../global.css";
-import { Tabs, Redirect, Stack} from 'expo-router'
+import { Tabs,  Stack} from 'expo-router'
 import {icons} from '../../constants'
-import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { getLocalImagePath } from '../hooks/ImageFunctions';
 import { getFromStorage } from '../hooks/userDataFunctions';
 
@@ -40,12 +39,13 @@ const TabsLayout = () => {
   }, []);
 
   const getUserData = async ()=> {
+    // TODO: If user is null, get image from firebase.
     const user = await getFromStorage()
     if(user){
       setProfileImage(getLocalImagePath(`${user.username}.png`))
     }
     else
-      console.log(`User is null`)
+      console.error(`📛 User is null in layout line 47`)
   }
 
   return (

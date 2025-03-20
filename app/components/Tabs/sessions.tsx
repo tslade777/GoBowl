@@ -1,5 +1,5 @@
-import { View, Text, Touchable, TouchableOpacity, SafeAreaView } from 'react-native';
-import React, { useEffect, useState } from 'react';
+import { View, Text, TouchableOpacity, SafeAreaView } from 'react-native';
+import React, {  useState } from 'react';
 import SeriesList from '../lists/SeriesList';
 import { Game, Series } from '@/app/src/values/types';
 import GameList from '../lists/GameList';

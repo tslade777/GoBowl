@@ -3,10 +3,6 @@ import React from 'react'
 import { LinearGradient } from "expo-linear-gradient";
 import { SeriesStats } from '@/app/src/values/types';
 
-
-
-  const maxStat = 300;
-
 const ProfileStats = ({data}:{data:SeriesStats}) => {
     const stats = [
         { label: "Average Score", you: data.average, them: 210 },
@@ -22,15 +18,12 @@ const ProfileStats = ({data}:{data:SeriesStats}) => {
     <View className="flex-1 bg-primary">
         {/* Product Labels */}
         <View className="flex-row justify-between px-4 mt-5 mb-2">
-          
-         
+ 
         </View>
       <ScrollView 
         contentContainerStyle={{ padding: 6, paddingBottom: 20 }}
         showsVerticalScrollIndicator={false}
       >
-        
-
         {stats.map((stat, index) => {
             let percentageA = 0;
             
@@ -47,16 +40,11 @@ const ProfileStats = ({data}:{data:SeriesStats}) => {
                 percentageA = ((stat.you/300)*100);
             }
           
-
           return (
             <View key={index} className="mb-6">
               <Text className="text-white text-2xl font-psemibold text-center mb-2">{stat.label}</Text>
               <View className="flex-row items-center justify-evenly">
-                {/* Product A Progress Bar (Right to Left) */}
                 
-
-                
-
                 {/* Product B Progress Bar (Left to Right) */}
                 <Text className=" text-teal text-xl font-bold w-20 text-center">{
                 Number.isInteger(stat.you) ? stat.you.toString() : stat.you.toFixed(2)}</Text>

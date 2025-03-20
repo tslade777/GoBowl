@@ -15,7 +15,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 async function getSessions(sessionType: string): Promise<Series[]>{
     const currentUser = FIREBASE_AUTH.currentUser;
     if (!currentUser) {
-        console.warn("No user logged in.");
+        console.warn("⚠️ No user logged in.");
         return [];
     }
 
@@ -46,7 +46,7 @@ async function getSessions(sessionType: string): Promise<Series[]>{
 
         return sessions;
     } catch (error) {
-        console.error("Error fetching sessions:", error);
+        console.error("📛 Error fetching sessions:", error);
         return [];
     }
 };
@@ -84,7 +84,7 @@ async function getSessionsByID(id: string, sessionType: string): Promise<Series[
 
       return sessions;
   } catch (error) {
-      console.error("Error fetching sessions:", error);
+      console.error("📛 Error fetching sessions:", error);
       return [];
   }
 };
@@ -97,7 +97,7 @@ async function getSessionsByID(id: string, sessionType: string): Promise<Series[
 async function getLeagueSessions(leagueID: string): Promise<Series[]>{
   const currentUser = FIREBASE_AUTH.currentUser;
   if (!currentUser) {
-      console.warn("No user logged in.");
+      console.warn("⚠️No user logged in.");
       return [];
   }
 
@@ -124,7 +124,7 @@ async function getLeagueSessions(leagueID: string): Promise<Series[]>{
     });
     return weeks;
   } catch (error) {
-      console.error("Error fetching sessions:", error);
+      console.error("📛 Error fetching league sessions:", error);
       return [];
   }
 };
@@ -158,7 +158,7 @@ async function getLeagueSessionsByID(id: string, leagueID: string): Promise<Seri
     });
     return weeks;
   } catch (error) {
-      console.error("Error fetching sessions:", error);
+      console.error("📛 Error fetching league sessions by ID:", error);
       return [];
   }
 };
@@ -173,7 +173,6 @@ async function getLeagueSessionsByID(id: string, leagueID: string): Promise<Seri
       if (FIREBASE_AUTH.currentUser != null){
         let uID = FIREBASE_AUTH.currentUser.uid
         
-        console.log(`🔥 starting ${sessionType} with name ${sessionName} ${leagueID == '' ? '' : 'and league id: '+leagueID}`)
         // Add session to league or just create new session
         if (sessionType==SESSIONS.league){
           const leageRef = collection(db, SESSIONS.league, uID, 'Leagues', leagueID, 'Weeks')
@@ -203,7 +202,7 @@ async function getLeagueSessionsByID(id: string, leagueID: string): Promise<Seri
         }
       }
     }catch(e){
-      console.log(e)
+      console.log(`📛 Error starting session: ` + e)
       return ''
     }
     return ''
@@ -220,8 +219,6 @@ const updateFirebaseLeagueWeekCount = async (leagueID: string, count: string) =>
   try{
     if (FIREBASE_AUTH.currentUser != null){
       let uID = FIREBASE_AUTH.currentUser.uid
-    
-      console.log(`🔥Update firebase leagueID: ${leagueID}`)
   
       await updateDoc(doc(db,SESSIONS.league, uID, 'Leagues', leagueID),{
         weeks: weekCount,
@@ -255,7 +252,7 @@ const createNewLeauge = async (title: string) => {
       })
       }
   }catch(e){
-    console.error(e);
+    console.log(`📛 Error creating league ` + e)
   }
 }
 
@@ -267,7 +264,7 @@ const fetchUserData = async () => {
   
   let currentUser = FIREBASE_AUTH.currentUser;
   if (currentUser == null) {
-    console.error(`Current user is null. Firebase Functions line 242.`)
+    console.error(`📛 Current user is null. Firebase Functions line 242.`)
     return;
   }
   else{
@@ -288,7 +285,6 @@ const fetchUserData = async () => {
           highSeries: data.highSeries ? data.highSeries.toString() : "",
           profilepic: `${data.username}.png` || "",
         }
-        console.error(`User found: ${JSON.stringify(user)} Firebase Functions line 263.`)
         AsyncStorage.setItem(CURRENTUSER, JSON.stringify(user));
       }
       else{
@@ -306,7 +302,7 @@ const fetchUserData = async () => {
         AsyncStorage.setItem(CURRENTUSER, JSON.stringify(user));
       }
     } catch (error) {
-      console.error("Error fetching user data: ", error);
+      console.error("📛 Error fetching user data: ", error);
     } 
   }
 };
@@ -350,7 +346,7 @@ const fetchUserDataByID = async (id:string): Promise<UserData | null> => {
         return user
       }
     } catch (error) {
-      console.error("Error fetching user data: ", error);
+      console.error("📛 Error fetching user data: ", error);
       return null
     }
 };
@@ -379,7 +375,7 @@ const uploadImageToFirebase = async (localUri: string, storagePath: string): Pro
     const downloadURL = await getDownloadURL(storageRef);
     return downloadURL;
   } catch (error) {
-    console.error('📛Error uploading image:', error);
+    console.error('📛 Error uploading image:', error);
     return null;
   }
 };
@@ -412,6 +408,7 @@ const downloadImageFromFirebase = async (imagePath: string): Promise<string | nu
 
     return downloadResult.uri;
   } catch (error) {
+    console.error('📛 Error downloading image:', error);
     return null;
   }
 };
@@ -448,14 +445,13 @@ const updateFirebaseGameComplete = async (type:string, name:string, leagueID:str
       }
     }
   }catch(e){
-    console.log("👎 Something happened")
-    console.error(e)
+    console.error("📛 Setting game complete: "+e)
   }
 }
 
 
 /**
-   * 
+   * Mark a bowler as bowling
    */
 const setFirebaseActive = async () =>{
   try{
@@ -468,13 +464,13 @@ const setFirebaseActive = async () =>{
       })
     }
   }catch(e){
-    console.error(e)
+    console.error("📛 Setting active bowler: "+e)
   }
 };
 
 
 /**
- * 
+ * Mark a bowler as not bowling
  */
 const setFirebaseInActive = async () =>{
   try{
@@ -486,12 +482,12 @@ const setFirebaseInActive = async () =>{
       })
     }
   }catch(e){
-    console.error(e)
+    console.error("📛 Setting in-active bowler: "+e)
   }
 };
 
 /**
- * 
+ * Update the watching field in firebase
  */
 const setFirebaseWatching = async (id:string) =>{
   try{
@@ -500,7 +496,8 @@ const setFirebaseWatching = async (id:string) =>{
     })
     
   }catch(e){
-    console.error(e)
+    console.error("📛 Error watching: "+e)
+
   }
 };
 
@@ -514,22 +511,26 @@ const removeFirebaseWatching = async (id:string) =>{
     })
     
   }catch(e){
-    console.error(e)
+    console.error("📛 Error no longer watching: "+e)
   }
 };
 
+/**
+ * Get number of bowlers watching.
+ * 
+ * ACTIVE LISTENER
+ * @param id 
+ * @returns 
+ */
 const getFirebaseWatching = (id:string)=>{
   let viewerCount = 0;
   const docRef = doc(db, "activeUsers", id);
-
-    console.log("📡 Subscribing to viewer count updates...");
 
     // Listen for real-time changes
     const unsubscribe = onSnapshot(docRef, (docSnap) => {
       if (docSnap.exists()) {
         const data = docSnap.data();
         viewerCount = data.watching || 0; // Update state with viewer count
-        console.log(`👀 Updated Viewer Count: ${data.watching}`);
       } else {
         viewerCount = 0; // Default to 0 if the document does not exist
       }
@@ -541,10 +542,14 @@ const getFirebaseWatching = (id:string)=>{
   return viewerCount
 }
 
+/**
+ * Get leagues for current users
+ * @returns 
+ */
 async function getLeagues() {
   const currentUser = FIREBASE_AUTH.currentUser;
   if (!currentUser) {
-    console.warn("No user logged in.");
+    console.warn("⚠️ No user logged in.");
     return;
   }
 
@@ -568,10 +573,15 @@ async function getLeagues() {
     // Pass the retrieved leagues to the callback function
     return leagues;
   } catch (error) {
-    console.error("Error fetching leagues:", error);
+    console.error("📛 Error fetching leagues:", error);
   }
 }
 
+/**
+ * Get leagues by ID
+ * @param id 
+ * @returns 
+ */
 const getLeaguesByID = async (id:string): Promise<League[] | null> => {
   try {
     // Reference to the user's "Leagues" collection inside "leagueSessions"
@@ -593,7 +603,7 @@ const getLeaguesByID = async (id:string): Promise<League[] | null> => {
     // Pass the retrieved leagues to the callback function
     return leagues;
   } catch (error) {
-    console.error("Error fetching leagues:", error);
+    console.error("📛 Error fetching leagues:", error);
     return null
   }
 }
@@ -610,7 +620,7 @@ const updateFirebaseActiveGames = async (game: tGame[]) =>{
       })
     }
   }catch(e){
-    console.error(e)
+    console.error("📛 Error updating active games:", e);
   }
 };
 

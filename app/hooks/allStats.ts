@@ -34,7 +34,7 @@ const getAllStats = async (): Promise<SeriesStats> => {
         return parseTotalSessionStats(totalSessions)
     }
     else{
-        console.warn("No user logged in.");
+        console.warn("📛 No user logged in.");
         return defaultSeriesStats;
     }
 }

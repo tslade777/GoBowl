@@ -25,7 +25,7 @@ const StreamView = () => {
           setProfileImage(getLocalImagePath(`${username}.png`))
         }
         else {
-          console.log('📛 Image not found')
+          console.warn('📛 Image not found')
           setProfileImage(null)
         }
       }
@@ -39,14 +39,10 @@ const StreamView = () => {
     }, []);
 
     const next = () =>{
-      console.log(`Next Game`)
-      console.log(childRef.current)
       childRef.current?.nextGame()
     }
 
     const previous = () =>{
-      console.log(`Previous Game`)
-      console.log(childRef.current)
       childRef.current?.previousGame()
     }
 

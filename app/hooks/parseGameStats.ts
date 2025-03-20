@@ -1,12 +1,11 @@
 import { Game, BowlingStats, Series,SeriesStats } from '@/app/src/values/types';
-import { defaultSeriesStats, bowlingStats } from '../src/values/defaults';
+import { bowlingStats } from '../src/values/defaults';
 
   const parseGameStats = (gameData: Game[]): BowlingStats => {
     const initialStats: BowlingStats = {
           ...bowlingStats
         };
     
-    console.log("Game Data: ", gameData)
     gameData.forEach((game)=>{
     Object.entries(game.stats).forEach(([key, value]) => {
       switch (key){

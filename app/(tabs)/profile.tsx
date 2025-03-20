@@ -14,7 +14,7 @@ import { defaultSeriesStats } from '../src/values/defaults';
 import ProfileBio from '../components/Tabs/profileBio';
 import ProfileStats from '../components/Tabs/profileStats';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import { fetchUserData, fetchUserDataByID } from '../hooks/firebaseFunctions';
+import { fetchUserDataByID } from '../hooks/firebaseFunctions';
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -44,16 +44,14 @@ const Profile = () => {
 
   useEffect(() => {
     let isMounted = true;
-
+    // TODO: add loading to profile page
     const getUserData = async () => {
       try {
-        console.warn("Fetching user data... Profile line 50");
         const stats = await getAllStats();
         if (isMounted) setStatData(stats);
         let user = await getFromStorage();
         if(!user && currentUser)
             user = await fetchUserDataByID(currentUser.uid);
-        console.warn(`User found: ${JSON.stringify(user)} Profile line 56`)
         if (isMounted && user) {
           setProfileImage(getLocalImagePath(`${user.username}.png`));
           setUserData(user);
@@ -63,7 +61,7 @@ const Profile = () => {
         if (!isMounted) return;
         setLoading(false);
       } catch (error) {
-        console.warn("Error fetching user data:", error);
+        console.error("📛 Error fetching user data:", error);
       }
     };
 
@@ -74,25 +72,6 @@ const Profile = () => {
     };
     
   }, []);
-
-  const getUserData = async ()=> {
-    console.warn(`Getting Data`)
-    const stats = await getAllStats();
-    console.warn(`Stats retrieved: ${JSON.stringify(stats)}`)
-    setStatData(stats)
-    const user = await getFromStorage()
-    if(user){
-      setProfileImage(getLocalImagePath(`${user.username}.png`))
-      setUserData(user)
-      setEditedData(user)
-      console.warn(`User found: ${JSON.stringify(user)}`)
-    }
-    else
-      console.warn(`User is null`)
-
-    setLoading(false)
-  }
-
 
   const handleEditToggle = () => {
     // Save
@@ -137,7 +116,7 @@ const Profile = () => {
         setEditing(false);
       }
     } catch (error) {
-      console.warn("Error updating profile:", error);
+      console.error("📛 Error updating profile:", error);
     }
   };
   
@@ -148,10 +127,9 @@ const Profile = () => {
         const userRef = doc(db, `users/${currentUser.uid}`);
         await updateDoc(userRef, { active: false });
       }
-      console.warn("User logged out successfully");
       router.replace('/(auth)/sign-in');
     } catch (error) {
-      console.warn("Error logging out: ", error);
+      console.error("📛 Error logging out: ", error);
     }
   };
 

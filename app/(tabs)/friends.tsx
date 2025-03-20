@@ -2,7 +2,7 @@ import { View, Text, FlatList, ActivityIndicator, TouchableOpacity, TouchableWit
   Platform, ActionSheetIOS, Modal, Image } from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { collection, doc, getDocs, onSnapshot, query, where, setDoc, updateDoc } from 'firebase/firestore';
+import { collection, doc, getDocs, onSnapshot, query, where, updateDoc } from 'firebase/firestore';
 import { FIREBASE_AUTH, db } from '@/firebase.config';
 import SearchBar from "../components/SearchBar";
 import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from "react-native-reanimated";
@@ -13,7 +13,7 @@ import LiveListItem from '../components/lists/ListItems/FriendsListItem';
 import { downloadImageFromFirebase } from '../hooks/firebaseFunctions';
 import icons from '@/constants/icons';
 
-
+// TODO: Add loading icon for friends list
 const Friends = () => {
   const [friends, setFriends] = useState<Friend[]>([]);
   const [activeFriends, setActiveFriends] = useState<string[]>([]);
@@ -100,7 +100,7 @@ const Friends = () => {
 
       setUsersData(usersList.filter((user) => user.id !== currentUser.uid));
     } catch (error) {
-      console.error("❌ Error fetching users:", error);
+      console.error("📛 Error fetching users:", error);
     } finally {
       setSearchLoading(false);
     }

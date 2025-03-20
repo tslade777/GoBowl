@@ -1,6 +1,5 @@
 import { TouchableOpacity, Text, Image, View } from 'react-native'
 import React from 'react'
-import { images } from '@/constants'
 
 const CustomButtonBowling = ({title, image, handlePress}:
     {title:any, image:any, handlePress:any}) => {

@@ -1,10 +1,7 @@
 import { View, Text, Animated, TextInput, TouchableOpacity, SafeAreaView, Modal, ActivityIndicator, Alert } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
-import { router, useLocalSearchParams } from 'expo-router';
+import { router} from 'expo-router';
 import { Ionicons } from "@expo/vector-icons";
-import { addDoc, collection, doc, updateDoc } from 'firebase/firestore';
-import { db, FIREBASE_AUTH } from '@/firebase.config';
-import { format } from 'date-fns';
 import LeagueList from '../components/lists/LeagueList';
 import { League } from '../src/values/types';
 import subscribeToLeagues from '../hooks/GetLeaguesByID';
@@ -15,7 +12,6 @@ import { SESSIONS, SESSIONSTARTED } from '../src/config/constants';
 
 
 const leagues = () => {
-  const args = useLocalSearchParams();
   const [modalVisible, setModalVisible] = useState(false);
   const scaleAnim = useRef(new Animated.Value(0)).current; // Scale animation
   const opacityAnim = useRef(new Animated.Value(0)).current; // Fade animation
@@ -24,7 +20,6 @@ const leagues = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    
     fetchData()
   }, []);
   /**
@@ -40,6 +35,9 @@ const leagues = () => {
     return () => unsubscribe(); // Cleanup when component unmounts
   }
 
+  /**
+   * Display a new Modal
+   */
   const openModal = () => {
     setModalVisible(true);
     Animated.parallel([
@@ -56,6 +54,9 @@ const leagues = () => {
     ]).start();
   };
 
+  /**
+   * Close existing Modal
+   */
   const closeModal = () => {
     Animated.parallel([
       Animated.timing(scaleAnim, {
@@ -78,6 +79,7 @@ const leagues = () => {
    */
   function handleLeaguePress(item: any): void {
     const weekNum = parseInt(item.weeks) + 1;
+    // TODO: Convert this to a Modal
     Alert.alert(
       'Start New Week', // Title
       `Ready to start week ${weekNum}?`, // Message

@@ -1,10 +1,9 @@
-import { StyleSheet, Text, View } from 'react-native'
 import React, { useEffect } from 'react'
-import { Slot, SplashScreen, Stack } from 'expo-router'
+import { SplashScreen, Stack } from 'expo-router'
 import {useFonts } from 'expo-font'
 import "../global.css";
-import { Colors } from 'react-native/Libraries/NewAppScreen';
-import game from './screens/game';
+
+
 
 SplashScreen.preventAutoHideAsync();
 

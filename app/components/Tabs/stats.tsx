@@ -1,10 +1,9 @@
-import { View, Text, ScrollView } from 'react-native'
-import React, { useState } from 'react'
+import { View, ScrollView } from 'react-native'
+import React from 'react'
 import { Series } from '@/app/src/values/types';
 
 import parseTotalSessionStats from '../../hooks/parseTotalSessionStats';
 import DonutChart from '../stats/DonutChart';
-import StatText from '../stats/StatText';
 import StatDisplay from '../stats/StatText';
 
 interface StatsTabProps {

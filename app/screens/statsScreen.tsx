@@ -18,6 +18,7 @@ const StatsScreen = () => {
     const [sessionData, setSessionData] = useState<Series[]>([]);
     
       useEffect(() => {
+        // TODO: Create loading for fetching data
         fetchData()
     }, []);
 

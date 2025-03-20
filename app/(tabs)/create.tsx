@@ -1,13 +1,13 @@
-import { View, Text, StyleSheet, Platform, ActionSheetIOS, Modal, TouchableWithoutFeedback, Animated, TouchableOpacity, TextInput, Alert } from 'react-native'
-import React, { useEffect, useState } from 'react'
+import { View, Text, Platform, ActionSheetIOS, Modal, TouchableWithoutFeedback, Animated, TouchableOpacity, TextInput, Alert } from 'react-native'
+import React, {  useState } from 'react'
 import "../../global.css";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import BowlingGameButton from "../components/buttons/BowlingGameButton";
-import { Redirect, router, Tabs } from "expo-router";
+import { router } from "expo-router";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 import {startFirebaseSession} from "@/app/hooks/firebaseFunctions"
-import { ACTIVESESSION, INPROGRESS, SESSIONS, SESSIONSTARTED } from '../src/config/constants';
+import { ACTIVESESSION,  SESSIONS, SESSIONSTARTED } from '../src/config/constants';
 import { images } from '@/constants';
 
 
@@ -45,7 +45,6 @@ const animatedStyle = useAnimatedStyle(() => {
     if(savedSession && started){
       const { sessionID,leagueID,name,type,numGames,gamesData,activeGame, seriesStats,localHighGame,localLowGame, } = JSON.parse(savedSession);
       // The session type clicked, is the currently active session, load it.
-      console.log(`${stype} == ${type}`)
       if(stype == type){
         router.push({
           pathname: "../screens/game",
@@ -128,13 +127,10 @@ const animatedStyle = useAnimatedStyle(() => {
   };
 
   const handleRequired = () =>{
-    console.log("checking required")
     if (sessionType==SESSIONS.league && sessionName==""){
-      console.log("name required")
       setRequiredName(true);
     }
     else{
-      console.log("Starting session")
       setRequiredName(false);
       startSession();
     }
@@ -148,7 +144,6 @@ const animatedStyle = useAnimatedStyle(() => {
     if(savedSession && started){
       const { sessionID,leagueID,name,type,numGames,gamesData,activeGame,
         seriesStats,localHighGame,localLowGame, } = JSON.parse(savedSession);
-        console.log(`${SESSIONS.league} == ${type}`)
         if(type == SESSIONS.league)
           router.push({
             pathname: "../screens/game",
@@ -200,7 +195,6 @@ const animatedStyle = useAnimatedStyle(() => {
     await AsyncStorage.setItem(SESSIONSTARTED, JSON.stringify(true));
     closeModal();
     const id = await startFirebaseSession(sessionName, sessionType, '');
-    console.log(`❄️ID: ${id}❄️`)
     router.push({
             pathname: "../screens/game",
             params: {

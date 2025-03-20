@@ -24,10 +24,9 @@ export const getFromStorage = async (): Promise<UserData | null> => {
           highSeries: data.highSeries,
           profilepic: data.profilepic
         }
-        console.log(`User found ${JSON.stringify(user)}`)
       return user
     } catch (error) {
-      console.error("Error getting data", error);
+      console.error("📛 Error getting data", error);
       return null;
     }
   };

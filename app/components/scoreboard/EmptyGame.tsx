@@ -1,4 +1,4 @@
-import { View, Text, Animated, TouchableOpacity  } from 'react-native';
+import { View, Text, TouchableOpacity  } from 'react-native';
 import {useState } from 'react';
 import Frame from './Frame';
 import TenthFrame from './TenthFrame';

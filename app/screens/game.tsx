@@ -6,7 +6,7 @@ import { useLocalSearchParams } from 'expo-router/build/hooks';
 import { router, useNavigation } from 'expo-router';
 import useBowlingStats from '../hooks/useBowlingStats';
 import { tGame, BowlingStats, SeriesStats } from "@/app/src/values/types";
-import { defaultFrame, defaultGame, defaultSeriesStats } from "@/app/src/values/defaults";
+import { defaultSeriesStats } from "@/app/src/values/defaults";
 import { setFirebaseActive, setFirebaseInActive, updateFirebaseActiveGames, updateFirebaseGameComplete, updateFirebaseLeagueWeekCount } from '../hooks/firebaseFunctions';
 import { ACTIVESESSION, BOWLINGSTATE, INPROGRESS, SESSIONS, SESSIONSTARTED } from '../src/config/constants';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -33,8 +33,6 @@ const game = () => {
   const childRef = useRef<BowlingGameRef>(null);
 
   const navigation = useNavigation()
-
- 
 
   let highGame = 0;
   let lowGame = 301;
@@ -71,7 +69,6 @@ const game = () => {
     const unsubscribe = getFirebaseWatching();
   
     return () => {
-      console.log("🛑 Component Unmounted, Unsubscribing from Firestore");
       unsubscribe(); 
     };
   }, []); 
@@ -82,8 +79,6 @@ const game = () => {
   
     const docRef = doc(db, "activeUsers", currentUser.uid);
   
-    console.log("📡 Subscribing to viewer count updates...");
-  
     // Listen for real-time changes
     const unsubscribe = onSnapshot(docRef, (docSnap) => {
       if (docSnap.exists()) {
@@ -93,7 +88,6 @@ const game = () => {
         // 🔹 Only update state if the viewer count has changed
         setNumViewers((prevCount) => {
           if (prevCount !== newViewerCount) {
-            console.log(`👀 Updated Viewer Count: ${newViewerCount}`);
             return newViewerCount;
           }
           return prevCount; // Prevent unnecessary re-renders
@@ -108,7 +102,6 @@ const game = () => {
    * Show previous game.
    */
   const previousGame = () =>{
-    
     if (index > 0){
       childRef.current?.setGame(games[index-1])
       setIndex(index-1)
@@ -146,7 +139,7 @@ const game = () => {
   }, []);
 
   /**
-   * 
+   * Update the current game that is being streamed
    * @param game 
    */
   const updateCurrentGame = (game: tGame) =>{
@@ -164,7 +157,7 @@ const game = () => {
    */
   const handleDataFromChild = (data: any) =>{
     if (!data || !Array.isArray(data)) {
-      console.error("❌ Invalid data received from child:", data);
+      console.error("📛 Invalid data received from child:", data);
       return;
     }
     
@@ -228,7 +221,7 @@ const loadSession = async ()=>{
       highGame = localHighGame;
     }
   } catch (error) {
-    console.error('Error loading game:', error);
+    console.error('📛 Error loading game:', error);
   }
 }
 
@@ -251,7 +244,7 @@ const saveSession = async () => {
     };
     await AsyncStorage.setItem(ACTIVESESSION, JSON.stringify(sessionState));
   } catch (error) {
-    console.error('Error saving game:', error);
+    console.error('📛 Error saving game:', error);
   }
 }
 
@@ -260,12 +253,11 @@ const saveSession = async () => {
  */
 const markSessionComplete = async () =>{
   try {
-    console.log(`Session complete, clearing async`)
     const keysToRemove = [BOWLINGSTATE, INPROGRESS, ACTIVESESSION, SESSIONSTARTED]
     await AsyncStorage.multiRemove(keysToRemove)
     setFirebaseInActive()
   } catch (error) {
-    console.error('Error finishing session:', error);
+    console.error('📛 Error cleaning session from asyn or firebase error:', error);
   }
 }
 /**

@@ -42,7 +42,6 @@ const SearchBar: React.FC<SearchBarProps> = ({ data, onFocus, onSelect }) => {
   };
 
   const handleSelect = (item: Friend) => {
-    console.log("Selected Item:", item);
     setQuery(""); // Clear the input
     setShowDropdown(false); // Hide dropdown
     onSelect(item);

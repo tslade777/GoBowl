@@ -16,31 +16,11 @@ enableScreens();
 
 export default function RootLayout() {
   const [user, setUser] = useState<User | null>(null);
-
-  useEffect(()=>{
-    clearAll()
-  },[])
-    const clearAll = async () => {
-      try{
-        
-        // await AsyncStorage.removeItem("BOWLINGSTATE")
-        // await AsyncStorage.clear()
-        // const directory = FileSystem.documentDirectory;
-        // if (directory) {
-        //   const fileList = await FileSystem.readDirectoryAsync(directory);
-        //   fileList.forEach((file) =>{
-        //     console.log(file)
-        //   })
-        // }
-      } catch(e){
-        console.error(e);
-      }
-  //console.log("DONE")
-}
+    
   useEffect(() =>{
     onAuthStateChanged(FIREBASE_AUTH, async (user)=>{
       setUser(user);
-      console.warn(`Fetching UserData. Index line 25.`)
+      // TODO: put in loading for userData and image. 
       fetchUserData()
     })
   }, [])

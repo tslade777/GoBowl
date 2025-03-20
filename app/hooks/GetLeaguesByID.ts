@@ -8,7 +8,7 @@ type Callback = (leagues: League[]) => void;
 function subscribeToLeagues(callback: Callback) {
   const currentUser = FIREBASE_AUTH.currentUser;
   if (!currentUser) {
-    console.warn("No user logged in.");
+    console.warn("⚠️ No user logged in.");
     return () => {};
   }
 
@@ -35,7 +35,7 @@ function subscribeToLeagues(callback: Callback) {
 
     return unsubscribe; // Return the function to stop listening when needed
   } catch (error) {
-    console.error("Error subscribing to leagues:", error);
+    console.error("📛 Error subscribing to leagues:", error);
     return () => {};
   }
 }

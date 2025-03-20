@@ -2,7 +2,6 @@ import { View, Text, TouchableOpacity, Image } from "react-native";
 import icons from '../../../../constants/icons'
 import { checkIfImageExists, getLocalImagePath } from "@/app/hooks/ImageFunctions";
 import { useState } from "react";
-import { downloadImageFromFirebase } from "@/app/hooks/firebaseFunctions";
 
 export default function LiveListItem({
   username = "Username",

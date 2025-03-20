@@ -16,7 +16,6 @@ const getAllStatsByID = async (id:string): Promise<SeriesStats> => {
     
    
     const leagues = await getLeaguesByID(id);
-    console.log(`Leagues: ${leagues?.length}`)
     // Get all sessions from all leagues. 
     if (leagues){
         leagues.forEach(async element => {

@@ -1,6 +1,7 @@
 import { View, Text, TouchableOpacity, Image } from "react-native";
 import icons from '../../../../constants/icons'
 import { images } from "@/constants";
+import { getLocalImagePath } from "@/app/hooks/ImageFunctions";
 
 export default function LiveListItem({
   username = "Username",
@@ -15,6 +16,8 @@ export default function LiveListItem({
   onHold?: () => void;
   onTouch?: () => void;
 }) {
+  const localPic = getLocalImagePath(username+".png")
+  console.log(`friend local path: ${localPic}`)
   return (
     <TouchableOpacity
       className="flex-row items-center justify-between p-4 bg-slate-500 rounded-3xl my-3 active:bg-gray-100"

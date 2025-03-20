@@ -576,7 +576,6 @@ const getLeaguesByID = async (id:string): Promise<League[] | null> => {
   try {
     // Reference to the user's "Leagues" collection inside "leagueSessions"
     const nestedCollectionRef = collection(db, SESSIONS.league, id, "Leagues");
-    console.log(`Getting leagues for: ${id}`)
 
     // Fetch data once
     const querySnapshot = await getDocs(nestedCollectionRef);
@@ -592,7 +591,6 @@ const getLeaguesByID = async (id:string): Promise<League[] | null> => {
     });
 
     // Pass the retrieved leagues to the callback function
-    console.log(`Found Leagues: ${leagues.length}`)
     return leagues;
   } catch (error) {
     console.error("Error fetching leagues:", error);

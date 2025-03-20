@@ -25,7 +25,7 @@ const StatComparison = ({friendID}:{friendID:string}) => {
   const stats = [
     { label: "Average Score", you: myStats.average, them: friendStats.average },
     { label: "High Game", you: myStats.highGame, them: friendStats.highGame },
-    { label: "High Series", you: 0, them: 70 },
+    { label: "High Series", you: myStats.highSeries, them: friendStats.highSeries },
     { label: "Games Played", you: myStats.numberOfGames, them: friendStats.numberOfGames },
     { label: "Strike %", you: myStats.strikePercentage, them: friendStats.strikePercentage },
     { label: "Spare %", you: myStats.sparePercentage, them: friendStats.sparePercentage },

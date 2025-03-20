@@ -28,7 +28,9 @@ export interface SeriesStats {
     washoutsConverted:number,
     splitsPercentage: number,
     washoutsPrecentage: number,
-    pinCombinations:  PinCombinations;
+    pinCombinations:  PinCombinations,
+    highSeries: number,
+    threeGameSeries: number,
   }
 
 export interface League {

@@ -92,6 +92,9 @@ import { Series, SeriesStats } from "../src/values/types";
         case "pinCombinations":
           initialStats.pinCombinations = value;
           break;
+        case "threeGameSeries":
+          initialStats.threeGameSeries = value;
+          break;
         default:
           break;
       }

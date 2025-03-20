@@ -72,7 +72,7 @@ const StatsTab: React.FC<StatsTabProps> = ({ sessionData }) => {
         <StatDisplay label="High Game" stat={stats.highGame}/>
         </View>
         <View className="flex-1 items-center">
-        <StatDisplay label="Low Game" stat={stats.lowGame}/>
+        <StatDisplay label="High Series" stat={stats.highSeries == 0 ? 'n/a' : stats.highSeries}/>
         </View>
       </View>
       {/* Third Stats Row */}

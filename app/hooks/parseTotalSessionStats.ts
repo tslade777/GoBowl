@@ -5,7 +5,6 @@ import { defaultSeriesStats } from '../src/values/defaults';
     const initialStats: SeriesStats = {
           ...defaultSeriesStats
         };
-
   sessionData.forEach((session)=>{
     Object.entries(session.stats).forEach(([key, value]) => {
       switch (key){
@@ -93,6 +92,8 @@ import { defaultSeriesStats } from '../src/values/defaults';
         case "pinCombinations":
           initialStats.pinCombinations = value;
           break;
+        case "threeGameSeries":
+          initialStats.highSeries = Math.max(initialStats.highSeries, value)
         default:
           break;
       }

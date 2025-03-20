@@ -281,6 +281,7 @@ const markSessionComplete = async () =>{
         openFrames: (gameStats.openFrames + prevStats.openFrames),
         openFramePercentage: (gameStats.openFrames + prevStats.openFrames)/(games*10),
         numberOfGames: games,
+        threeGameSeries: games == 3 ? prevStats.seriesScore + gameStats.finalScore : 0,
         average: (gameStats.finalScore + prevStats.seriesScore)/games,
         highGame: Math.max(gameStats.finalScore, prevStats.highGame),
         lowGame: Math.min(gameStats.finalScore, prevStats.lowGame ),
@@ -297,7 +298,7 @@ const markSessionComplete = async () =>{
         washoutsConverted: gameStats.washoutsConverted + prevStats.washoutsConverted,
         splitsPercentage: (gameStats.splitsConverted + prevStats.splitsConverted)/(gameStats.splits + prevStats.splitsTotal)*100,
         washoutsPrecentage: (gameStats.washoutsConverted + prevStats.washoutsConverted)/(gameStats.washouts + prevStats.washoutsTotal)*100,
-        // This needs to calculated differently. 
+        // This needs to be calculated differently. 
         pinCombinations: prevStats.pinCombinations,
       }))
   }

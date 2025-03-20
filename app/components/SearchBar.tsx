@@ -75,12 +75,11 @@ const SearchBar: React.FC<SearchBarProps> = ({ data, onFocus, onSelect }) => {
                   <View className="flex-row ">
                   <Image 
                     className="w-10 h-10 rounded-full"
-                    source={item.profilePic ? { uri: item.profilePic } : icons.profile}/>
+                    source={item.profilePic && item.profilePic != "" ? { uri: item.profilePic } : icons.profile}/>
                   <Text className="text-black ml-5 mt-2">{item.username}</Text>
                   </View>
                   
                 </TouchableOpacity>
-              
             )}
           />
         </View>

@@ -407,7 +407,7 @@ const downloadImageFromFirebase = async (imagePath: string): Promise<string | nu
 
     return downloadResult.uri;
   } catch (error) {
-    console.error('📛 Error downloading image:', error);
+    // User has not uploaded an image to firebase
     return null;
   }
 };

@@ -1,6 +1,8 @@
 import { View, Text, TouchableOpacity, Image } from "react-native";
 import icons from '../../../../constants/icons'
-import { getLocalImagePath } from "@/app/hooks/ImageFunctions";
+import { checkIfImageExists, getLocalImagePath } from "@/app/hooks/ImageFunctions";
+import { useState } from "react";
+import { downloadImageFromFirebase } from "@/app/hooks/firebaseFunctions";
 
 export default function LiveListItem({
   username = "Username",
@@ -15,8 +17,23 @@ export default function LiveListItem({
   onHold?: () => void;
   onTouch?: () => void;
 }) {
-  // TODO: if the localPic cannot be found, we need to get it from firebase.
-  const localPic = getLocalImagePath(username+".png")
+  const [profileImage, setProfileImage] = useState(profilePicture);
+  
+  const checkProfilePicture = async () =>{
+    // TODO: if the localPic cannot be found, we need to get it from firebase.
+    if(profilePicture == null || profilePicture == ""){
+      // check again for local path. Otherwise something terrible has happened.
+      if (await checkIfImageExists(username + ".png")){
+        const localPic = getLocalImagePath(username+".png")
+        setProfileImage(localPic)
+      }
+      else{
+        console.error(`📛 Error finding ${username}'s profile picture: `)
+      }
+    }
+    checkProfilePicture()
+  }
+  
   return (
     <TouchableOpacity
       className="flex-row items-center justify-between p-4 bg-slate-500 rounded-3xl my-3 active:bg-gray-100"
@@ -25,7 +42,7 @@ export default function LiveListItem({
     >
       <View className="flex-row items-center space-x-3">
         <Image
-          source={profilePicture ? { uri: profilePicture } : icons.profile}
+          source={profilePicture && profilePicture != "" ? { uri: profilePicture } : icons.profile}
           className="w-10 h-10 rounded-full"
         />
         <Text className="text-white ml-3 text-2xl font-psemibold">{username}</Text>

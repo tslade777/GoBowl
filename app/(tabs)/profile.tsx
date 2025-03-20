@@ -48,7 +48,9 @@ const Profile = () => {
     const getUserData = async () => {
       try {
         const stats = await getAllStats();
-        if (isMounted) setStatData(stats);
+        if (isMounted) 
+          setStatData(stats);
+        
         let user = await getFromStorage();
         if(!user && currentUser)
             user = await fetchUserDataByID(currentUser.uid);
@@ -59,6 +61,7 @@ const Profile = () => {
         }
 
         if (!isMounted) return;
+        
         setLoading(false);
       } catch (error) {
         console.error("📛 Error fetching user data:", error);
@@ -152,8 +155,15 @@ const Profile = () => {
     }
   };
 
+  if (loading) {
+      return <ActivityIndicator size="large" className="mt-10" />;
+  }
+
   return (
     <SafeAreaView className='bg-primary h-full'>
+      {loading ? (
+                <ActivityIndicator size='large' color='#F24804' />
+              ) : (
       <View className='flex-1 mt-2'>
         {/** Top Section. Profile picture, username, friends */}
         <View className='flex-row justify-between'>
@@ -211,7 +221,7 @@ const Profile = () => {
           <Text className="text-white text-center text-xl font-pbold">Logout</Text>
         </TouchableOpacity>
         </View>
-      </View>
+      </View>)}
     </SafeAreaView>
   );
 };

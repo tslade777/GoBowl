@@ -33,6 +33,7 @@ const Stream = forwardRef<StreamRef, FriendProps>(({id,username,active}, ref) =>
   const [index, setIndex] = useState(0);
   const [currGameNum, setCurrGameNum] = useState(0);
   const [gameNum, setGameNum] = useState(0);
+  const [frameSelected, setSelected] = useState(currentFrame)
   const viewingHistoryRef = useRef(false);
 
   const [loading, setLoading] = useState(true);
@@ -61,6 +62,7 @@ const Stream = forwardRef<StreamRef, FriendProps>(({id,username,active}, ref) =>
             // Session over, exit screen
             // Show model to warn user that friend is done bowling.
             // Don't kick them out. let them view friends games
+            console.warn(`user is no longer live`)
           }
 
           // The user is viewing previous games and shouldn't be pulled to the current game
@@ -75,6 +77,7 @@ const Stream = forwardRef<StreamRef, FriendProps>(({id,username,active}, ref) =>
             setCurrGameNum(currentGame.gameNum)
             setFrames(currentGame.frames);
             setCurrentFrame(currentGame.currentFrame);
+            setFarthestFrame(currentGame.currentFrame)
             setIsFirstRoll(Boolean(currentGame.isFirstRoll));
             setIndex(gamesData.length-1)
             
@@ -145,8 +148,11 @@ const Stream = forwardRef<StreamRef, FriendProps>(({id,username,active}, ref) =>
   // Update frame selection. Call back for frame touch event.
   // Only update if 
   const handleFrameTouch = (index: number) => {
-    setCurrentFrame(index);
-    setPins(frames[index].firstBallPins)
+    if (farthestFrame >= index) {
+      setCurrentFrame(index);
+      setIsFirstRoll(true)
+      setPins(frames[index].firstBallPins)
+    }
   }
     return (
       <Animated.View className="items-center p-1  rounded-lg "  >
@@ -160,7 +166,7 @@ const Stream = forwardRef<StreamRef, FriendProps>(({id,username,active}, ref) =>
               frameNumber={index + 1} 
               roll1={frame.isStrike ? 'X' : frame.roll1 == '0' ? '-' : frame.roll1} 
               roll2={frame.isSpare ? '/' : frame.roll2 == '0' ? '-' : frame.roll2} 
-              total={frame.visible ? '' : currentFrame > index ? frame.score.toString() : ''}
+              total={frame.visible ? '' : farthestFrame > index ? frame.score.toString() : ''}
               isSelected= {currentFrame==index}
               isSplit= {frame.isSplit}
               />      

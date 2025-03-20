@@ -44,7 +44,6 @@ const Stream = forwardRef<StreamRef, FriendProps>(({id,username,active}, ref) =>
     const unsubscribe = updateFirebaseCurrentGame();
 
     return () => {
-      console.log("🛑 Component Unmounted, Unsubscribing from Firestore");
       unsubscribe(); // Ensure Firestore listener is removed
     };
   }, []); // Runs only once on mount/unmount

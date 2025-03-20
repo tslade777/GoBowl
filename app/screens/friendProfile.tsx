@@ -70,7 +70,6 @@ const FriendProfile = () => {
       // get friends list
       setActive(Boolean(parsedFriend.active))
       const localPath = getLocalImagePath(`${parsedFriend.username}.png`);
-      console.log(localPath)
       setProfileImage(localPath)
       getProfileData(parsedFriend.id)
       setFriendID(parsedFriend.id)

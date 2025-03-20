@@ -42,7 +42,7 @@ export default function LiveListItem({
     >
       <View className="flex-row items-center space-x-3">
         <Image
-          source={profilePicture && profilePicture != "" ? { uri: profilePicture } : icons.profile}
+          source={profileImage && profileImage != "" ? { uri: profileImage } : icons.profile}
           className="w-10 h-10 rounded-full"
         />
         <Text className="text-white ml-3 text-2xl font-psemibold">{username}</Text>

@@ -9,7 +9,7 @@ import {onAuthStateChanged, User} from "firebase/auth"
 import { useEffect, useState } from "react";
 import { FIREBASE_AUTH } from "@/firebase.config";
 import { fetchUserData } from "./hooks/firebaseFunctions";
-import ErrorBoundary from "./hooks/ErrorBoundary";
+
 import { enableScreens } from "react-native-screens";
 
 enableScreens();
@@ -25,7 +25,6 @@ export default function RootLayout() {
     })
   }, [])
   return (
-    <ErrorBoundary>
       <SafeAreaView className="bg-primary h-full">
     <ScrollView contentContainerStyle={{height: '100%'}}>
     
@@ -54,7 +53,6 @@ export default function RootLayout() {
     </ScrollView>
     <StatusBar backgroundColor="#161622" style='light' />
   </SafeAreaView>
-    </ErrorBoundary>
   );
 }
 

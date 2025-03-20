@@ -598,6 +598,10 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
   const handleNextShot = () =>{
     // If its the first ball, go to last shot of current frame
     if(isFirstRoll){
+      if(frames[currentFrame].isStrike){
+        handleNextFrame();
+        return;
+      }
       setIsFirstRoll(false)
       setPins(frames[currentFrame].secondBallPins)
       setEdited(true)

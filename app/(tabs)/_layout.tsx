@@ -5,6 +5,9 @@ import { Tabs,  Stack} from 'expo-router'
 import {icons} from '../../constants'
 import { getLocalImagePath } from '../hooks/ImageFunctions';
 import { getFromStorage } from '../hooks/userDataFunctions';
+import { downloadImageFromFirebase } from '../hooks/firebaseFunctions';
+import { CURRENTUSER } from '../src/config/constants';
+import { FIREBASE_AUTH } from '@/firebase.config';
 
 const TabIcon = ({icon, color, focused}:{icon:any, color?:any, focused:any}) => {
   return (
@@ -44,8 +47,9 @@ const TabsLayout = () => {
     if(user){
       setProfileImage(getLocalImagePath(`${user.username}.png`))
     }
-    else
-      console.error(`📛 User is null in layout line 47`)
+    else{
+      console.error(`📛 User is null in layout line 48`) 
+    }
   }
 
   return (

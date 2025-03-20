@@ -21,7 +21,7 @@ export default function RootLayout() {
     onAuthStateChanged(FIREBASE_AUTH, async (user)=>{
       setUser(user);
       // TODO: put in loading for userData and image. 
-      fetchUserData()
+      await fetchUserData()
     })
   }, [])
   return (
@@ -42,7 +42,7 @@ export default function RootLayout() {
           <CustomButton
             title="Get Started"
             handlePress={() => {
-              user? (router.push("/(tabs)/home")) : (router.push("/(auth)/sign-in"))
+              user? (router.push("/(tabs)/create")) : (router.push("/(auth)/sign-in"))
               }}
             isLoading={false}
             containerStyles={null}

@@ -261,7 +261,6 @@ const createNewLeauge = async (title: string) => {
  * @returns 
  */
 const fetchUserData = async () => {
-  
   let currentUser = FIREBASE_AUTH.currentUser;
   if (currentUser == null) {
     console.error(`📛 Current user is null. Firebase Functions line 242.`)

@@ -155,7 +155,7 @@ const game = () => {
    * 
    * @param data The game data for the recently bowled game. 
    */
-  const handleDataFromChild = (data: any) =>{
+  const handleDataFromChild = async (data: any) =>{
     if (!data || !Array.isArray(data)) {
       console.error("📛 Invalid data received from child:", data);
       return;
@@ -192,6 +192,7 @@ const game = () => {
     setNumGames(numGames+1)
     setGamesData([...gamesData, {game: data, stats: statsList}])
     saveSession();
+    await AsyncStorage.removeItem(BOWLINGSTATE)
   }
 
 /**

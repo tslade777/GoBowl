@@ -6,7 +6,7 @@ import TenthFrame from './TenthFrame';
 import { BOWLINGSTATE, INPROGRESS, SPLITS } from '@/app/src/config/constants';
 import icons from '@/constants/icons';
 import { defaultFrame } from '@/app/src/values/defaults';
-import { tGame } from '@/app/src/values/types';
+import { tFrame, tGame } from '@/app/src/values/types';
 
 
 type ChildComponentProps = {
@@ -22,9 +22,9 @@ export type BowlingGameRef = {
 
 const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
   ({ sendDataToParent, toggleBowling, updateCurrentGame }, ref) => {
-  const [frames, setFrames] =  useState(
-    Array.from({ length: 10 }, () => ({ ...defaultFrame }))
-  );
+    const [frames, setFrames] = useState<tFrame[]>(
+      Array.from({ length: 10 }, () => JSON.parse(JSON.stringify(defaultFrame)))
+    );
 
   // Game state
   const [currentFrame, setCurrentFrame] = useState(0);
@@ -156,6 +156,7 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
         setFarthestFrame(farthestFrame)
         setEdited(edited)
         setGameComplete(gameComplete)
+        console.log(`Frames found: ${JSON.stringify(frames)}`)
       }
     } catch (error) {
       console.error('📛 Error loading game:', error);
@@ -257,7 +258,12 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
     setIsFirstRoll(true)
     if (currentFrame >= farthestFrame)setFarthestFrame(currentFrame+1)
   }
-  //
+
+  /**
+   * 
+   * @param frames 
+   * @returns 
+   */
   const showFrames = (frames:any) => {
     let upToFrame = (gameComplete? 10: farthestFrame)
     for (var i = 0; i < upToFrame; i++){
@@ -267,6 +273,22 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
     }
     return frames
   }
+
+  /**
+   * 
+   * @param frames 
+   * @returns 
+   */
+  const showFramesToHere = (frames:any, num:number) => {
+    let upToFrame = num
+    for (var i = 0; i <= upToFrame; i++){
+      let frame = { ...frames[i] };
+      frame.visible = frame.visble ? true: false
+      frames[i] = frame;
+    }
+    return frames
+  }
+
   //
   const instantSpareToggle = () =>{
     let updatedPins = [...pins];
@@ -422,47 +444,84 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
       setIsFirstRoll(true)
       setPins(frames[index].firstBallPins)
       setEdited(true)
+      console.log(`Frame touched Start edit`)
+    }
+    else {
+      setEdited(false)
     }
   }
 
   // Complete the edit a previous frame
   const completeEdit = () => {
-    
     setCurrentFrame(gameComplete? 10:farthestFrame);
     setPins(Array(10).fill(false));
     setInputRoll(0);
     setIsFirstRoll(true);
     setEdited(false);
   }
-  // Handle editing a previous frame.
+
+  /**
+   * Reset the current frame 
+   */
+  const frameDelete = (frame:tFrame): tFrame =>{
+    frame.firstBallPins = Array(10).fill(false);
+    frame.isSpare = false
+    frame.isSplit = false
+    frame.isStrike = false
+    frame.roll1 = ''
+    frame.roll2 = ''
+    frame.roll3 = ''
+    frame.score = 0
+    frame.secondBallPins = Array(10).fill(false);
+    frame.thirdBallPins = Array(10).fill(false);
+    frame.visible = true
+    return frame
+  }
+
+  /**
+   * 
+   * @returns 
+   */
   const handleEdit = () =>{
     // Get information for first ball
     let rollValue = inputRoll
     let updatedFrames = [...frames];
-    let frame = { ...updatedFrames[currentFrame] };
+   
+    let frame = updatedFrames[currentFrame];
+
     
     // Modify Frame for first and second ball
     if(isFirstRoll){
-      frame.firstBallPins = pins;
-      frame.isStrike = rollValue == 10;
-      frame.roll1 = inputRoll.toString()
+      let newFrame:tFrame = frameDelete(frame);
+      newFrame.firstBallPins = pins;
+      newFrame.isStrike = rollValue == 10;
+      newFrame.roll1 = inputRoll.toString()
+      // On strike, clear second ball and pins, mark frame complete.
+      if (newFrame.isStrike){
+        newFrame.roll2 = '';
+        newFrame.secondBallPins = (Array(10).fill(true));
+        newFrame.visible = false
+        completeEdit()
+         // Update frame and future scores. 
+        updatedFrames[currentFrame] = newFrame;
+        setFrames(calculateTotalScore(updatedFrames));
+        return
+      }
+       // Update frame and future scores. 
+      updatedFrames[currentFrame] = newFrame;
+      setFrames(calculateTotalScore(updatedFrames));
       setIsFirstRoll(false)
     }else{
       frame.roll2 = inputRoll.toString()
       frame.isSpare = rollValue + parseInt(frame.roll1) == 10;
       frame.secondBallPins = pins;
+      frame.visible = true;
       completeEdit()
+      updatedFrames[currentFrame] = frame;
+      updatedFrames = showFramesToHere(updatedFrames, currentFrame);
+      setFrames(calculateTotalScore(updatedFrames));
     }
-    // On strike, clear second ball and pins, mark frame complete.
-    if (frame.isStrike){
-      frame.roll2 = '';
-      frame.secondBallPins = (Array(10).fill(true));
-      completeEdit()
-    }
-    
-    // Update frame and future scores. 
-    updatedFrames[currentFrame] = frame;
-    setFrames(calculateTotalScore(updatedFrames));
+   
     //calculateScore()
     return
   }
@@ -647,9 +706,12 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
 
   // This will hold game logic like moving to the next frame on a strike or spare. 
   const handleManualInput = () => {
+    // handle editing a different way
+    if(edited) 
     // Don't edit unless first ball has been thrown. 
     if (frames[0].roll1 == '' && currentFrame != 0) return
- 
+    
+    // Get roll value
     let rollValue = inputRoll;
 
     // Validate input
@@ -661,13 +723,17 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
     let updatedFrames = [...frames];
     let frame = { ...updatedFrames[currentFrame] };
     
+    // If it's the first shot
     if(isFirstRoll){
       // Set the throw.
       frame.roll1 = rollValue.toString();
       frame.firstBallPins = pins;
       frame.isSplit = checkIsSplit(pins)
       frame.isStrike = rollValue == 10;
+      
+      // Update the frame
       updatedFrames[currentFrame] = frame;
+      // Calculate the score
       updatedFrames = calculateTotalScore(updatedFrames)
       if(rollValue!=10 && (striking)) {
         // Show scores of previous frames.

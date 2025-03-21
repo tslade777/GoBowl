@@ -7,7 +7,7 @@ const ProfileStats = ({data}:{data:SeriesStats}) => {
     const stats = [
         { label: "Average Score", you: data.average, them: 210 },
         { label: "High Game", you: data.highGame, them: 80 },
-        { label: "High Series", you: 0, them: 70 },
+        { label: "High Series", you: data.highSeries, them: 70 },
         { label: "Games Played", you: data.numberOfGames, them: 45 },
         { label: "Strike %", you: data.strikePercentage, them: 280 },
         { label: "Spare %", you: data.sparePercentage, them: 140 },

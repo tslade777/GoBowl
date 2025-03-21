@@ -720,6 +720,7 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
             total={frame.visible ? '' : farthestFrame > index ? frame.score.toString() : ''}
             isSelected= {currentFrame==index}
             isSplit = {frame.isSplit} 
+            selectedShot = {(currentFrame==index && isFirstRoll) ? 'roll1' : (currentFrame==index && !isFirstRoll) ? 'roll2':''}
             />      
           </TouchableOpacity>
         ))}
@@ -735,7 +736,10 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
             frames[9].roll3 == '0' ? '-' : frames[9].roll3} 
           total={(!gameComplete) ? '' : frames[9].score.toString()}
           isSelected= {currentFrame==9}
-          isSplit = {frames[9].isSplit}   
+          isSplit = {frames[9].isSplit}
+          selectedShot={(currentFrame==9 && isFirstRoll) ? 'roll1' : (currentFrame==9 && !isFirstRoll && !isFinalRoll) ? 'roll2': (currentFrame==9 && isFinalRoll) ?
+            'roll3' : ''
+          }
         />
         </View>
         <View className=" flex-row  px-4">

@@ -10,7 +10,8 @@ const TenthFrame = ({
   roll3 = '', 
   total = '',
   isSelected = false,
-  isSplit = false 
+  isSplit = false,
+  selectedShot = '', // accepts 'roll1' | 'roll2' | null
 }) => {
   
   return (
@@ -26,13 +27,13 @@ const TenthFrame = ({
         {/* Rolls */}
         <View className="flex-row">
            {/* TODO: Tenth frame isn't displaying*/}
-        <View className={`flex-1 items-center justify-center  border-r border-black`}>
+        <View className={`flex-1 items-center justify-center  border-r border-black ${selectedShot === 'roll1' ? 'bg-teal' : ''}`}>
           <Text className={`text-lg ${(isSplit && roll1 != 'X') ? 'text-red-500':'text-black'} font-bold`}>{roll1}</Text>
         </View>
-        <View className={`flex-1 items-center justify-center  border-r border-black`}>
+        <View className={`flex-1 items-center justify-center  border-r border-black ${selectedShot === 'roll2' ? 'bg-teal' : ''}`}>
           <Text className={`text-lg ${isSplit && roll1 == "X" ? 'text-red-500':'text-red'} font-bold`}>{roll2}</Text>
         </View>
-        <View className={`flex-1 items-center justify-center`}>
+        <View className={`flex-1 items-center justify-center ${selectedShot === 'roll3' ? 'bg-teal' : ''}`}>
           <Text className={`text-lg text-black font-bold`}>{roll3}</Text>
         </View>
           

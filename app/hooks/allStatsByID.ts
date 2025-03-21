@@ -12,7 +12,6 @@ import parseTotalSessionStats from "./parseTotalSessionStats";
 const getAllStatsByID = async (id:string): Promise<SeriesStats> => {
     let totalSessions: Series[] = []
     
-   
     const leagues = await getLeaguesByID(id);
     // Get all sessions from all leagues. 
     if (leagues){

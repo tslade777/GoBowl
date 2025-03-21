@@ -47,7 +47,10 @@ const FriendProfile = () => {
       friends: string; 
       friendsList?: string; 
     };
-    setFriendID(friend)
+
+    let parsedFriend: Friend = defaultFriend;
+    parsedFriend = friend ? JSON.parse(friend) as Friend: defaultFriend;
+    setFriendID(parsedFriend.id)
     getFriendsList();
   }, []);
 

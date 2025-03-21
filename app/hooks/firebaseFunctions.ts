@@ -581,10 +581,10 @@ async function getLeagues() {
  * @param id 
  * @returns 
  */
-const getLeaguesByID = async (id:string): Promise<League[] | null> => {
+const getLeaguesByID = async (friendId:string): Promise<League[] | null> => {
   try {
     // Reference to the user's "Leagues" collection inside "leagueSessions"
-    const nestedCollectionRef = collection(db, SESSIONS.league, id, "Leagues");
+    const nestedCollectionRef = collection(db, SESSIONS.league, friendId, "Leagues");
 
     // Fetch data once
     const querySnapshot = await getDocs(nestedCollectionRef);
@@ -602,7 +602,7 @@ const getLeaguesByID = async (id:string): Promise<League[] | null> => {
     // Pass the retrieved leagues to the callback function
     return leagues;
   } catch (error) {
-    console.error(`📛 [line 605] Error fetching leagues for userID: ${id}:`, error, " fireabaseFunctions.ts");
+    console.error(`📛 [line 605] Error fetching leagues for userID: ${friendId}:`, error, " fireabaseFunctions.ts");
     return null
   }
 }

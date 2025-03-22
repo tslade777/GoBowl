@@ -9,6 +9,7 @@ import { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-
 import {startFirebaseSession} from "@/app/hooks/firebaseFunctions"
 import { ACTIVESESSION,  SESSIONS, SESSIONSTARTED } from '../src/config/constants';
 import { images } from '@/constants';
+import useSessionStore from '../src/zustandStore/sessionStore';
 
 
 
@@ -22,6 +23,9 @@ const [isModalVisible, setIsModalVisible] = useState(false);
 const [sessionType, setSessionType] = useState("Session");
 const [sessionName, setSessionName] = useState("")
 const [requiredName, setRequiredName] = useState(false)
+
+const isActive = useSessionStore((state) => state.isActive)
+const session = useSessionStore((state) => state.session)
 
 // 🔹 Animated styles (Fixes direct value access in JSX)
 const animatedStyle = useAnimatedStyle(() => {
@@ -38,21 +42,18 @@ const animatedStyle = useAnimatedStyle(() => {
  */
   const showOptions = async (stype:string) => {
     setSessionType(stype)
-    const sessionStarted = await AsyncStorage.getItem(SESSIONSTARTED);
-    const savedSession = await AsyncStorage.getItem(ACTIVESESSION);
-    const started = sessionStarted ? JSON.parse(sessionStarted) : false;
+    
       
-    if(savedSession && started){
-      const { sessionID,leagueID,name,type,numGames,gamesData,activeGame, seriesStats,localHighGame,localLowGame, } = JSON.parse(savedSession);
+    if(isActive && session){
       // The session type clicked, is the currently active session, load it.
-      if(stype == type){
+      if(stype == session.type){
         router.push({
           pathname: "../screens/game",
           params: {
-            name: sessionName,
-            id: sessionID,
-            leagueID: leagueID,
-            type: type
+            name: session.name,
+            id: session.sessionID,
+            leagueID: session.leagueID,
+            type: session.type
           }
         })
       }
@@ -60,7 +61,7 @@ const animatedStyle = useAnimatedStyle(() => {
       else{
         Alert.alert(
           'Resume', // Title
-          `You've already started a ${type}! Resume?`, // Message
+          `You've already started a ${session.type}! Resume?`, // Message
           [
             {
               text: 'Cancel',
@@ -73,10 +74,10 @@ const animatedStyle = useAnimatedStyle(() => {
                 router.push({
                   pathname: "../screens/game",
                   params: {
-                    name: sessionName,
-                    id: sessionID,
-                    leagueID: leagueID,
-                    type: type
+                    name: session.name,
+                    id: session.sessionID,
+                    leagueID: session.leagueID,
+                    type: session.type
                   }
                 })
               },
@@ -127,7 +128,7 @@ const animatedStyle = useAnimatedStyle(() => {
   };
 
   const handleRequired = () =>{
-    if (sessionType==SESSIONS.league && sessionName==""){
+    if (sessionType==SESSIONS.tournament && sessionName==""){
       setRequiredName(true);
     }
     else{
@@ -141,23 +142,21 @@ const animatedStyle = useAnimatedStyle(() => {
     const savedSession = await AsyncStorage.getItem(ACTIVESESSION);
     const started = sessionStarted ? JSON.parse(sessionStarted) : false;
       
-    if(savedSession && started){
-      const { sessionID,leagueID,name,type,numGames,gamesData,activeGame,
-        seriesStats,localHighGame,localLowGame, } = JSON.parse(savedSession);
-        if(type == SESSIONS.league)
+    if(isActive && session){
+        if(session.type == SESSIONS.league)
           router.push({
             pathname: "../screens/game",
             params: {
-              name: name.toString(),
-              id: sessionID,
-              leagueID: leagueID,
+              name: session.name,
+              id: session.sessionID,
+              leagueID: session.leagueID,
               type: SESSIONS.league
             }
           })
         else{
           Alert.alert(
             'Resume', // Title
-            `You've already started a ${type}! Resume?`, // Message
+            `You've already started a ${session.type}! Resume?`, // Message
             [
               {
                 text: 'Cancel',
@@ -170,10 +169,10 @@ const animatedStyle = useAnimatedStyle(() => {
                   router.push({
                     pathname: "../screens/game",
                     params: {
-                      name: sessionName,
-                      id: sessionID,
-                      leagueID: leagueID,
-                      type: type
+                      name: session.name,
+                      id: session.sessionID,
+                      leagueID: session.leagueID,
+                      type: session.type
                     }
                   })
                 },
@@ -192,7 +191,6 @@ const animatedStyle = useAnimatedStyle(() => {
    *
    */
   const startSession = async () =>{
-    await AsyncStorage.setItem(SESSIONSTARTED, JSON.stringify(true));
     closeModal();
     const id = await startFirebaseSession(sessionName, sessionType, '');
     router.push({

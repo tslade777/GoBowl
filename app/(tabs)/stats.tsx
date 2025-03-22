@@ -16,6 +16,7 @@ const Stats = () => {
       
       <View className={'flex flex-row flex-wrap items-center justify-center'}>
         <StatsButton
+              className='rounded-xl w-[45%] m-1 mb-5 justify-center items-center align-middle'
               title={"Practice"}
               image={images.practice}
               handlePress={() => 
@@ -23,16 +24,19 @@ const Stats = () => {
               }
             />
         <StatsButton
+              className='rounded-xl w-[45%] m-1 mb-5 justify-center items-center align-middle'
               title={"Open"}
               image={images.practice}
               handlePress={() => router.push({pathname:"/screens/statsScreen", params: {type: SESSIONS.open}})}
             />
         <StatsButton
+              className='rounded-xl w-[45%] m-1 mb-5 justify-center items-center align-middle'
               title={"League"}
               image={images.practice}
               handlePress={() => router.push("/screens/leagueStats")}
             />
         <StatsButton
+              className='rounded-xl w-[45%] m-1 mb-5 justify-center items-center align-middle'
               title={"Tournament"}
               image={images.practice}
               handlePress={() => router.push({pathname:"/screens/statsScreen", params: {type: SESSIONS.tournament}})}

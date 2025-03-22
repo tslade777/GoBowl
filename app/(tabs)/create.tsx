@@ -1,4 +1,4 @@
-import { View, Text, Platform, ActionSheetIOS, Modal, TouchableWithoutFeedback, Animated, TouchableOpacity, TextInput, Alert } from 'react-native'
+import { View, Text, Platform, ActionSheetIOS, Modal, TouchableWithoutFeedback, Animated, TouchableOpacity, TextInput, Alert, Dimensions } from 'react-native'
 import React, {  useState } from 'react'
 import "../../global.css";
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -26,6 +26,8 @@ const [requiredName, setRequiredName] = useState(false)
 
 const isActive = useSessionStore((state) => state.isActive)
 const session = useSessionStore((state) => state.session)
+
+const { width } = Dimensions.get('window');
 
 // 🔹 Animated styles (Fixes direct value access in JSX)
 const animatedStyle = useAnimatedStyle(() => {
@@ -207,27 +209,31 @@ const animatedStyle = useAnimatedStyle(() => {
   
   return (
     <SafeAreaView className={"bg-primary h-full"}>
-      <View className={'flex flex-row flex-wrap mt-20 items-center justify-center'}>
-      <BowlingGameButton
-            title="Practice"
-            image={images.practice}
-            handlePress={() => showOptions(SESSIONS.practice)}
-          />
-      <BowlingGameButton
-            title="Open"
-            image={images.practice}
-            handlePress={() => showOptions(SESSIONS.open)}
-          />
-      <BowlingGameButton
-            title="League"
-            image={images.practice}
-            handlePress={() => startLeagueSession()}
-          />
-      <BowlingGameButton
-            title="Tournament"
-            image={images.practice}
-            handlePress={() => showOptions(SESSIONS.tournament)}
-          />
+      <View className={'flex-row flex-wrap justify-center mt-5 px-4'}>
+        <BowlingGameButton
+              className='rounded-xl w-[45%] m-1 mb-5 justify-center items-center align-middle'
+              title="Practice"
+              image={images.practice}
+              handlePress={() => showOptions(SESSIONS.practice)}
+            />
+        <BowlingGameButton
+              className='rounded-xl w-[45%] m-1 mb-5 justify-center items-center align-middle'
+              title="Open"
+              image={images.practice}
+              handlePress={() => showOptions(SESSIONS.open)}
+            />
+        <BowlingGameButton
+              className='rounded-xl w-[45%] m-1 mt-5 justify-center items-center align-middle'
+              title="League"
+              image={images.practice}
+              handlePress={() => startLeagueSession()}
+            />
+        <BowlingGameButton
+              className='rounded-xl w-[45%] m-1 mt-5 justify-center items-center align-middle'
+              title="Tournament"
+              image={images.practice}
+              handlePress={() => showOptions(SESSIONS.tournament)}
+            />
 
       </View>
       {/* 📌 Modern Animated Modal for Android */}
@@ -236,11 +242,11 @@ const animatedStyle = useAnimatedStyle(() => {
             <TouchableWithoutFeedback onPress={closeModal}>
               <View className="flex-1 justify-center items-center">
                 <Animated.View 
-                  className="bg-gray-300 p-6 opacity-2 rounded-3xl shadow-lg w-80"
-                  style={animatedStyle}
+                  className="bg-gray-300 p-6 opacity-2 rounded-3xl shadow-lg"
+                  style={[animatedStyle, { width: width * 0.65 }]}
                 >
                   <Text className="text-3xl font-pbold text-center mb-4 text-black">
-                  {`${sessionType}`}  {/* ✅ Prevents crash */}
+                  {`${sessionType}`}
                   </Text>
                   <TextInput
                           className="h-12 mb-2 border border-gray-300 rounded-2xl px-3 bg-white"

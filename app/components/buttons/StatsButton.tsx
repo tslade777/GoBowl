@@ -1,21 +1,31 @@
-import { TouchableOpacity, Text, Image, View } from 'react-native'
+import { TouchableOpacity, Text, Image, View, ImageSourcePropType, Dimensions } from 'react-native'
 import React from 'react'
 
-const CustomButtonBowling = ({title, image, handlePress}:
-    {title:any, image:any, handlePress:any}) => {
+type Props = {
+  title: string;
+  image: ImageSourcePropType;
+  handlePress: () => void;
+  className?: string; // 👈 add this
+};
+
+const CustomButtonBowling = ({title, image, handlePress, className}: Props) => {
+
+  const { width } = Dimensions.get('window');
+  const fontSize = width <= 360 ? 'text-2xl' : 'text-3xl';
+  
   return (
     <TouchableOpacity 
         onPress={handlePress}
         activeOpacity={.07}
-        className={`rounded-xl h-50 w-50 m-4 justify-center items-center align-middle`}
+        className={`${className}`}
        >
        <View className={"items-center"}> 
           <Image 
             source={image}
-            className={'w-48 h-48'}
+            style={{ width: width * 0.40, height: width * 0.40 }}
             resizeMode={'contain'}
           />
-          <Text className={"text-3xl font-pbold mt-2 text-orange"}>{title?.toString() || "Default Title"}</Text>
+          <Text className={`${fontSize} font-pbold mt-2 text-orange`}>{title?.toString() || "Default Title"}</Text>
         </View>
       
     </TouchableOpacity>

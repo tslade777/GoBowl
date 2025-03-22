@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity  } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView  } from 'react-native';
 import {useState } from 'react';
 import Frame from './Frame';
 import TenthFrame from './TenthFrame';
@@ -27,6 +27,7 @@ const EmptyGame: React.FC<GameInfo> = ({gameData, gameNum}) => {
     return (
       <View className="items-center p-1 rounded-lg">
         {/* Frames Display */}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
         <View className="flex-row space-x-1" >
         {frames.slice(0, 9).map((frame, index) => (
           <TouchableOpacity
@@ -64,6 +65,8 @@ const EmptyGame: React.FC<GameInfo> = ({gameData, gameNum}) => {
           <Text className="text-2xl text-orange pr-10 justify-between font-bold">Game Complete</Text>
           <Text className="text-teal pl-10 text-2xl font-bold ">Game: {gameNum}</Text>
         </View>
+        </ScrollView>
+        
         
         
         {/* Select Pins - Arranged in Triangle Formation */}

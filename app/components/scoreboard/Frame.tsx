@@ -1,8 +1,7 @@
-import { View, Text } from 'react-native';
+import { View, Text, Dimensions } from 'react-native';
 
 const Frame = ({ 
-    frameNumber = 1,
-    width = 36, 
+    frameNumber = 1, 
     height = 60, 
     borderColor = 'border-black', 
     borderWidth = 2, 
@@ -13,6 +12,10 @@ const Frame = ({
     isSplit = false,
     selectedShot = '', // accepts 'roll1' | 'roll2' | null
 }) => {
+
+    const { width } = Dimensions.get('window');
+    const frameWidth = width / 10; // or /12 to leave margin
+
     return (
         <View className="items-center ">
             {/* Frame Number Label */}
@@ -23,7 +26,7 @@ const Frame = ({
             {/* Bowling Frame */}
             <View 
                 className={`rounded-md border ${isSelected ? "border-orange" : "border-black"} bg-white ms-0.5`} 
-                style={{ width, height, borderWidth }}
+                style={{ width:frameWidth, height, borderWidth }}
             >
                 {/* Rolls */}
                 <View className="flex-row">

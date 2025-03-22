@@ -1,8 +1,7 @@
 import { useState } from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, Dimensions } from 'react-native';
 
-const TenthFrame = ({ 
-  width = 66, 
+const TenthFrame = ({  
   height = 60, 
   borderWidth = 2, 
   roll1 = '', 
@@ -14,6 +13,9 @@ const TenthFrame = ({
   selectedShot = '', // accepts 'roll1' | 'roll2' | null
 }) => {
   
+  const { width } = Dimensions.get('window');
+  const frameWidth = width / 6.5; // or /12 to leave margin
+
   return (
     <View className="items-center">
       {/* Frame Number Label */}
@@ -22,7 +24,7 @@ const TenthFrame = ({
       {/* Bowling Frame with Three Roll Sections */}
       <View 
         className={`rounded-md border ${isSelected ? "border-orange" : "border-black"} bg-white ms-0.5`} 
-        style={{ width, height, borderWidth }}
+        style={{ width:frameWidth, height, borderWidth }}
       >
         {/* Rolls */}
         <View className="flex-row">

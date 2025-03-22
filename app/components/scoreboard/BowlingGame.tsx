@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, Image, PanResponder, Animated  } from 'react-native';
+import { View, Text, TouchableOpacity, Image, PanResponder, Animated, ScrollView  } from 'react-native';
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Frame from './Frame';
@@ -756,7 +756,8 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
     return (
       <Animated.View className="items-center p-1  rounded-lg"  >
         {/* Frames Display */}
-        <View className="flex-row space-x-1" >
+        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        <View className="flex-row space-x-1 mx-1" >
         {frames.slice(0, 9).map((frame, index) => (
           <TouchableOpacity key={index} onPress={() => handleFrameTouch(index)}>
             <Frame 
@@ -789,6 +790,8 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
           }
         />
         </View>
+        </ScrollView>
+        
         <View className=" flex-row  px-4">
           <Text className="text-2xl text-orange pr-10 justify-between font-bold">
           {gameComplete ? "Game Complete" : `Frame ${currentFrame+1}` }

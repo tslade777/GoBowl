@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, Image, PanResponder, Animated, ScrollView  } from 'react-native';
+import { View, Text, TouchableOpacity, Image, PanResponder, Animated, ScrollView, Dimensions  } from 'react-native';
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import Frame from './Frame';
@@ -9,6 +9,10 @@ import { defaultFrame } from '@/app/src/values/defaults';
 import { tFrame, tGame } from '@/app/src/values/types';
 import useGameStore from '@/app/src/zustandStore/store';
 
+const { width } = Dimensions.get('window');
+const pinSize = width * 0.11; // About 12% of screen width
+const frameButtonSize = width * 0.10;
+const frameWidth = width / 10; // or /12 to leave margin
 
 
 
@@ -41,6 +45,8 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
   const [edited, setEdited] = useState<boolean>(false);
   const [quickSelection, setQuickSelection] = useState('');
 
+  const scrollRef = useRef<ScrollView>(null);
+
   // Swiping feature
   const pinRefs = useRef<(View | null)[]>([]); // Fix the TypeScript issue
   const [pinPositions, setPinPositions] = useState<{ [key: number]: { x: number; y: number } }>({});
@@ -56,7 +62,12 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
   // Number of games
   const [numGames, setNumGames] = useState(1);
 
-
+  useEffect(() => {
+    if (currentFrame >= 6) {
+      const scrollToX = currentFrame * frameWidth;
+      scrollRef.current?.scrollTo({ x: scrollToX, animated: true });
+    }
+  }, [currentFrame]);
   
   /**
    * 
@@ -202,6 +213,7 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
       if(i==8){
         // BONUS: Use the first two rolls of the tenth frame.
         if (frame.isStrike){
+          totalScore += 10
           let bonus = frames[9].roll1 == '' ? 0 : parseInt(frames[9].roll1);
           bonus += frames[9].roll2 == '' ? 0 : parseInt(frames[9].roll2);
           totalScore += bonus;
@@ -443,7 +455,6 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
       setIsFirstRoll(true)
       setPins(frames[index].firstBallPins)
       setEdited(true)
-      console.log(`Frame touched Start edit`)
     }
     else {
       setEdited(false)
@@ -756,7 +767,7 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
     return (
       <Animated.View className="items-center p-1  rounded-lg"  >
         {/* Frames Display */}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} ref={scrollRef}>
         <View className="flex-row space-x-1 mx-1" >
         {frames.slice(0, 9).map((frame, index) => (
           <TouchableOpacity key={index} onPress={() => handleFrameTouch(index)}>
@@ -811,8 +822,8 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
                 activeOpacity={0}
                 ref={(el) => (pinRefs.current[index] = el)}
                 onPress={() => currentFrame==9 ? tenthFramePinToggle(index) : handlePinToggle(index)} 
-                
-                className={`m-2 w-14 h-14 rounded-full items-center justify-center border-2 shadow-lg ${
+                style={{ width: pinSize, height: pinSize, margin: 6, borderRadius: pinSize / 2 }}
+                className={`m-2 rounded-full items-center justify-center border-2 shadow-lg ${
                   pins[index] ? 'bg-gray-600 border-black-100' : 'bg-white border-black-100'
                 }`}
               >

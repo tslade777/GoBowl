@@ -61,12 +61,12 @@ const EmptyGame: React.FC<GameInfo> = ({gameData, gameNum}) => {
           isSelected= {currentFrame==9}  
         />
         </View>
+        
+        </ScrollView>
         <View className=" flex-row  px-4">
           <Text className="text-2xl text-orange pr-10 justify-between font-bold">Game Complete</Text>
           <Text className="text-teal pl-10 text-2xl font-bold ">Game: {gameNum}</Text>
         </View>
-        </ScrollView>
-        
         
         
         {/* Select Pins - Arranged in Triangle Formation */}

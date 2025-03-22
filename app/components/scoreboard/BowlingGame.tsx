@@ -200,7 +200,6 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
 
       // The 9th frame will always depend solely on the tenth frame.
       if(i==8){
-        totalScore += firstThrowScore + secondThrowScore;
         // BONUS: Use the first two rolls of the tenth frame.
         if (frame.isStrike){
           let bonus = frames[9].roll1 == '' ? 0 : parseInt(frames[9].roll1);

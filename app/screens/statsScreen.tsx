@@ -24,7 +24,6 @@ const StatsScreen = () => {
 
     const fetchData = async () =>{
       const sessions = await getSessions(type);
-      console.log(`Sessions data length: ${sessions.length}`)
       setSessionData(sessions)
     }
   

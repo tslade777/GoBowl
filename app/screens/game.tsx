@@ -319,7 +319,6 @@ const markSessionComplete = async () =>{
       setFirstRender(false);
       return;
     }
-    console.log(`Updating firebase...`)
     updateFirebaseGameComplete(sType, sName, lID,sID,gamesData,seriesStats)
   },[gamesData])
 

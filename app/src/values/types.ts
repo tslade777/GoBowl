@@ -80,6 +80,16 @@ export interface tGame {
   gameNum: number;
 }
 
+export interface GameStore {
+  game: tGame;
+  isSaved: boolean
+  setGame: (game: tGame) => void;
+  updateGame: (partial: Partial<tGame>) => void;
+  resetGame: () => void;
+  markSaved: () => void;
+  markUnsaved: () => void;
+}
+
 export interface tFrame {
     roll1: string;
     roll2: string;
@@ -133,6 +143,19 @@ export interface tFrame {
     username: string;
     profilePic: string;
     active: boolean;
+  }
+
+  export interface Session {
+    sessionID: string,
+    leagueID: string,
+    name: string,
+    type: string,
+    numGames: number,
+    gamesData: tGame[],
+    activeGame: boolean, 
+    seriesStats: SeriesStats,
+    localHighGame: number,
+    localLowGame: number,
   }
 
   const defaultValue = {

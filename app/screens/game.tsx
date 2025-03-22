@@ -5,14 +5,16 @@ import BowlingGame, { BowlingGameRef } from '../components/scoreboard/BowlingGam
 import { useLocalSearchParams } from 'expo-router/build/hooks';
 import { router, useNavigation } from 'expo-router';
 import useBowlingStats from '../hooks/useBowlingStats';
-import { tGame, BowlingStats, SeriesStats } from "@/app/src/values/types";
+import { tGame, BowlingStats, SeriesStats, Session } from "@/app/src/values/types";
 import { defaultSeriesStats } from "@/app/src/values/defaults";
 import { setFirebaseActive, setFirebaseInActive, updateFirebaseActiveGames, updateFirebaseGameComplete, updateFirebaseLeagueWeekCount } from '../hooks/firebaseFunctions';
-import { ACTIVESESSION, BOWLINGSTATE, INPROGRESS, SESSIONS, SESSIONSTARTED } from '../src/config/constants';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { SESSIONS } from '../src/config/constants';
+
 import icons from '@/constants/icons';
 import { db, FIREBASE_AUTH } from '@/firebase.config';
 import { doc, onSnapshot } from 'firebase/firestore';
+import useGameStore from '../src/zustandStore/store';
+import useSessionStore from '../src/zustandStore/sessionStore';
 
 
 const initialStats: SeriesStats = {
@@ -29,6 +31,13 @@ const game = () => {
   const [games, setGames] = useState<tGame[]>([])
   const [index, setIndex] = useState(0);
   const [numViewers, setNumViewers] = useState(0)
+
+  const resetGame = useGameStore((state) => state.resetGame)
+  const markUnsaved = useGameStore((state) => state.markUnsaved)
+  const session = useSessionStore((state) => state.session)
+  const isActive = useSessionStore((state) => state.isActive)
+  const setSession = useSessionStore((state) => state.setSession)
+  const clearSession = useSessionStore((state) => state.clearSession)
 
   const childRef = useRef<BowlingGameRef>(null);
 
@@ -190,9 +199,9 @@ const game = () => {
     }
     addToSerriesStats(statsList, numGames+1)
     setNumGames(numGames+1)
-    setGamesData([...gamesData, {game: data, stats: statsList}])
+    setGamesData([...games, {game: data, stats: statsList}])
     saveSession();
-    await AsyncStorage.removeItem(BOWLINGSTATE)
+    resetGame();
   }
 
 /**
@@ -200,26 +209,19 @@ const game = () => {
  */
 const loadSession = async ()=>{
   try {
-    const inProgress = await AsyncStorage.getItem(SESSIONSTARTED);
-    const savedSession = await AsyncStorage.getItem(ACTIVESESSION);
-
     // If the game is not in progress, Nothing to load, do nothing.
-    if(inProgress && !JSON.parse(inProgress)) return;
-     
-    // Load the saved game. 
-    if (savedSession) {
-      const { sessionID,leagueID,name,type,numGames,gamesData,activeGame, seriesStats,localHighGame,localLowGame, } = JSON.parse(savedSession);
-      sID = sessionID;
-      lID = leagueID;
-      sName = name;
-      sType = type;
-      setNumGames(numGames);
-      setGamesData(gamesData);
-      setActiveGame(activeGame);
-      setFirstRender(seriesStats);
-      setSeriesStats(seriesStats);
-      lowGame = localLowGame;
-      highGame = localHighGame;
+    if (isActive && session){
+      sID = session.sessionID;
+      lID = session.leagueID;
+      sName = session.name;
+      sType = session.type;
+      setNumGames(session.numGames);
+      setGames(session.gamesData);
+      setActiveGame(session.activeGame);
+      setFirstRender(true);
+      setSeriesStats(session.seriesStats);
+      lowGame = session.localLowGame;
+      highGame = session.localHighGame;
     }
   } catch (error) {
     console.error('📛 Error loading game:', error);
@@ -227,23 +229,23 @@ const loadSession = async ()=>{
 }
 
 /**
- * Saves the session to async storage
+ * Saves the session to zustand
  */
 const saveSession = async () => {
   try {
-    const sessionState = {
+    const sessionState:Session = {
       sessionID: sID,
       leagueID: lID,
       name: sName,
       type: sType,
       numGames,
-      gamesData,
+      gamesData: games,
       activeGame, 
       seriesStats,
       localHighGame: highGame,
       localLowGame: lowGame,
     };
-    await AsyncStorage.setItem(ACTIVESESSION, JSON.stringify(sessionState));
+    setSession(sessionState)
   } catch (error) {
     console.error('📛 Error saving game:', error);
   }
@@ -254,8 +256,9 @@ const saveSession = async () => {
  */
 const markSessionComplete = async () =>{
   try {
-    const keysToRemove = [BOWLINGSTATE, INPROGRESS, ACTIVESESSION, SESSIONSTARTED]
-    await AsyncStorage.multiRemove(keysToRemove)
+    resetGame();
+    markUnsaved();
+    clearSession();
     setFirebaseInActive()
   } catch (error) {
     console.error('📛 Error cleaning session from asyn or firebase error:', error);
@@ -312,8 +315,8 @@ const markSessionComplete = async () =>{
       setFirstRender(false);
       return;
     }
-    updateFirebaseGameComplete(sType, sName, lID,sID,gamesData,seriesStats)
-  },[gamesData])
+    updateFirebaseGameComplete(sType, sName, lID,sID,games,seriesStats)
+  },[games])
 
   /**
    * End the current session. No futher updates to firebase will be made. 

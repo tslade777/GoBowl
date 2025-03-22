@@ -7,6 +7,9 @@ import { BOWLINGSTATE, INPROGRESS, SPLITS } from '@/app/src/config/constants';
 import icons from '@/constants/icons';
 import { defaultFrame } from '@/app/src/values/defaults';
 import { tFrame, tGame } from '@/app/src/values/types';
+import useGameStore from '@/app/src/zustandStore/store';
+
+
 
 
 type ChildComponentProps = {
@@ -43,8 +46,17 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
   const [pinPositions, setPinPositions] = useState<{ [key: number]: { x: number; y: number } }>({});
   const [pinSwipedOn, setPinSwipedOn] = useState(-1)
 
+  // Zustand store 
+  const saveGameState = useGameStore((state) => state.setGame)
+  const isSaved = useGameStore((state) => state.isSaved)
+  const markSaved = useGameStore((state) => state.markSaved)
+  
+  const game = useGameStore((state)=>state.game)
+
   // Number of games
   const [numGames, setNumGames] = useState(1);
+
+
   
   /**
    * 
@@ -61,6 +73,7 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
     setEdited(Boolean(game.edited))
     setFrames(game.frames)
     setNumGames(game.gameNum)
+    saveGameState(game)
   }
 
   // Expose methods to the parent
@@ -107,57 +120,46 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
     }, 500); // Delay to ensure rendering is complete
   }, []);
 
-  // Tell AsyncStorage a game is in progress.
+  /**
+   * 
+   */
   const gameStarted = async () =>{
     try{
       // Update firebase and local storage for game started/active
       toggleBowling(true);
-      await AsyncStorage.setItem(INPROGRESS, JSON.stringify(true));
     }
     catch (error) {
       console.error('📛 Error setting game in progress:', error);
     }
   };
 
-  // Save game to AsyncStorage
+  // Save game to Zustand
   const saveGame = async () => {
     try {
-      const gameState = {
-        frames,
-        currentFrame,
-        isFirstRoll,
-        farthestFrame,
-        pins,
-        edited,
-        gameComplete,
-      };
-      await AsyncStorage.setItem(BOWLINGSTATE, JSON.stringify(gameState));
+      const game:tGame = {
+        frames: frames,               // start with an empty array or pre-filled with tFrame objects
+        pins: pins, // example: all pins standing
+        currentFrame: currentFrame,
+        farthestFrame: farthestFrame,
+        isFirstRoll: isFirstRoll,
+        isFinalRoll: isFinalRoll,
+        striking: striking,
+        gameComplete: gameComplete,
+        edited: edited,
+        gameNum: numGames,
+      }
+      saveGameState(game);
+      markSaved();
     } catch (error) {
       console.error('📛 Error saving game:', error);
     }
   };
 
-  // Load game from AsyncStorage
+  // Load game from Zustand
   const loadGame = async () => {
     try {
-      const savedGame = await AsyncStorage.getItem(BOWLINGSTATE);
-      const inProgress = await AsyncStorage.getItem(INPROGRESS);
-
-      // If the game is not in progress, Nothing to load, do nothing.
-      if(inProgress && !JSON.parse(inProgress)) return;
-       
-      // Load the saved game. 
-      if (savedGame) {
-        const { frames, currentFrame, isFirstRoll, farthestFrame, pins, edited, gameComplete  } = JSON.parse(savedGame);
-        setFrames(frames);
-        setCurrentFrame(currentFrame);
-        setIsFirstRoll(isFirstRoll);
-        setPins(pins)
-        setFarthestFrame(farthestFrame)
-        setEdited(edited)
-        setGameComplete(gameComplete)
-        console.log(`Frames found: ${JSON.stringify(frames)}`)
-      }
+      if(isSaved)
+        setGame(game)
     } catch (error) {
       console.error('📛 Error loading game:', error);
     }
@@ -167,7 +169,6 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
   const clearGame = async () => {
     
     if (gameComplete){
-      
       setNumGames(numGames+1)
     }
     setFrames(Array.from({ length: 10 }, () => ({ ...defaultFrame })));
@@ -180,10 +181,8 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
     setIsFirstRoll(true)
     setIsFinalRoll(false)
     
-    
     try{
       saveGame()
-      await AsyncStorage.setItem(INPROGRESS, JSON.stringify(false));
     }
     catch (error) {
       console.error('📛 Error setting game in progress:', error);

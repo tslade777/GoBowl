@@ -77,7 +77,8 @@ export const defaultGame: tGame = {
   gameComplete: false,
   edited: false,
   gameNum: 0,
-  pins: []
+  pins: [],
+  finalScore: 0,
 }
 
 export const defaultFriend: Friend = { id: "", username: "Unknown User", profilePic: "", active: false }; // ✅ Prevents `null` issues

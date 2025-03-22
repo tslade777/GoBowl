@@ -137,7 +137,7 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
   const saveGame = async () => {
     try {
       const game:tGame = {
-        frames: frames,               // start with an empty array or pre-filled with tFrame objects
+        frames: frames, // start with an empty array or pre-filled with tFrame objects
         pins: pins, // example: all pins standing
         currentFrame: currentFrame,
         farthestFrame: farthestFrame,
@@ -147,6 +147,7 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
         gameComplete: gameComplete,
         edited: edited,
         gameNum: numGames,
+        finalScore: frames[9].score
       }
       saveGameState(game);
       markSaved();
@@ -539,28 +540,10 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
       gameComplete: gameComplete,
       edited: edited,
       gameNum: numGames,
-      pins: pins
+      pins: pins,
+      finalScore: frames[9].score
     }
     updateCurrentGame(game)
-  }
-
-  /**
-   * Packs and sends game data to parent
-   */
-  const packGame = ():tGame =>{
-    const game: tGame = {
-      frames: frames,
-      currentFrame: currentFrame,
-      farthestFrame: farthestFrame,
-      isFirstRoll: isFirstRoll,
-      isFinalRoll: isFinalRoll,
-      striking: striking,
-      gameComplete: gameComplete,
-      edited: edited,
-      gameNum: numGames,
-      pins: pins
-    }
-    return game
   }
 
   // Handle Tenth Frame Unique frame scoring and visuals.

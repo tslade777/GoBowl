@@ -78,6 +78,7 @@ export interface tGame {
   gameComplete: Boolean;
   edited: Boolean;
   gameNum: number;
+  finalScore: number,
 }
 
 export interface GameStore {
@@ -151,7 +152,8 @@ export interface tFrame {
     name: string,
     type: string,
     numGames: number,
-    gamesData: tGame[],
+    gamesData: any,
+    games: tGame[]
     activeGame: boolean, 
     seriesStats: SeriesStats,
     localHighGame: number,

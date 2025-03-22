@@ -31,6 +31,7 @@ const game = () => {
   const [games, setGames] = useState<tGame[]>([])
   const [index, setIndex] = useState(0);
   const [numViewers, setNumViewers] = useState(0)
+  const [gameComplete, setGameComplete] = useState(false)
 
   const resetGame = useGameStore((state) => state.resetGame)
   const markUnsaved = useGameStore((state) => state.markUnsaved)
@@ -137,7 +138,7 @@ const game = () => {
    * @param inProgress 
    */
   const toggleActiveGame = (inProgress:boolean)=>{
-    setActiveGame(inProgress)
+    setGameComplete(inProgress)
     saveSession();
   }
 
@@ -199,7 +200,7 @@ const game = () => {
     }
     addToSerriesStats(statsList, numGames+1)
     setNumGames(numGames+1)
-    setGamesData([...games, {game: data, stats: statsList}])
+    setGamesData([...gamesData, {game: data, stats: statsList}])
     saveSession();
     resetGame();
   }
@@ -216,8 +217,10 @@ const loadSession = async ()=>{
       sName = session.name;
       sType = session.type;
       setNumGames(session.numGames);
-      setGames(session.gamesData);
+      setGames(session.games);
+      setGamesData(session.gamesData)
       setActiveGame(session.activeGame);
+      setGameComplete(Boolean(session.games[games.length].gameComplete))
       setFirstRender(true);
       setSeriesStats(session.seriesStats);
       lowGame = session.localLowGame;
@@ -239,7 +242,8 @@ const saveSession = async () => {
       name: sName,
       type: sType,
       numGames,
-      gamesData: games,
+      gamesData: gamesData,
+      games: games,
       activeGame, 
       seriesStats,
       localHighGame: highGame,
@@ -315,14 +319,16 @@ const markSessionComplete = async () =>{
       setFirstRender(false);
       return;
     }
-    updateFirebaseGameComplete(sType, sName, lID,sID,games,seriesStats)
-  },[games])
+    console.log(`Updating firebase...`)
+    updateFirebaseGameComplete(sType, sName, lID,sID,gamesData,seriesStats)
+  },[gamesData])
 
   /**
    * End the current session. No futher updates to firebase will be made. 
    * Redirect to create page. 
    */
   const endSession = () =>{
+    setActiveGame(false)
     if(sType == SESSIONS.league){
       updateFirebaseLeagueWeekCount(lID, sName.toString())
     }
@@ -343,8 +349,8 @@ const markSessionComplete = async () =>{
         {/* Button Positioned at Bottom Right */}
         <TouchableOpacity
           onPress={endSession}
-          disabled = {activeGame}
-          className={`absolute bottom-9 left-1/2 -translate-x-1/2 ${activeGame ? "bg-red-700":"bg-green-800"} px-4 py-2 rounded-lg`}
+          disabled = {gameComplete}
+          className={`absolute bottom-9 left-1/2 -translate-x-1/2 ${gameComplete ? "bg-red-700":"bg-green-800"} px-4 py-2 rounded-lg`}
         >
           <Text className="text-white font-bold">End Session</Text>
         </TouchableOpacity>

@@ -96,7 +96,7 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
       setQuickSelection('')
       quickSelect();
     }
-    else if(quickSelection == '/'){
+    else if(quickSelection == '-'){
       setQuickSelection('')
       quickSelect();
     }
@@ -754,7 +754,7 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
   };
 
     return (
-      <Animated.View className="items-center p-1  rounded-lg "  >
+      <Animated.View className="items-center p-1  rounded-lg"  >
         {/* Frames Display */}
         <View className="flex-row space-x-1" >
         {frames.slice(0, 9).map((frame, index) => (
@@ -838,7 +838,7 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
             <Text className={`text-5xl ${isFirstRoll ? "text-gray-500" : "text-white"} font-pextrabold`}>/</Text>
           </TouchableOpacity>
           <TouchableOpacity 
-            onPress={quickSelect} 
+            onPress={()=>{setInputRoll(0);quickSelect();} }
             className="mx-5 mt-5 pr-4 pl-2 py-2 rounded-lg items-center"
           >
             <Text className="text-5xl text-white font-pextrabold">-</Text>

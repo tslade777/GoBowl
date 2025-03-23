@@ -220,6 +220,7 @@ const BowlingGame = forwardRef<BowlingGameRef, ChildComponentProps>(
         }
         // BONUS: Use the first roll of the tenth frame
         else if(frame.isSpare){
+          totalScore += firstThrowScore + secondThrowScore
           totalScore += frames[9].roll1 == '' ? 0 : parseInt(frames[9].roll1);
         }
         // Score is just total plus current frame. NO BONUS

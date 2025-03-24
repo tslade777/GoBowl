@@ -56,6 +56,10 @@ const FrameView = () => {
       scrollRef.current?.scrollTo({ x: scrollToX, animated: true });
     }
   }, [currentFrame]);
+
+  useEffect(()=>{
+    setPins(frames[currentFrame].firstBallPins)
+  },[currentFrame])
   
   /**
    * 
@@ -279,7 +283,7 @@ const FrameView = () => {
           {/** Next shot button */}
           <TouchableOpacity 
             onPress={()=>{nextShot()}}
-            disabled={(currentFrame == 9 && selectedShot == 3) || (currentFrame != 9 && frames[currentFrame+1].roll1 == -1)} 
+            disabled={(currentFrame == 9 && selectedShot == 3) || (currentFrame != 9 && frames[currentFrame+1].roll1 == -1 && selectedShot ==2)} 
             className="ml-5 px-1 py-2 rounded-lg"
           >
             <Image source={icons.nextShot}

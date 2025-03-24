@@ -3,7 +3,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { tGame, tFrame } from '../values/types';
 import { defaultFrame, defaultGame } from '../values/defaults';
-import { changeToFrame, goToNextShot, goToPrevShot, setFirstShot, setSecondShot, setTenthSecondShot, setThirdShot } from './gameHelpers';
+import { calculateTotalScore, changeToFrame, goToNextShot, goToPrevShot, setFirstShot, setSecondShot, setTenthSecondShot, setThirdShot } from './gameHelpers';
 
 interface ScoreboardStore {
   game: tGame;
@@ -65,13 +65,9 @@ const useGameViewStore = create<ScoreboardStore>()(
         let currFrame = updatedGame.frames[updatedGame.currentFrame];
 
         // Check if frame has scores, if so, clear them.
-        if(currFrame.roll1 != -1 && currFrame.complete){
-            console.log(`[69] editing frame`)
+        if(currFrame.roll1 != -1 && currFrame.complete && updatedGame.selectedShot == 1){
             currFrame = {...defaultFrame};
             updatedGame.frames[updatedGame.currentFrame] = currFrame;
-        }
-        else{
-            console.log(`first roll ${currFrame.roll1} and frame complete: ${currFrame.complete}`)
         }
 
         // tenth frame is a little different.
@@ -120,6 +116,7 @@ const useGameViewStore = create<ScoreboardStore>()(
         } else {
             console.log(`Last shot`)
         }
+        updatedGame = calculateTotalScore(updatedGame)
 
         set({ game: updatedGame });
       },

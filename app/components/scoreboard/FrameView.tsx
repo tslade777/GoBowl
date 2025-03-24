@@ -34,7 +34,7 @@ const FrameView = () => {
   // Zustand store 
   const currentFrame = useGameViewStore(state => state.game.currentFrame);
   const selectedShot = useGameViewStore(state => state.game.selectedShot);
-  const frames = useGameViewStore(state => state.game.frames)
+  const frames = useGameViewStore(state => state.game.frames || [])
   const gameComplete = useGameViewStore(state => state.game.gameComplete);
   const setSelectedShot = useGameViewStore(state => state.setSelectedShot);
   const setCurrentFrame = useGameViewStore(state=> state.setSelectedFrame)
@@ -46,6 +46,7 @@ const FrameView = () => {
   const editFrame = useGameViewStore(state => state.editFrame);
   const getScore = useGameViewStore(state => state.getScore);
   const resetGame = useGameViewStore(state => state.resetGame);
+  const endGame = useGameViewStore(state => state.endGame);
 
   // Number of games
   const [numGames, setNumGames] = useState(1);
@@ -60,6 +61,10 @@ const FrameView = () => {
   useEffect(()=>{
     setPins(frames[currentFrame].firstBallPins)
   },[currentFrame])
+
+  useEffect(()=>{
+    endGame();
+  },[gameComplete])
   
   /**
    * 

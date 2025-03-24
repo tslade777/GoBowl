@@ -11,6 +11,8 @@ import { FIREBASE_AUTH } from "@/firebase.config";
 import { fetchUserData } from "./hooks/firebaseFunctions";
 
 import { enableScreens } from "react-native-screens";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import useGameStore from "./src/zustandStore/store";
 
 enableScreens();
 
@@ -18,6 +20,12 @@ export default function RootLayout() {
   const [user, setUser] = useState<User | null>(null);
     
   useEffect(() =>{
+    const clearStoredGame = async () => {
+      await AsyncStorage.removeItem('session-storage');
+    };
+    useGameStore.getState().resetGame();
+    clearStoredGame()
+
     onAuthStateChanged(FIREBASE_AUTH, async (user)=>{
       setUser(user);
       // TODO: put in loading for userData and image. 

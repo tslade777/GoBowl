@@ -3,7 +3,7 @@ import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { tGame, tFrame } from '../values/types';
 import { defaultFrame, defaultGame } from '../values/defaults';
-import { calculateTotalScore, changeToFrame, goToNextShot, goToPrevShot, setFirstShot, setSecondShot, setTenthSecondShot, setThirdShot } from './gameHelpers';
+import { calculateTotalScore, changeToFrame, goToNextShot, goToPrevShot, setFirstShot, setSecondShot, setTenthSecondShot, setThirdShot, showAll, showHideScores } from './gameHelpers';
 
 interface ScoreboardStore {
   game: tGame;
@@ -22,12 +22,13 @@ interface ScoreboardStore {
   getScore: (frameNum: number) => number;
   updateGame: (partial: Partial<tGame>) => void;
   resetGame: () => void;
+  endGame: () => void;
 }
 
 const useGameViewStore = create<ScoreboardStore>()(
   persist(
     (set, get) => ({
-      game: {...defaultGame},
+    game: JSON.parse(JSON.stringify(defaultGame)),
       gameComplete: false,
 
       setSelectedShot: (shotNum: number) => {
@@ -56,6 +57,12 @@ const useGameViewStore = create<ScoreboardStore>()(
       },
 
       setGame: (game) => set({ game }),
+
+      endGame: ()=>{
+        const game = get().game;
+        let updatedGame = showAll(game);
+        set({game:updatedGame});
+      },
 
       enterShot: (count: number, pins: boolean[]) => {
         
@@ -117,6 +124,8 @@ const useGameViewStore = create<ScoreboardStore>()(
             console.log(`Last shot`)
         }
         updatedGame = calculateTotalScore(updatedGame)
+        console.log(`Show hide scores`)
+        //updatedGame = showHideScores(updatedGame);
 
         set({ game: updatedGame });
       },
@@ -180,8 +189,7 @@ const useGameViewStore = create<ScoreboardStore>()(
       },
 
       resetGame: () => {
-        //const cloneGame = JSON.parse(JSON.stringify({...defaultGame}));
-        set({ game: {...defaultGame}, gameComplete: false });
+        set({ game: JSON.parse(JSON.stringify(defaultGame)), gameComplete: false });
       },
     }),
     {

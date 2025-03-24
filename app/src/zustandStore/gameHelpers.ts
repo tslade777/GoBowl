@@ -94,7 +94,7 @@ export const setFirstShot = (game: tGame,pins: boolean[]): tGame => {
     currFrame.roll1 = count;
     currFrame.isStrike = count == 10;
     currFrame.complete = currFrame.isStrike && updated.currentFrame!=9;
-    currFrame.visible = !currFrame.isStrike;
+    currFrame.visible = false;
     currFrame.isSplit = checkIsSplit(pins);
     currFrame.score = -1;
   
@@ -220,6 +220,73 @@ export const calculateTotalScore = (game: tGame) => {
       // update the frame score.
       frame.score = totalScore;
       frames[i] = frame;
+    }
+    updated.frames = frames
+    return updated
+  }
+export const showAll = (game: tGame) =>{
+    let updated = { ...game };
+    let frames = updated.frames
+    for (var i = updated.farthestFrame; i >= 0; i--){
+        let frame = frames[i]
+        frame.visible = true
+        frames[i] = frame;
+    }
+    updated.frames = frames;
+    return updated;
+}
+
+  // Calculate and return the total score that will go into the frame provided.
+export const showHideScores = (game: tGame) => {
+    let updated = { ...game };
+    let frames = {...updated.frames}
+    let showAll = false;
+    let farthestFound = false;
+    console.log(`farthest frame: ${updated.farthestFrame}`)
+    if(frames[0].roll1 == -1) return updated;
+    
+    console.log(`Showing scores`)
+    for (var i = updated.farthestFrame; i >= 0; i--){
+      let frame = { ...updated.frames[i] };
+      // 1st condition, if the farthest frame isn't a strike, show all
+      if(showAll){
+        frame.visible = true
+        frames[i] = frame
+        console.log(`Showing ALL scores`)
+        continue;
+      }
+      // if we're striking, don't show all, if its a spare: show all except this frame, 
+      // if its neither, show this frame and all others. 
+      if(frame.roll1 != -1 && !farthestFound){
+        farthestFound = true;
+        if(frame.isStrike) {
+            console.log(`farthest frame is a strike, don't show`)
+            frame.visible = false;
+            frames[i] = frame;
+            continue;
+        }
+        else if(frame.isSpare) {
+            console.log(`farthest frame is a spare, don't show. But show all after`)
+            frame.visible = false;
+        }
+        else frame.visible = true;
+        showAll = true;
+        console.log(`farthest frame is a neither, show all.`)
+        continue;
+      }
+      // We will only hit this if show all is not true, thus we must be striking. 
+      if(frame.isStrike){
+        console.log(`Striking, don't show`)
+        frame.visible = false;
+        frames[i] = frame;
+      }
+      // Striking has stopped, show all frames from here on out.
+      else {
+        console.log(`Striking stopped, show all from here`)
+        frame.visible = true;
+        frames[i] = frame;
+        showAll = true;
+      }
     }
     updated.frames = frames
     return updated

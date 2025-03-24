@@ -5,9 +5,9 @@ const Frame = ({
     height = 60, 
     borderColor = 'border-black', 
     borderWidth = 2, 
-    roll1 = '', 
-    roll2 = '', 
-    total = '',
+    roll1 = 0, 
+    roll2 = 0, 
+    total = -1,
     isSelected = false,
     isSplit = false,
     selectedShot = '', // accepts 'roll1' | 'roll2' | null
@@ -15,6 +15,9 @@ const Frame = ({
 
     const { width } = Dimensions.get('window');
     const frameWidth = width / 10; // or /12 to leave margin
+    const spare = roll1 + roll2 == 10 && (roll1 != 10)
+
+    const totalVal = total == -1 ? '' : total;
 
     return (
         <View className="items-center ">
@@ -37,7 +40,7 @@ const Frame = ({
                     `}
                     >
                     <Text className={`text-lg font-bold ${isSplit ? 'text-red-500' : 'text-black'}`}>
-                        {roll1}
+                        {roll1 == 10 ? 'X' : roll1 == 0 ? '-' : roll1}
                     </Text>
                     </View>
 
@@ -47,13 +50,14 @@ const Frame = ({
                         ${selectedShot === 'roll2' ? 'bg-teal' : ''}
                     `}
                     >
-                    <Text className="text-lg font-bold">{roll2}</Text>
+                    <Text className="text-lg font-bold">{
+                     spare ? '/' : roll2 == 0 ? '-' : roll2}</Text>
                     </View>
                 </View>
 
                 {/* Total Score */}
                 <View className="border-t border-black flex-1 items-center justify-center">
-                    <Text className="text-xl font-bold">{total}</Text>
+                    <Text className="text-xl font-bold">{totalVal}</Text>
                 </View>
             </View>
         </View>

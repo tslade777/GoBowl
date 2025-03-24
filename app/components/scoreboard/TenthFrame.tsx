@@ -4,10 +4,10 @@ import { View, Text, Dimensions } from 'react-native';
 const TenthFrame = ({  
   height = 60, 
   borderWidth = 2, 
-  roll1 = '', 
-  roll2 = '', 
-  roll3 = '', 
-  total = '',
+  roll1 = 0, 
+  roll2 = 0, 
+  roll3 = 0, 
+  total = 0,
   isSelected = false,
   isSplit = false,
   selectedShot = '', // accepts 'roll1' | 'roll2' | null
@@ -15,6 +15,18 @@ const TenthFrame = ({
   
   const { width } = Dimensions.get('window');
   const frameWidth = width / 6.5; // or /12 to leave margin
+
+  const spare = roll1 + roll2 == 10 && (roll1 != 10)
+
+  const roll1Val = roll1 == 10 ? 'X': roll1 == 0 ? '-' : roll1;
+  const roll2Val = roll1 == 10 && roll2 == 10 ? 'X' : 
+  spare ? '/': roll2 == 0 ? '-' : roll2;
+
+  const roll3Val = roll3 == 10 ? 'X': roll1 == 10 && roll2 != 10
+    && roll2 + roll3==10 ? '/':
+    roll3 == 0 ? '-' : roll3
+
+  const totalVal = total == -1 ? '' : total;
 
   return (
     <View className="items-center">
@@ -30,20 +42,20 @@ const TenthFrame = ({
         <View className="flex-row">
            {/* TODO: Tenth frame isn't displaying*/}
         <View className={`flex-1 items-center justify-center  border-r border-black ${selectedShot === 'roll1' ? 'bg-teal' : ''}`}>
-          <Text className={`text-lg ${(isSplit && roll1 != 'X') ? 'text-red-500':'text-black'} font-bold`}>{roll1}</Text>
+          <Text className={`text-lg ${(isSplit && roll1 != 10) ? 'text-red-500':'text-black'} font-bold`}>{roll1Val}</Text>
         </View>
         <View className={`flex-1 items-center justify-center  border-r border-black ${selectedShot === 'roll2' ? 'bg-teal' : ''}`}>
-          <Text className={`text-lg ${isSplit && roll1 == "X" ? 'text-red-500':'text-red'} font-bold`}>{roll2}</Text>
+          <Text className={`text-lg ${isSplit && roll1 == 10 ? 'text-red-500':'text-red'} font-bold`}>{roll2Val}</Text>
         </View>
         <View className={`flex-1 items-center justify-center ${selectedShot === 'roll3' ? 'bg-teal' : ''}`}>
-          <Text className={`text-lg text-black font-bold`}>{roll3}</Text>
+          <Text className={`text-lg text-black font-bold`}>{roll3Val}</Text>
         </View>
           
         </View>
 
         {/* Total Score */}
         <View className="border-t border-black flex-1 items-center justify-center">
-          <Text className="text-xl font-bold">{total}</Text>
+          <Text className="text-xl font-bold">{totalVal}</Text>
         </View>
       </View>
     </View>

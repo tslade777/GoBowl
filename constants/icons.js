@@ -25,6 +25,8 @@ import addFriend from "../assets/icons/add_friend.png";
 import addImage from "../assets/icons/add_image.png";
 import editProfile from "../assets/icons/edit_profile.png";
 import save from "../assets/icons/save.png";
+import enter from "../assets/icons/accept.png";
+
 
 export default {
   play,
@@ -54,4 +56,5 @@ export default {
   addImage,
   editProfile,
   save,
+  enter
 };

@@ -61,11 +61,11 @@ export const bowlingStats: BowlingStats = {
 }
 
 export const defaultFrame: tFrame = {
-  roll1: "", roll2: "", roll3: "", score: 0,
+  roll1: -1, roll2: -1, roll3: -1, score: 0,
   firstBallPins: Array(10).fill(false),
   secondBallPins: Array(10).fill(false),
   thirdBallPins: Array(10).fill(false),
-  isSpare: false, isStrike: false, visible: true, isSplit: false }
+  isSpare: false, isStrike: false, visible: false, isSplit: false }
 
 export const defaultGame: tGame = {
   frames: Array.from({ length: 10 }, () => ({ ...defaultFrame })),
@@ -79,6 +79,7 @@ export const defaultGame: tGame = {
   gameNum: 0,
   pins: [],
   finalScore: 0,
+  selectedShot: 1
 }
 
 export const defaultFriend: Friend = { id: "", username: "Unknown User", profilePic: "", active: false }; // ✅ Prevents `null` issues

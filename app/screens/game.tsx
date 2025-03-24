@@ -15,6 +15,7 @@ import { db, FIREBASE_AUTH } from '@/firebase.config';
 import { doc, onSnapshot } from 'firebase/firestore';
 import useGameStore from '../src/zustandStore/store';
 import useSessionStore from '../src/zustandStore/sessionStore';
+import FrameView from '../components/scoreboard/FrameView';
 
 
 const initialStats: SeriesStats = {
@@ -338,7 +339,7 @@ const markSessionComplete = async () =>{
   return (
     <SafeAreaView className="flex-1 bg-primary h-full">
       <View className="flex-1">
-        <BowlingGame 
+        <FrameView 
           ref={childRef}
           sendDataToParent={handleDataFromChild}
           toggleBowling={toggleActiveGame}

@@ -1,0 +1,262 @@
+import { View, Text, TouchableOpacity, Image, PanResponder, Animated, ScrollView, Dimensions  } from 'react-native';
+import { forwardRef, useEffect, useRef, useState } from 'react';
+
+import Frame from './Frame';
+import TenthFrame from './TenthFrame';
+import icons from '@/constants/icons';
+import { defaultFrame } from '@/app/src/values/defaults';
+import { tFrame, tGame } from '@/app/src/values/types';
+import useGameViewStore from '@/app/src/zustandStore/gameStore';
+
+const { width } = Dimensions.get('window');
+const pinSize = width * 0.11; // About 12% of screen width
+const frameButtonSize = width * 0.10;
+const frameWidth = width / 10; // or /12 to leave margin
+
+
+type ChildComponentProps = {
+  sendDataToParent: (data: any) => void; // Define the function type
+  toggleBowling: (inProgress: boolean) => void;
+  updateCurrentGame: (data: any) => void;
+};
+
+export type BowlingGameRef = {
+  setGame: (game: tGame) => void;
+  clearGame: () => void;
+}
+
+const FrameView = () => {
+  // Game state
+  const [pins, setPins] = useState(Array(10).fill(false)); // Track knocked-down pins
+  const [count, setCount] = useState(0);
+  const scrollRef = useRef<ScrollView>(null);
+
+  // Zustand store 
+  const currentFrame = useGameViewStore(state => state.game.currentFrame);
+  const selectedShot = useGameViewStore(state => state.game.selectedShot);
+  const frames = useGameViewStore(state => state.game.frames)
+  const gameComplete = useGameViewStore(state => state.game.gameComplete);
+  const setSelectedShot = useGameViewStore(state => state.setSelectedShot);
+  const setCurrentFrame = useGameViewStore(state=> state.setCurrentFrame)
+  const nextShot = useGameViewStore(state => state.nextShot);
+  const prevShot = useGameViewStore(state => state.prevShot);
+  const changeFrame = useGameViewStore(state => state.changeFrame);
+  const enterShot = useGameViewStore(state => state.enterShot);
+  const setFrame = useGameViewStore(state => state.setFrame);
+  const editFrame = useGameViewStore(state => state.editFrame);
+  const getScore = useGameViewStore(state => state.getScore);
+  const resetGame = useGameViewStore(state => state.resetGame);
+
+  // Number of games
+  const [numGames, setNumGames] = useState(1);
+
+  useEffect(() => {
+    if (currentFrame >= 6) {
+      const scrollToX = currentFrame * frameWidth;
+      scrollRef.current?.scrollTo({ x: scrollToX, animated: true });
+    }
+  }, [currentFrame]);
+  
+  /**
+   * 
+   * @param index 
+   */
+  const handleFrameTouch = (index: number) => {
+    console.log(`👆 frame touch`)
+    setCurrentFrame(index)
+  }
+
+  // It's important to only toggle pins that are still standing after the first throw.
+  const handlePinToggle = (index: number) => {
+    let updatedPins = [...pins];
+    if (selectedShot == 1){
+      updatedPins[index] = !updatedPins[index];
+      
+      // Count the number of pins knocked down
+      let count = updatedPins.filter(x => x==true).length
+      setCount(count);
+      setPins(updatedPins);
+    }
+    else{
+      const firstBallPins = frames[currentFrame].firstBallPins
+      const firstBallCount = firstBallPins.filter(x => x==true).length
+      if (firstBallPins[index]) return;
+      else{
+        updatedPins[index] = !updatedPins[index];
+        let count = (updatedPins.filter(x => x==true).length-firstBallCount)
+        setCount(count);
+        setPins(updatedPins);
+      }
+    }
+  };
+
+    return (
+      <Animated.View className="items-center p-1  rounded-lg"  >
+        {/* Frames Display */}
+        <ScrollView horizontal showsHorizontalScrollIndicator={false} ref={scrollRef}>
+        <View className="flex-row space-x-1 mx-1" >
+        {frames.slice(0, 9).map((frame, index) => (
+          <TouchableOpacity key={index} onPress={() => handleFrameTouch(index)}>
+            <Frame 
+            key={index} 
+            frameNumber={index + 1} 
+            roll1={frame.roll1} 
+            roll2={frame.roll2} 
+            total={frame.visible ? frame.score :  -1}
+            isSelected= {currentFrame==index}
+            isSplit = {frame.isSplit} 
+            selectedShot = {selectedShot}
+            />      
+          </TouchableOpacity>
+        ))}
+          
+          {/* 10th Frame (Only Displayed, Not Editable) */}
+          <TouchableOpacity  onPress={() => handleFrameTouch(9)}>
+            <TenthFrame 
+            roll1={frames[9].roll1} 
+            roll2={frames[9].roll2} 
+            roll3={frames[9].roll3} 
+            total={(!gameComplete) ? -1 : frames[9].score}
+            isSelected= {currentFrame==9}
+            isSplit = {frames[9].isSplit}
+            selectedShot={selectedShot}
+            />
+          </TouchableOpacity>
+        </View>
+        </ScrollView>
+        
+        <View className=" flex-row  px-4">
+          <Text className="text-2xl text-orange pr-10 justify-between font-bold">
+          {gameComplete ? "Game Complete" : `Frame ${currentFrame+1}` }
+          </Text>
+          <Text className="text-teal pl-10 text-2xl font-bold ">Game: {numGames}</Text>
+        </View>
+        
+        
+        {/* Select Pins - Arranged in Triangle Formation */}
+        <View className="flex-row ">
+          <View className="mt-6 items-center " >
+          {[ [6, 7, 8, 9], [3, 4, 5], [1, 2], [0] ].map((row, rowIndex) => (
+          <View key={rowIndex}  className="flex-row justify-center" >
+            {row.map((index) => (
+              <TouchableOpacity 
+                key={index} 
+                activeOpacity={0}
+                onPress={() => {handlePinToggle(index)} } 
+                style={{ width: pinSize, height: pinSize, margin: 6, borderRadius: pinSize / 2 }}
+                className={`m-2 rounded-full items-center justify-center border-2 shadow-lg ${
+                  pins[index] ? 'bg-gray-600 border-black-100' : 'bg-white border-black-100'
+                }`}
+              >
+                <Text className={`${pins[index] ? "text-white" : "text-black"} font-pbold`}>
+                  {index + 1}</Text>
+              </TouchableOpacity>
+            ))}
+          </View>
+        ))}
+        </View>
+        {/* Quick Select Buttons */}
+        <View className="flex-col mt-10 items-center ">
+          <TouchableOpacity 
+            disabled={selectedShot != 1 &&currentFrame!=9}
+            onPress={()=>{console.log(`X clicked`);
+              }}
+            className="mx-5 pr-4 pl-2 py-2 rounded-lg items-center"
+          >
+            <Text className={`text-5xl ${selectedShot != 1 && currentFrame!=9 ? "text-gray-500" : "text-white"} font-pextrabold`}>X</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            disabled={selectedShot == 1}
+            onPress={()=>{console.log(`/ clicked`)}} 
+            className="mx-5 mt-4 pr-4 pl-2 py-2 rounded-lg items-center"
+          >
+            <Text className={`text-5xl ${selectedShot == 1 ? "text-gray-500" : "text-white"} font-pextrabold`}>/</Text>
+          </TouchableOpacity>
+          <TouchableOpacity 
+            onPress={()=>{console.log(`- clicked`)} }
+            className="mx-5 mt-5 pr-4 pl-2 py-2 rounded-lg items-center"
+          >
+            <Text className="text-5xl text-white font-pextrabold">-</Text>
+          </TouchableOpacity>
+        </View>
+        </View>
+      
+      {/* Manual Input Controls */}
+      <View className="flex-col mt-4 items-center"> 
+        <View className='flex-row justify-evenly items-center' >
+          {/** Previous Frame button */}
+          <TouchableOpacity 
+            onPress={()=>{changeFrame(-1)}}
+            className="m-2  px-4 py-2 rounded-lg"
+            disabled={currentFrame==0} 
+          >
+            <Image source={icons.previousFrame}
+              className='w-16 h-16'
+              resizeMode='contain'
+              style={currentFrame>0 ? {tintColor: "white"} : {tintColor: "gray"}}/>
+          </TouchableOpacity>
+          {/** Previous shot button */}
+          <TouchableOpacity 
+            onPress={()=>{prevShot()}}
+            disabled={currentFrame==0 && selectedShot == 1} 
+            className="mr-5 px-1 py-2 rounded-lg"
+          >
+            <Image source={icons.previousShot}
+              className='w-10 h-10'
+              resizeMode='contain'
+              style={currentFrame==0 && selectedShot == 1 ? {tintColor: "gray"} : {tintColor: "white"}}/>
+          </TouchableOpacity>
+
+          <TouchableOpacity 
+            onPress={()=>{enterShot(count, pins)}} 
+            className=" px-1 py-2 rounded-lg"
+          >
+            <Image source={icons.enter}
+              className='w-14 h-14'
+              resizeMode='contain'
+              />
+          </TouchableOpacity>
+
+          {/** Next shot button */}
+          <TouchableOpacity 
+            onPress={()=>{nextShot()}}
+            disabled={(currentFrame == 9 && selectedShot == 3) || (currentFrame != 9 && frames[currentFrame+1].roll1 == -1)} 
+            className="ml-5 px-1 py-2 rounded-lg"
+          >
+            <Image source={icons.nextShot}
+              className='w-10 h-10'
+              resizeMode='contain'
+              style={currentFrame== 9 && selectedShot == 3 ? {tintColor: "gray"} : {tintColor: "white"}}/>
+          </TouchableOpacity>
+          {/** Next Frame button */}
+          <TouchableOpacity 
+            onPress={()=>{changeFrame(1)}} 
+            disabled={currentFrame==9 || (currentFrame != 9 && frames[currentFrame+1].roll1 == -1)}
+            className="m-2  px-4 py-2 rounded-lg"
+          >
+            <Image source={icons.nextFrame}
+              className='w-16 h-16'
+              resizeMode='contain'
+              style={currentFrame== 9 ? {tintColor: "gray"} : {tintColor: "white"}}/>
+          </TouchableOpacity>
+
+        </View>
+        <TouchableOpacity 
+            onPress={()=>{resetGame()}} 
+            className=" px-1 py-2 rounded-lg"
+          >
+            <Image source={icons.home}
+              className='w-14 h-14'
+              resizeMode='contain'
+              />
+          </TouchableOpacity>
+        
+    </View>
+    
+    </Animated.View>
+    
+  
+    );
+}
+  
+  export default FrameView;

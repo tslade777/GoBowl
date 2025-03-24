@@ -70,6 +70,7 @@ export interface UserData {
 export interface tGame {
   frames: tFrame[];
   pins: boolean[];
+  selectedShot: number;
   currentFrame: number;
   farthestFrame: number;
   isFirstRoll: Boolean;
@@ -81,20 +82,10 @@ export interface tGame {
   finalScore: number,
 }
 
-export interface GameStore {
-  game: tGame;
-  isSaved: boolean
-  setGame: (game: tGame) => void;
-  updateGame: (partial: Partial<tGame>) => void;
-  resetGame: () => void;
-  markSaved: () => void;
-  markUnsaved: () => void;
-}
-
 export interface tFrame {
-    roll1: string;
-    roll2: string;
-    roll3: string;
+    roll1: number;
+    roll2: number;
+    roll3: number;
     score: number;
     firstBallPins: boolean[];
     secondBallPins: boolean[];

@@ -5,6 +5,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { collection, getDocs } from 'firebase/firestore';
 import { db } from '@/firebase.config';
 import GameStatTile from '../gamestattile';
+import FrameView from '../components/scoreboard/FrameView';
 
 interface Game {
   id: string;
@@ -35,16 +36,9 @@ const Home = () => {
 
   return (
     <SafeAreaView className='bg-primary h-full'>
-      <Text className='text-3xl text-center text-white mt-5'>Friends' Game Stats</Text>
-      {loading ? (
-        <ActivityIndicator size='large' color='#F24804' />
-      ) : (
-        <FlatList
-          data={games}
-          keyExtractor={(item) => item.id}
-          renderItem={({ item }) => <GameStatTile game={item} />}
+       <FrameView 
+          
         />
-      )}
     </SafeAreaView>
   );
 };

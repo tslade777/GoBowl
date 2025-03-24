@@ -94,6 +94,7 @@ export interface tFrame {
     isStrike: boolean;
     visible: boolean;
     isSplit: boolean;
+    complete: boolean;
   }
 
  export interface BowlingStats {

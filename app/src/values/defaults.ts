@@ -65,7 +65,9 @@ export const defaultFrame: tFrame = {
   firstBallPins: Array(10).fill(false),
   secondBallPins: Array(10).fill(false),
   thirdBallPins: Array(10).fill(false),
-  isSpare: false, isStrike: false, visible: false, isSplit: false }
+  isSpare: false, isStrike: false, visible: false, isSplit: false,
+  complete: false
+}
 
 export const defaultGame: tGame = {
   frames: Array.from({ length: 10 }, () => ({ ...defaultFrame })),

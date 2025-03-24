@@ -93,9 +93,10 @@ export const setFirstShot = (game: tGame,pins: boolean[]): tGame => {
     currFrame.firstBallPins = pins;
     currFrame.roll1 = count;
     currFrame.isStrike = count == 10;
+    currFrame.complete = currFrame.isStrike && updated.currentFrame!=9;
     currFrame.visible = !currFrame.isStrike;
     currFrame.isSplit = checkIsSplit(pins);
-    currFrame.score = 10;
+    currFrame.score = -1;
   
     return updated;
   };
@@ -104,6 +105,7 @@ export const setFirstShot = (game: tGame,pins: boolean[]): tGame => {
     const firstBallPins = game.frames[game.currentFrame].firstBallPins
     const firstBallCount = firstBallPins.filter(x => x==true).length
     let count = (pins.filter(x => x==true).length-firstBallCount)
+    count = count < 0 ? 0 : count
     let updated = { ...game };
   
     let currFrame = updated.frames[updated.currentFrame];
@@ -111,8 +113,49 @@ export const setFirstShot = (game: tGame,pins: boolean[]): tGame => {
     currFrame.secondBallPins = pins;
     currFrame.roll2 = count;
     currFrame.isSpare = currFrame.roll1+count == 10;
+    currFrame.complete = updated.currentFrame!=9;
     currFrame.visible = !currFrame.isSpare;
-    currFrame.score = 10;
+    currFrame.score = -1;
+  
+    return updated;
+  };
+
+  export const setTenthSecondShot = (game: tGame,pins: boolean[]): tGame => {
+    let count = pins.filter(x => x==true).length
+    let updated = { ...game };
+  
+    let currFrame = updated.frames[updated.currentFrame];
+
+    currFrame.secondBallPins = pins;
+    currFrame.roll2 = count;
+    currFrame.visible = (count != 10);
+    currFrame.score = -1;
+  
+    return updated;
+  };
+
+  export const setThirdShot = (game: tGame,pins: boolean[]): tGame => {
+    let updated = { ...game };
+  
+    let currFrame = updated.frames[updated.currentFrame];
+
+    const secondBallPins = currFrame.secondBallPins
+    const secondBallCount = secondBallPins.filter(x => x==true).length
+    
+    let count = 0;
+    // Treat it like a first ball.
+    if(currFrame.isSpare || currFrame.roll2 == 10){
+        count = pins.filter(x => x==true).length
+    }
+    else{
+        count = (pins.filter(x => x==true).length-secondBallCount)
+    }
+
+    currFrame.thirdBallPins = pins;
+    currFrame.roll3 = count;
+    currFrame.visible = true;
+    currFrame.score = -1;
+    currFrame.complete = true;
   
     return updated;
   };

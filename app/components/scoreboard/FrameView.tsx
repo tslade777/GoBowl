@@ -37,7 +37,7 @@ const FrameView = () => {
   const frames = useGameViewStore(state => state.game.frames)
   const gameComplete = useGameViewStore(state => state.game.gameComplete);
   const setSelectedShot = useGameViewStore(state => state.setSelectedShot);
-  const setCurrentFrame = useGameViewStore(state=> state.setCurrentFrame)
+  const setCurrentFrame = useGameViewStore(state=> state.setSelectedFrame)
   const nextShot = useGameViewStore(state => state.nextShot);
   const prevShot = useGameViewStore(state => state.prevShot);
   const changeFrame = useGameViewStore(state => state.changeFrame);
@@ -62,6 +62,10 @@ const FrameView = () => {
    * @param index 
    */
   const handleFrameTouch = (index: number) => {
+    const touchedFrame = frames[index];
+    if(touchedFrame.roll1 == -1 && index != 0 && frames[index-1].roll1 == -1)
+        return;
+
     console.log(`👆 frame touch`)
     setCurrentFrame(index)
   }
@@ -89,6 +93,61 @@ const FrameView = () => {
       }
     }
   };
+
+  // Handle unique pin toggle of tenth frame
+  function tenthFramePinToggle(index: number){
+    let updatedPins = [...pins];
+
+    if (selectedShot == 1){
+      updatedPins[index] = !updatedPins[index];
+
+      // Count the number of pins knocked down
+      setPins(updatedPins);
+    }
+    else{
+      if(!frames[9].isStrike && selectedShot != 3){
+        const firstPins = frames[9].firstBallPins
+        if (firstPins[index]) return;
+        else{
+          updatedPins[index] = !updatedPins[index];
+          setPins(updatedPins)
+        }
+      }
+      else{
+        if (selectedShot != 3 && frames[9].roll2 != 10 && !frames[9].isSpare){
+          const secondPins = frames[9].secondBallPins
+          if (secondPins[index]) return;
+          else{
+            updatedPins[index] = !updatedPins[index];
+            setPins(updatedPins)
+          }
+        }
+        else{
+          updatedPins[index] = !updatedPins[index];
+          setPins(updatedPins);
+        }
+      }
+    }
+  }
+
+  const handleZeroQuickSelect = () =>{
+    if(selectedShot == 1)
+        enterShot(10, Array(10).fill(false))
+    else if(selectedShot == 2){
+        if(currentFrame==9 && frames[9].roll1==10)
+            enterShot(10, Array(10).fill(false))
+        enterShot(0, frames[9].firstBallPins);
+    }
+    else{
+        if (frames[9].roll2 != 10 && frames[9].isStrike)
+            enterShot(0, frames[9].secondBallPins);
+        enterShot(0, Array(10).fill(false));
+    }
+  }
+
+  const resetPins = () =>{
+    setPins(Array(10).fill(false))
+  }
 
     return (
       <Animated.View className="items-center p-1  rounded-lg"  >
@@ -142,7 +201,7 @@ const FrameView = () => {
               <TouchableOpacity 
                 key={index} 
                 activeOpacity={0}
-                onPress={() => {handlePinToggle(index)} } 
+                onPress={() => {currentFrame == 9 ? tenthFramePinToggle(index) : handlePinToggle(index);} } 
                 style={{ width: pinSize, height: pinSize, margin: 6, borderRadius: pinSize / 2 }}
                 className={`m-2 rounded-full items-center justify-center border-2 shadow-lg ${
                   pins[index] ? 'bg-gray-600 border-black-100' : 'bg-white border-black-100'
@@ -159,7 +218,7 @@ const FrameView = () => {
         <View className="flex-col mt-10 items-center ">
           <TouchableOpacity 
             disabled={selectedShot != 1 &&currentFrame!=9}
-            onPress={()=>{console.log(`X clicked`);
+            onPress={()=>{enterShot(10, Array(10).fill(true)); resetPins();
               }}
             className="mx-5 pr-4 pl-2 py-2 rounded-lg items-center"
           >
@@ -173,7 +232,7 @@ const FrameView = () => {
             <Text className={`text-5xl ${selectedShot == 1 ? "text-gray-500" : "text-white"} font-pextrabold`}>/</Text>
           </TouchableOpacity>
           <TouchableOpacity 
-            onPress={()=>{console.log(`- clicked`)} }
+            onPress={()=>{handleZeroQuickSelect()} }
             className="mx-5 mt-5 pr-4 pl-2 py-2 rounded-lg items-center"
           >
             <Text className="text-5xl text-white font-pextrabold">-</Text>

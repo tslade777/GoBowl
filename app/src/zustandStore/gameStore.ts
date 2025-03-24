@@ -2,8 +2,8 @@ import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { tGame, tFrame } from '../values/types';
-import { defaultGame } from '../values/defaults';
-import { changeToFrame, goToNextShot, goToPrevShot, setFirstShot, setSecondShot } from './gameHelpers';
+import { defaultFrame, defaultGame } from '../values/defaults';
+import { changeToFrame, goToNextShot, goToPrevShot, setFirstShot, setSecondShot, setTenthSecondShot, setThirdShot } from './gameHelpers';
 
 interface ScoreboardStore {
   game: tGame;
@@ -13,7 +13,7 @@ interface ScoreboardStore {
   prevShot: () => void;
   changeFrame: (num: number) => void;
   setSelectedShot: (shotNum: number) => void;
-  setCurrentFrame: (frameNum: number)=> void;
+  setSelectedFrame: (frameNum: number)=> void;
   enterShot: (count: number, pins: boolean[]) => void;
   setPins: (pins:boolean[]) => void;
   setFrame: (frameNum: number) => void;
@@ -27,7 +27,7 @@ interface ScoreboardStore {
 const useGameViewStore = create<ScoreboardStore>()(
   persist(
     (set, get) => ({
-      game: defaultGame,
+      game: {...defaultGame},
       gameComplete: false,
 
       setSelectedShot: (shotNum: number) => {
@@ -48,8 +48,7 @@ const useGameViewStore = create<ScoreboardStore>()(
         set({ game: updatedGame });
       },
 
-      setCurrentFrame: (frameNum: number)=>{
-        console.log(`✅ frame changed`)
+      setSelectedFrame: (frameNum: number)=>{
         const updatedGame = get().game;
         updatedGame.currentFrame = frameNum;
         updatedGame.selectedShot = 1;
@@ -61,49 +60,66 @@ const useGameViewStore = create<ScoreboardStore>()(
       enterShot: (count: number, pins: boolean[]) => {
         
         const game = get().game;
-        const currentFrameIndex = game.currentFrame;
-        const frame = game.frames[currentFrameIndex] || {
-          roll1: -1,
-          roll2: -1,
-          roll3: -1,
-          firstBallPins: [],
-          secondBallPins: [],
-          thirdBallPins: [],
-          isSpare: false,
-          isStrike: false,
-          score: 0,
-          visible: true,
-          isSplit: false,
-        };
 
         let updatedGame = { ...game };
+        let currFrame = updatedGame.frames[updatedGame.currentFrame];
 
-        if (game.selectedShot==1) {
-            console.log(`First ball`)
-            updatedGame = setFirstShot(updatedGame, pins)
-            let currFrame = updatedGame.frames[updatedGame.currentFrame];
-
-            if(currFrame.isStrike)
-                updatedGame.currentFrame += updatedGame.currentFrame < 9 ? 1:0;
-            else
-                updatedGame.selectedShot = 2;
-          
-        } 
-        else if (game.selectedShot == 2) {
-            console.log(`second ball`)
-            updatedGame = setSecondShot(updatedGame, pins)
-            updatedGame.currentFrame +=1;
-            updatedGame.selectedShot = 1;
-        } else {
-          frame.roll3 = count;
-          frame.thirdBallPins = pins;
-          updatedGame.isFinalRoll = false;
-          updatedGame.isFirstRoll = true;
+        // Check if frame has scores, if so, clear them.
+        if(currFrame.roll1 != -1 && currFrame.complete){
+            console.log(`[69] editing frame`)
+            currFrame = {...defaultFrame};
+            updatedGame.frames[updatedGame.currentFrame] = currFrame;
+        }
+        else{
+            console.log(`first roll ${currFrame.roll1} and frame complete: ${currFrame.complete}`)
         }
 
-        updatedGame.frames[currentFrameIndex] = frame;
-        updatedGame.pins = pins;
-        updatedGame.edited = true;
+        // tenth frame is a little different.
+        if(updatedGame.currentFrame == 9){
+            if(updatedGame.selectedShot == 1){
+                updatedGame = setFirstShot(updatedGame, pins)
+                updatedGame.selectedShot = 2;
+            }
+            else if (updatedGame.selectedShot == 2){
+                // Normal frame if first ball is not a strike.
+                if (!currFrame.isStrike){
+                    updatedGame = setSecondShot(updatedGame, pins)
+                    updatedGame.selectedShot = 2;
+                    updatedGame.gameComplete = !currFrame.isSpare; // Game over if ball 1 isn't strike and ball 2 isn't spare.
+                    updatedGame.selectedShot = currFrame.isSpare ? 3:2;
+                }
+                else{
+                    updatedGame = setTenthSecondShot(updatedGame, pins)
+                    updatedGame.selectedShot = 3
+                }
+            }
+            else{
+                updatedGame = setThirdShot(updatedGame, pins)
+                updatedGame.gameComplete = true;
+                updatedGame.selectedShot = 3;
+            }
+        }
+
+        // Handle first shot
+        else if (game.selectedShot==1) {
+            updatedGame = setFirstShot(updatedGame, pins)
+
+            if(currFrame.isStrike){
+                updatedGame.currentFrame += updatedGame.currentFrame < 9 ? 1:0;
+            }
+            else
+                updatedGame.selectedShot = 2;
+        } // Handle second shot
+        else if (game.selectedShot == 2) {
+            updatedGame = setSecondShot(updatedGame, pins)
+
+            // If it's the tenth, go to last roll if allowed. 
+            updatedGame.currentFrame +=1;
+            updatedGame.selectedShot = 1;
+        
+        } else {
+            console.log(`Last shot`)
+        }
 
         set({ game: updatedGame });
       },
@@ -167,7 +183,8 @@ const useGameViewStore = create<ScoreboardStore>()(
       },
 
       resetGame: () => {
-        set({ game: defaultGame, gameComplete: false });
+        //const cloneGame = JSON.parse(JSON.stringify({...defaultGame}));
+        set({ game: {...defaultGame}, gameComplete: false });
       },
     }),
     {

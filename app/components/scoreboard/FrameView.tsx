@@ -76,7 +76,6 @@ const FrameView = () => {
     if(touchedFrame.roll1 == -1 && index != 0 && frames[index-1].roll1 == -1)
         return;
 
-    console.log(`👆 frame touch`)
     setCurrentFrame(index)
   }
 
@@ -288,7 +287,7 @@ const FrameView = () => {
 
           {/** Next shot button */}
           <TouchableOpacity 
-            onPress={()=>{nextShot()}}
+            onPress={()=>{nextShot(); console.log(`[290 FrameView.tsx]👆 Next Shot`)}}
             disabled={(currentFrame == 9 && selectedShot == 3) || (currentFrame != 9 && frames[currentFrame+1].roll1 == -1 && selectedShot ==2)} 
             className="ml-5 px-1 py-2 rounded-lg"
           >

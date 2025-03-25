@@ -86,6 +86,7 @@ export const changeToFrame = (game: tGame, num: number): tGame => {
 
 export const setFirstShot = (game: tGame,pins: boolean[]): tGame => {
     let count = pins.filter(x => x==true).length
+    console.log(`Count: ${count}`)
     let updated = { ...game };
   
     let currFrame = updated.frames[updated.currentFrame];
@@ -96,7 +97,6 @@ export const setFirstShot = (game: tGame,pins: boolean[]): tGame => {
     currFrame.complete = currFrame.isStrike && updated.currentFrame!=9;
     currFrame.visible = false;
     currFrame.isSplit = checkIsSplit(pins);
-    currFrame.score = -1;
   
     return updated;
   };
@@ -224,10 +224,16 @@ export const calculateTotalScore = (game: tGame) => {
     updated.frames = frames
     return updated
   }
+
+/**
+ * 
+ * @param game 
+ * @returns 
+ */
 export const showAll = (game: tGame) =>{
     let updated = { ...game };
     let frames = updated.frames
-    for (var i = updated.farthestFrame; i >= 0; i--){
+    for (var i = 9; i >= 0; i--){
         let frame = frames[i]
         frame.visible = true
         frames[i] = frame;
@@ -239,20 +245,22 @@ export const showAll = (game: tGame) =>{
   // Calculate and return the total score that will go into the frame provided.
 export const showHideScores = (game: tGame) => {
     let updated = { ...game };
-    let frames = {...updated.frames}
+    let frames = updated.frames
     let showAll = false;
     let farthestFound = false;
-    console.log(`farthest frame: ${updated.farthestFrame}`)
+    
     if(frames[0].roll1 == -1) return updated;
     
-    console.log(`Showing scores`)
-    for (var i = updated.farthestFrame; i >= 0; i--){
-      let frame = { ...updated.frames[i] };
+    for (var i = 9; i >= 0; i--){
+      let frame = updated.frames[i];
+      if(frame.roll1 == -1)continue;
+      if(i==9 && frame.complete){
+        showAll = true
+      }
       // 1st condition, if the farthest frame isn't a strike, show all
       if(showAll){
         frame.visible = true
         frames[i] = frame
-        console.log(`Showing ALL scores`)
         continue;
       }
       // if we're striking, don't show all, if its a spare: show all except this frame, 
@@ -260,23 +268,20 @@ export const showHideScores = (game: tGame) => {
       if(frame.roll1 != -1 && !farthestFound){
         farthestFound = true;
         if(frame.isStrike) {
-            console.log(`farthest frame is a strike, don't show`)
             frame.visible = false;
             frames[i] = frame;
             continue;
         }
         else if(frame.isSpare) {
-            console.log(`farthest frame is a spare, don't show. But show all after`)
             frame.visible = false;
         }
         else frame.visible = true;
         showAll = true;
-        console.log(`farthest frame is a neither, show all.`)
+        
         continue;
       }
       // We will only hit this if show all is not true, thus we must be striking. 
       if(frame.isStrike){
-        console.log(`Striking, don't show`)
         frame.visible = false;
         frames[i] = frame;
       }

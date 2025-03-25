@@ -60,8 +60,8 @@ const useGameViewStore = create<ScoreboardStore>()(
 
       endGame: ()=>{
         const game = get().game;
-        let updatedGame = showAll(game);
-        set({game:updatedGame});
+        
+        set({game:game});
       },
 
       enterShot: (count: number, pins: boolean[]) => {
@@ -119,13 +119,11 @@ const useGameViewStore = create<ScoreboardStore>()(
             // If it's the tenth, go to last roll if allowed. 
             updatedGame.currentFrame +=1;
             updatedGame.selectedShot = 1;
-        
         } else {
             console.log(`Last shot`)
         }
-        updatedGame = calculateTotalScore(updatedGame)
-        console.log(`Show hide scores`)
-        //updatedGame = showHideScores(updatedGame);
+        updatedGame = calculateTotalScore({...updatedGame})
+        updatedGame = showHideScores({...updatedGame});
 
         set({ game: updatedGame });
       },

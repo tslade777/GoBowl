@@ -61,7 +61,7 @@ export const bowlingStats: BowlingStats = {
 }
 
 export const defaultFrame: tFrame = {
-  roll1: -1, roll2: -1, roll3: -1, score: 0,
+  roll1: -1, roll2: -1, roll3: -1, score: -1,
   firstBallPins: Array(10).fill(false),
   secondBallPins: Array(10).fill(false),
   thirdBallPins: Array(10).fill(false),

@@ -438,7 +438,7 @@ const updateFirebaseGameComplete = async (type:string, name:string, leagueID:str
       }
       else{
         await updateDoc(doc(db,type, sessionID),{
-          games: gamesData,
+          games: gamesData.data,
           stats: seriesStats
         })
       }

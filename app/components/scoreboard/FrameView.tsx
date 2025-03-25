@@ -63,7 +63,8 @@ const FrameView = () => {
   },[currentFrame])
 
   useEffect(()=>{
-    endGame();
+    if(gameComplete)
+      endGame();
   },[gameComplete])
   
   /**

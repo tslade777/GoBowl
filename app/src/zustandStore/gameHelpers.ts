@@ -275,6 +275,11 @@ export const showHideScores = (game: tGame) => {
         else if(frame.isSpare) {
             frame.visible = false;
         }
+        else if(frame.roll2 == -1){
+          frame.visible = false;
+          showAll = true
+          continue;
+        }
         else frame.visible = true;
         showAll = true;
         

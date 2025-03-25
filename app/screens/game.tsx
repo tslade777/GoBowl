@@ -5,8 +5,8 @@ import BowlingGame, { BowlingGameRef } from '../components/scoreboard/BowlingGam
 import { useLocalSearchParams } from 'expo-router/build/hooks';
 import { router, useNavigation } from 'expo-router';
 import useBowlingStats from '../hooks/useBowlingStats';
-import { tGame, BowlingStats, SeriesStats, Session } from "@/app/src/values/types";
-import { defaultSeriesStats } from "@/app/src/values/defaults";
+import { tGame, BowlingStats, SeriesStats, Session, SeriesData, Game } from "@/app/src/values/types";
+import { defaultSeriesData, defaultSeriesStats } from "@/app/src/values/defaults";
 import { setFirebaseActive, setFirebaseInActive, updateFirebaseActiveGames, updateFirebaseGameComplete, updateFirebaseLeagueWeekCount } from '../hooks/firebaseFunctions';
 import { SESSIONS } from '../src/config/constants';
 
@@ -16,6 +16,7 @@ import { doc, onSnapshot } from 'firebase/firestore';
 import useGameStore from '../src/zustandStore/store';
 import useSessionStore from '../src/zustandStore/sessionStore';
 import FrameView from '../components/scoreboard/FrameView';
+import useGameViewStore from '../src/zustandStore/gameStore';
 
 
 const initialStats: SeriesStats = {
@@ -25,17 +26,18 @@ const initialStats: SeriesStats = {
 const game = () => {
   const args = useLocalSearchParams();
   const [numGames, setNumGames] = useState(0);
-  const [gamesData, setGamesData] = useState([{}])
-  const [activeGame, setActiveGame] = useState(true)
+  const [seriesData, setSeriesData] = useState<SeriesData>({...defaultSeriesData})
   const [firstRender, setFirstRender] = useState(true)
   const [seriesStats, setSeriesStats] = useState<SeriesStats>(initialStats)
-  const [games, setGames] = useState<tGame[]>([])
   const [index, setIndex] = useState(0);
   const [numViewers, setNumViewers] = useState(0)
-  const [gameComplete, setGameComplete] = useState(false)
 
-  const resetGame = useGameStore((state) => state.resetGame)
+  const resetGame = useGameViewStore((state) => state.resetGame)
+  const currGame = useGameViewStore((state) => state.game)
+  const gameComplete = useGameViewStore((state) => state.game.gameComplete)
+
   const markUnsaved = useGameStore((state) => state.markUnsaved)
+
   const session = useSessionStore((state) => state.session)
   const isActive = useSessionStore((state) => state.isActive)
   const setSession = useSessionStore((state) => state.setSession)
@@ -45,8 +47,11 @@ const game = () => {
 
   const navigation = useNavigation()
 
+  // Stat tracking
   let highGame = 0;
   let lowGame = 301;
+
+  // Session id, leagueID, session name, and session type. 
   let sID = args.id as string;
   let lID = args.leagueID as string;
   let sName = args.name as string;
@@ -114,7 +119,7 @@ const game = () => {
    */
   const previousGame = () =>{
     if (index > 0){
-      childRef.current?.setGame(games[index-1])
+      childRef.current?.setGame(seriesData.data[index-1].game)
       setIndex(index-1)
     }
   }
@@ -123,24 +128,22 @@ const game = () => {
    * Start then next game
    */
   const nextGame = () =>{
-    // if we are in game history, pass next game
-    if (index < games.length-1){
-      childRef.current?.setGame(games[index+1])
-      setIndex(index+1)
-    }
-    else if (games[games.length-1].gameComplete){
-      childRef.current?.clearGame()
-      setIndex(games.length)
-    }
-  }
-
-  /**
-   * Called when a game is over 
-   * @param inProgress 
-   */
-  const toggleActiveGame = (inProgress:boolean)=>{
-    setGameComplete(inProgress)
-    saveSession();
+    try{
+      let games = seriesData.data;
+      // if we are in game history, pass next game
+      if (index < seriesData.data.length-1){
+        console.log(`🎳 [130 game.tsx] In game history, load next`)
+        childRef.current?.setGame(games[index+1].game)
+        setIndex(index+1)
+      }
+      else if (currGame.gameComplete){
+        console.log(`🎳 [135 game.tsx] Next game`)
+        resetGame()
+        setIndex(games.length)
+      }
+    }catch(e){
+      console.log(`🎳 [141 game.tsx] Error `, e)
+    }  
   }
 
   // Load saved game on startup
@@ -153,12 +156,16 @@ const game = () => {
    * Update the current game that is being streamed
    * @param game 
    */
-  const updateCurrentGame = (game: tGame) =>{
-    let newGames = [...games];
-    newGames[game.gameNum-1] = game;
-    setGames(newGames)
-    updateFirebaseActiveGames(newGames)
-    setIndex(game.gameNum-1)
+  const updateCurrentGame = () =>{
+    console.log(`🎳 [158 game.tsx] Update current game`)
+    let newSeriesData = {...seriesData}
+    const newGameEntry: Game = {
+      game: currGame,
+      stats: useBowlingStats(currGame.frames)
+    }
+    newSeriesData.data[newSeriesData.data.length-1] = newGameEntry;
+    updateFirebaseActiveGames(newSeriesData.data)
+    setIndex(seriesData.data.length-1)
   }
 
   /**
@@ -166,15 +173,10 @@ const game = () => {
    * 
    * @param data The game data for the recently bowled game. 
    */
-  const handleDataFromChild = async (data: any) =>{
-    if (!data || !Array.isArray(data)) {
-      console.error("📛 Invalid data received from child:", data);
-      return;
-    }
-    
-    const stats = useBowlingStats(data);
-    
-
+  const gameBowled = async () =>{
+    console.log(`🎳 [178 game.tsx] Game bowled.`)
+    const stats = useBowlingStats(currGame.frames);
+  
     const statsList: BowlingStats = {
       finalScore: stats.finalScore,
       totalStrikes: stats.totalStrikes,
@@ -201,13 +203,20 @@ const game = () => {
     }
     addToSerriesStats(statsList, numGames+1)
     setNumGames(numGames+1)
-    setGamesData([...gamesData, {game: data, stats: statsList}])
-    saveSession();
-    resetGame();
+
+    let newSeriesData = {...seriesData}
+    const newGameEntry: Game = {
+      game: currGame,
+      stats: statsList
+    }
+    newSeriesData.data[newSeriesData.data.length-1] = newGameEntry; // Update currently finished game. 
+    newSeriesData = {...newSeriesData, data: newSeriesData.data, stats: seriesStats}
+    setSeriesData(newSeriesData);
+    saveSession(newSeriesData);
   }
 
 /**
- * Loads the session from async storage
+ * Loads the session from Zustand
  */
 const loadSession = async ()=>{
   try {
@@ -218,14 +227,22 @@ const loadSession = async ()=>{
       sName = session.name;
       sType = session.type;
       setNumGames(session.numGames);
-      setGames(session.games);
-      setGamesData(session.gamesData)
-      setActiveGame(session.activeGame);
-      setGameComplete(Boolean(session.games[games.length].gameComplete))
+      setSeriesData(session.seriesData)
       setFirstRender(true);
-      setSeriesStats(session.seriesStats);
+      setSeriesStats(session.seriesData.stats);
       lowGame = session.localLowGame;
       highGame = session.localHighGame;
+    }
+    else{
+      resetGame();
+      session.activeGame = true;
+      let newSeriesData = {...seriesData}
+      const newGameEntry: Game = {
+        game: currGame,
+        stats: useBowlingStats(currGame.frames)
+      }
+      newSeriesData.data[0] = newGameEntry;
+      console.log(`🎳 [229 game.tsx] Good luck and good bowling.`)
     }
   } catch (error) {
     console.error('📛 Error loading game:', error);
@@ -235,20 +252,20 @@ const loadSession = async ()=>{
 /**
  * Saves the session to zustand
  */
-const saveSession = async () => {
+const saveSession = async (seriesData:SeriesData) => {
+  session.activeGame = true;
   try {
+    console.log('😇 [251, game.tsx]: Saving Game');
     const sessionState:Session = {
       sessionID: sID,
       leagueID: lID,
       name: sName,
       type: sType,
       numGames,
-      gamesData: gamesData,
-      games: games,
-      activeGame, 
-      seriesStats,
+      seriesData: seriesData,
       localHighGame: highGame,
       localLowGame: lowGame,
+      activeGame: false
     };
     setSession(sessionState)
   } catch (error) {
@@ -261,6 +278,7 @@ const saveSession = async () => {
  */
 const markSessionComplete = async () =>{
   try {
+    console.log(`🥳 [275 game.tsx] Session Complete.`)
     resetGame();
     markUnsaved();
     clearSession();
@@ -320,15 +338,16 @@ const markSessionComplete = async () =>{
       setFirstRender(false);
       return;
     }
-    updateFirebaseGameComplete(sType, sName, lID,sID,gamesData,seriesStats)
-  },[gamesData])
+    console.log(`🎳 [335 game.tsx] We're updating the game complete here for some reason.`)
+    updateFirebaseGameComplete(sType, sName, lID,sID,seriesData,seriesStats)
+  },[seriesData])
 
   /**
    * End the current session. No futher updates to firebase will be made. 
    * Redirect to create page. 
    */
   const endSession = () =>{
-    setActiveGame(false)
+    session.activeGame = false;
     if(sType == SESSIONS.league){
       updateFirebaseLeagueWeekCount(lID, sName.toString())
     }
@@ -341,16 +360,16 @@ const markSessionComplete = async () =>{
       <View className="flex-1">
         <FrameView 
           ref={childRef}
-          sendDataToParent={handleDataFromChild}
-          toggleBowling={toggleActiveGame}
+          sendDataToParent={gameBowled}
+          toggleBowling={()=>{}}
           updateCurrentGame={updateCurrentGame}
         />
 
         {/* Button Positioned at Bottom Right */}
         <TouchableOpacity
           onPress={endSession}
-          disabled = {gameComplete}
-          className={`absolute bottom-9 left-1/2 -translate-x-1/2 ${gameComplete ? "bg-red-700":"bg-green-800"} px-4 py-2 rounded-lg`}
+          disabled = {!gameComplete}
+          className={`absolute bottom-9 left-1/2 -translate-x-1/2 ${!gameComplete ? "bg-red-700":"bg-green-800"} px-4 py-2 rounded-lg`}
         >
           <Text className="text-white font-bold">End Session</Text>
         </TouchableOpacity>

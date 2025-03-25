@@ -61,7 +61,7 @@ const useGameViewStore = create<ScoreboardStore>()(
 
       endGame: ()=>{
         const game = get().game;
-        
+        game.gameComplete = true;
         set({game:game});
       },
 

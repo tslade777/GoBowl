@@ -2,12 +2,13 @@ import { create } from 'zustand'
 import { persist, createJSONStorage } from 'zustand/middleware'
 import AsyncStorage from '@react-native-async-storage/async-storage'
 import { Session } from '../values/types';
+import { defaultSession } from '../values/defaults';
 
 // import { tGame } from './types'
 // import { SeriesStats } from './types'
 
 interface SessionStore {
-  session: Session | null;
+  session: Session;
   isActive: boolean;
   setSession: (session: Session) => void;
   clearSession: () => void;
@@ -16,7 +17,7 @@ interface SessionStore {
 const useSessionStore = create<SessionStore>()(
     persist(
       (set) => ({
-        session: null,
+        session: {...defaultSession},
         isActive: false,
         setSession: (session) =>
           set({
@@ -25,7 +26,7 @@ const useSessionStore = create<SessionStore>()(
           }),
         clearSession: () =>
           set({
-            session: null,
+            session: {...defaultSession},
             isActive: false,
           }),
       }),

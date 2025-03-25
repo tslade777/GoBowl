@@ -40,13 +40,13 @@ import { bowlingStats } from "../src/values/defaults";
       
       // Tenth frame special stats
       if(index==9){
-        totalStrikes += roll1=='10'? 1:0
-        totalStrikes += roll2=='10'? 1:0
-        totalStrikes += roll3=='10'? 1:0
+        totalStrikes += roll1==10? 1:0
+        totalStrikes += roll2==10? 1:0
+        totalStrikes += roll3==10? 1:0
         
         if(isSpare)strikeOpportunities+=2;
         if(isStrike) strikeOpportunities+=2
-        if(isStrike && roll2 == '10')strikeOpportunities+=1
+        if(isStrike && roll2 == 10)strikeOpportunities+=1
       }
       else strikeOpportunities += 1;
       // Frame strike or spare stats
@@ -54,7 +54,7 @@ import { bowlingStats } from "../src/values/defaults";
       if (isSpare) totalSpares++;
   
       // Identify single-pin spare opportunities
-      if (!isStrike && roll2 !== "" && firstBallPins.filter(Boolean).length === 9) {
+      if (!isStrike && roll2 !== -1 && firstBallPins.filter(Boolean).length === 9) {
         singlePinAttempts++;
         if (isSpare) singlePinSpares++;
 
@@ -76,9 +76,9 @@ import { bowlingStats } from "../src/values/defaults";
       // Open frames
       if (!isStrike && !isSpare) openFrames++;
       
-      if (roll1 !== "") totalShots++;
-      if (roll2 !== "") totalShots++;
-      if (index === 9 && roll3 !== "") totalShots++;
+      if (roll1 !== -1) totalShots++;
+      if (roll2 !== -1) totalShots++;
+      if (index === 9 && roll3 !== -1) totalShots++;
   
       if (!isStrike) spareOpportunities++;
 

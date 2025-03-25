@@ -1,4 +1,4 @@
-import { SeriesStats, BowlingStats, PinCombinations, Friend, tFrame, tGame } from "./types";
+import { SeriesStats, BowlingStats, PinCombinations, Friend, tFrame, tGame, Session, SeriesData } from "./types";
 // defaults.ts or constants.ts
 export const defaultSeriesStats: SeriesStats = {
   seriesScore: 0,
@@ -83,6 +83,23 @@ export const defaultGame: tGame = {
   finalScore: 0,
   selectedShot: 1
 }
+export const defaultSeriesData: SeriesData ={
+  data: [],
+  stats: defaultSeriesStats,
+}
+export const defaultSession: Session ={
+  sessionID: "",
+  leagueID: "",
+  name: "",
+  type: "",
+  numGames: 1,
+  seriesData: defaultSeriesData,
+  activeGame: false, 
+  localHighGame: 0,
+  localLowGame: 301,
+}
+
+
 
 export const defaultFriend: Friend = { id: "", username: "Unknown User", profilePic: "", active: false }; // ✅ Prevents `null` issues
   

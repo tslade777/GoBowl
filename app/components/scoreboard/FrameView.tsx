@@ -15,9 +15,9 @@ const frameWidth = width / 10; // or /12 to leave margin
 
 
 type ChildComponentProps = {
-  sendDataToParent: (data: any) => void; // Define the function type
+  sendDataToParent: () => void; // Define the function type
   toggleBowling: (inProgress: boolean) => void;
-  updateCurrentGame: (data: any) => void;
+  updateCurrentGame: () => void;
 };
 
 export type BowlingGameRef = {
@@ -25,7 +25,8 @@ export type BowlingGameRef = {
   clearGame: () => void;
 }
 
-const FrameView = () => {
+const FrameView = forwardRef<BowlingGameRef, ChildComponentProps>(
+  ({ sendDataToParent, toggleBowling, updateCurrentGame }, ref) => {
   // Game state
   const [pins, setPins] = useState(Array(10).fill(false)); // Track knocked-down pins
   const [count, setCount] = useState(0);
@@ -62,11 +63,25 @@ const FrameView = () => {
     setPins(frames[currentFrame].firstBallPins)
   },[currentFrame])
 
+  /**
+   * Game is finished, mark it as so.
+   */
   useEffect(()=>{
-    if(gameComplete)
+    if(gameComplete){
+      console.log(`🎳 [71 FrameView.tsx] Marking Gmae complete`)
+      sendDataToParent();
       endGame();
+    }
   },[gameComplete])
   
+  /**
+   * Update the current game on firebase. 
+   */
+  useEffect(()=>{
+    console.log(`🎳 [80 FrameView.tsx] Update game`)
+    updateCurrentGame();
+  },[frames])
+
   /**
    * 
    * @param index 
@@ -326,5 +341,6 @@ const FrameView = () => {
   
     );
 }
+);
   
   export default FrameView;

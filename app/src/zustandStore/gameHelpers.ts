@@ -88,7 +88,6 @@ export const changeToFrame = (game: tGame, num: number): tGame => {
 
 export const setFirstShot = (game: tGame,pins: boolean[]): tGame => {
     let count = pins.filter(x => x==true).length
-    console.log(`Count: ${count}`)
     let updated = { ...game };
   
     let currFrame = updated.frames[updated.currentFrame];
@@ -294,7 +293,6 @@ export const showHideScores = (game: tGame) => {
       }
       // Striking has stopped, show all frames from here on out.
       else {
-        console.log(`Striking stopped, show all from here`)
         frame.visible = true;
         frames[i] = frame;
         showAll = true;

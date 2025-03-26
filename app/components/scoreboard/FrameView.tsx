@@ -65,9 +65,18 @@ const FrameView = forwardRef<GameRef, ChildComponentProps>(
     }
   }, [currentFrame]);
 
-  useEffect(()=>{
+  useEffect(() => {
     setPins(frames[currentFrame].firstBallPins)
-  },[currentFrame])
+  }, [currentFrame]);
+
+  useEffect(()=>{
+    if(selectedShot==1)
+      setPins(frames[currentFrame].firstBallPins)
+    else if (selectedShot==2 && frames[currentFrame].roll2!=-1)
+      setPins(frames[currentFrame].secondBallPins)
+    else if (selectedShot==3)
+      setPins(frames[currentFrame].thirdBallPins)
+  },[selectedShot])
 
   /**
    * Game is finished, mark it as so.
@@ -257,7 +266,7 @@ const FrameView = forwardRef<GameRef, ChildComponentProps>(
           </TouchableOpacity>
           <TouchableOpacity 
             disabled={selectedShot == 1}
-            onPress={()=>{console.log(`/ clicked`)}} 
+            onPress={()=>{enterShot(10, Array(10).fill(true)); resetPins();}} 
             className="mx-5 mt-4 pr-4 pl-2 py-2 rounded-lg items-center"
           >
             <Text className={`text-5xl ${selectedShot == 1 ? "text-gray-500" : "text-white"} font-pextrabold`}>/</Text>

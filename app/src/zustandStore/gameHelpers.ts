@@ -19,10 +19,12 @@ export const goToNextShot = (game: tGame): tGame => {
         if(updated.frames[updated.currentFrame].isStrike && updated.currentFrame != 9){
             updated.currentFrame += 1;
             updated.selectedShot = 1;
+            updated.pins = updated.frames[updated.currentFrame].firstBallPins
         }
         // go to second shot 
         else{
             updated.selectedShot = 2;
+            updated.pins = updated.frames[updated.currentFrame].secondBallPins
         }
     }
     else if(updated.selectedShot == 2){
@@ -30,16 +32,19 @@ export const goToNextShot = (game: tGame): tGame => {
         if(updated.currentFrame == 9){
             // TODO: restrict based on score.
             updated.selectedShot = 3;
+            updated.pins = updated.frames[updated.currentFrame].thirdBallPins
         }
         else{
             updated.currentFrame = updated.currentFrame+1 > 9 ? updated.currentFrame: updated.currentFrame+1;
             updated.selectedShot = 1;
+            updated.pins = updated.frames[updated.currentFrame].firstBallPins
         }
     }
     // else go to first shot of next frame
     else{
         updated.currentFrame = updated.currentFrame+1 > 9 ? updated.currentFrame:updated.currentFrame+1;
         updated.selectedShot = 1;
+        updated.pins = updated.frames[updated.currentFrame].firstBallPins
     }
 
   return updated;
@@ -59,18 +64,22 @@ export const goToPrevShot = (game: tGame): tGame => {
     if (updated.frames[updated.currentFrame-1].isStrike){
         updated.currentFrame -= 1;
         updated.selectedShot = 1;
+        updated.pins = updated.frames[updated.currentFrame].firstBallPins
     }
     else{
         updated.currentFrame -= 1;
         updated.selectedShot = 2;
+        updated.pins = updated.frames[updated.currentFrame].secondBallPins
     }
   }
   // else go to first shot of current frame
   else{
       if (updated.selectedShot==3){
             updated.selectedShot = 2;
+            updated.pins = updated.frames[updated.currentFrame].secondBallPins
       }else{
             updated.selectedShot = 1;
+            updated.pins = updated.frames[updated.currentFrame].firstBallPins
       }
   }
 
@@ -82,6 +91,7 @@ export const changeToFrame = (game: tGame, num: number): tGame => {
     ...game,
     currentFrame: game.currentFrame + num,
     selectedShot: 1,
+    pins: game.frames[game.currentFrame].firstBallPins
   };
 };
 

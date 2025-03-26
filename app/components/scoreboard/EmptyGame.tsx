@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity, ScrollView, Image  } from 'react-native';
-import {useState } from 'react';
+import {useEffect, useState } from 'react';
 import Frame from './Frame';
 import TenthFrame from './TenthFrame';
 import { Game } from '@/app/src/values/types';
@@ -17,7 +17,7 @@ const EmptyGame: React.FC<GameInfo> = ({gameData, gameNum}) => {
   // Game state
   const [currentFrame, setCurrentFrame] = useState(0);
   const [pins, setPins] = useState(frames[0].firstBallPins); // Track knocked-down pins
-  const [selectedShot, setSelectedShot] = useState(gameData.game.selectedShot); // Track knocked-down pins
+  const [selectedShot, setSelectedShot] = useState(1); // Track knocked-down pins
 
   
   // Update frame selection. Call back for frame touch event.
@@ -26,6 +26,17 @@ const EmptyGame: React.FC<GameInfo> = ({gameData, gameNum}) => {
       setCurrentFrame(index);
       setPins(frames[index].firstBallPins)
   }
+
+  useEffect(()=>{
+    let pins = [];
+    if (selectedShot==1)
+      pins = frames[currentFrame].firstBallPins
+    else if(selectedShot==2)
+      pins = frames[currentFrame].secondBallPins
+    else
+      pins = frames[currentFrame].thirdBallPins
+    setPins(pins)
+  },[selectedShot, currentFrame])
 
   /**
    * Go to the next shot. 
@@ -97,8 +108,10 @@ const EmptyGame: React.FC<GameInfo> = ({gameData, gameNum}) => {
   
   const changeToFrame = (num:number) => {
     if (currentFrame + num < 0 || currentFrame+num >9) return
-    else
+    else{
+      setSelectedShot(1)
       setCurrentFrame(currentFrame+num)
+    }
   };
 
     return (
@@ -135,7 +148,7 @@ const EmptyGame: React.FC<GameInfo> = ({gameData, gameNum}) => {
             >
                 <TenthFrame 
                 roll1={frames[9].roll1} 
-                roll2={frames[9].roll1} 
+                roll2={frames[9].roll2} 
                 roll3={frames[9].roll3} 
                 total={frames[9].score}
                 isSelected= {currentFrame==9}  

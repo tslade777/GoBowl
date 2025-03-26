@@ -85,7 +85,7 @@ export const defaultGame: tGame = {
 }
 export const defaultSeriesData: SeriesData ={
   data: [],
-  stats: defaultSeriesStats,
+  stats: {...defaultSeriesStats},
 }
 export const defaultSession: Session ={
   sessionID: "",

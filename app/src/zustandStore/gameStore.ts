@@ -1,13 +1,17 @@
 import { create } from 'zustand';
 import { persist, createJSONStorage } from 'zustand/middleware';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-import { tGame, tFrame } from '../values/types';
+import { tGame, tFrame, Game } from '../values/types';
 import { defaultFrame, defaultGame } from '../values/defaults';
 import { calculateTotalScore, changeToFrame, goToNextShot, goToPrevShot, setFirstShot, setSecondShot, setTenthSecondShot, setThirdShot, showAll, showHideScores } from './gameHelpers';
+import { updateFirebaseActiveGames } from '@/app/hooks/firebaseFunctions';
+import useBowlingStats from '@/app/hooks/useBowlingStats';
 
 interface ScoreboardStore {
   game: tGame;
   gameComplete: boolean;
+  gameNum: number;
+  incrementGameNum: ()=> void;
   setGame: (game: tGame) => void;
   nextShot: () => void;
   prevShot: () => void;
@@ -23,13 +27,15 @@ interface ScoreboardStore {
   updateGame: (partial: Partial<tGame>) => void;
   resetGame: () => void;
   endGame: () => void;
+  resetGameNum: ()=>void;
 }
 
 const useGameViewStore = create<ScoreboardStore>()(
   persist(
     (set, get) => ({
-    game: JSON.parse(JSON.stringify(defaultGame)),
+      game: JSON.parse(JSON.stringify(defaultGame)),
       gameComplete: false,
+      gameNum: 1,
 
       setSelectedShot: (shotNum: number) => {
         const updatedGame = get().game;
@@ -55,6 +61,11 @@ const useGameViewStore = create<ScoreboardStore>()(
         updatedGame.currentFrame = frameNum;
         updatedGame.selectedShot = 1;
         set({ game: updatedGame });
+      },
+      incrementGameNum:()=>{
+        let newGameNum = get().gameNum;
+        newGameNum = newGameNum +1
+        set({gameNum: newGameNum})
       },
 
       setGame: (game) => set({ game }),
@@ -124,9 +135,17 @@ const useGameViewStore = create<ScoreboardStore>()(
             console.log(`Last shot`)
         }
         updatedGame = calculateTotalScore({...updatedGame})
+        
         updatedGame = showHideScores({...updatedGame});
 
         set({ game: updatedGame });
+
+        // NEW: Automatically sync to Firebase
+        const gameEntry: Game = {
+          game: updatedGame,
+          stats: useBowlingStats(updatedGame.frames)  // ensure this is imported or passed
+        };
+        updateFirebaseActiveGames([gameEntry]);  // or append to SeriesData if needed
       },
       setPins: (pins: boolean[]) =>{
 
@@ -190,9 +209,12 @@ const useGameViewStore = create<ScoreboardStore>()(
       resetGame: () => {
         set({ game: JSON.parse(JSON.stringify(defaultGame)), gameComplete: false });
       },
+      resetGameNum:() =>{
+        set({ gameNum: 1 });
+      }
     }),
     {
-      name: 'session-storage',
+      name: 'game-storage',
       storage: createJSONStorage(() => AsyncStorage),
     }
 )

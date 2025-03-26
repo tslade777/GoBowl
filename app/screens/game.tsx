@@ -6,7 +6,7 @@ import { useLocalSearchParams } from 'expo-router/build/hooks';
 import { router, useNavigation } from 'expo-router';
 import useBowlingStats from '../hooks/useBowlingStats';
 import { tGame, BowlingStats, SeriesStats, Session, SeriesData, Game } from "@/app/src/values/types";
-import { defaultSeriesData, defaultSeriesStats } from "@/app/src/values/defaults";
+import { defaultGame, defaultSeriesData, defaultSeriesStats } from "@/app/src/values/defaults";
 import { setFirebaseActive, setFirebaseInActive, updateFirebaseActiveGames, updateFirebaseGameComplete, updateFirebaseLeagueWeekCount } from '../hooks/firebaseFunctions';
 import { SESSIONS } from '../src/config/constants';
 
@@ -15,7 +15,7 @@ import { db, FIREBASE_AUTH } from '@/firebase.config';
 import { doc, onSnapshot } from 'firebase/firestore';
 import useGameStore from '../src/zustandStore/store';
 import useSessionStore from '../src/zustandStore/sessionStore';
-import FrameView from '../components/scoreboard/FrameView';
+import FrameView, { GameRef } from '../components/scoreboard/FrameView';
 import useGameViewStore from '../src/zustandStore/gameStore';
 
 
@@ -28,22 +28,24 @@ const game = () => {
   const [numGames, setNumGames] = useState(0);
   const [seriesData, setSeriesData] = useState<SeriesData>({...defaultSeriesData})
   const [firstRender, setFirstRender] = useState(true)
-  const [seriesStats, setSeriesStats] = useState<SeriesStats>(initialStats)
   const [index, setIndex] = useState(0);
   const [numViewers, setNumViewers] = useState(0)
+  const [sessionEnded, setSessionEnded] = useState(false)
+  const [isViewingHistory, setIsViewingHistory] = useState(false);
 
   const resetGame = useGameViewStore((state) => state.resetGame)
+  const setGame = useGameViewStore((state) => state.setGame)
+  const resetGameNum = useGameViewStore((state) => state.resetGameNum)
   const currGame = useGameViewStore((state) => state.game)
   const gameComplete = useGameViewStore((state) => state.game.gameComplete)
-
-  const markUnsaved = useGameStore((state) => state.markUnsaved)
+  const incrementGameNum = useGameViewStore((state)=> state.incrementGameNum)
 
   const session = useSessionStore((state) => state.session)
   const isActive = useSessionStore((state) => state.isActive)
   const setSession = useSessionStore((state) => state.setSession)
   const clearSession = useSessionStore((state) => state.clearSession)
 
-  const childRef = useRef<BowlingGameRef>(null);
+  const childRef = useRef<GameRef>(null);
 
   const navigation = useNavigation()
 
@@ -117,133 +119,159 @@ const game = () => {
   /**
    * Show previous game.
    */
-  const previousGame = () =>{
-    if (index > 0){
-      childRef.current?.setGame(seriesData.data[index-1].game)
-      setIndex(index-1)
+  const previousGame = () => {
+    if (index > 0) {
+      // ✅ Save current game before leaving it
+      if (index == seriesData.data.length-1) {
+        console.log("💾 Saving current game before going to history");
+  
+        const savedGame = JSON.parse(JSON.stringify(currGame));
+        const updatedEntry: Game = {
+          game: savedGame,
+          stats: useBowlingStats(savedGame.frames),
+        };
+        
+        const updatedSeries = { ...seriesData };
+        updatedSeries.data[index] = updatedEntry;
+        
+        setSeriesData(updatedSeries);
+        saveSession(updatedSeries);
+        console.log("✅ Saved Games:");
+        updatedSeries.data.forEach((g, i) =>
+        console.log(`Game ${i + 1}:`, g.game.frames.map(f => [f.roll1, f.roll2])));
+        
+      }
+  
+      // 👈 Now go back safely
+      const previous = JSON.parse(JSON.stringify(seriesData.data[index - 1].game));
+      setGame(previous);
+      childRef.current?.setGameNumber(index);
+      setIndex(index - 1);
     }
-  }
+  };
+  
 
   /**
    * Start then next game
    */
-  const nextGame = () =>{
-    try{
-      let games = seriesData.data;
-      // if we are in game history, pass next game
-      if (index < seriesData.data.length-1){
-        console.log(`🎳 [130 game.tsx] In game history, load next`)
-        childRef.current?.setGame(games[index+1].game)
-        setIndex(index+1)
-      }
-      else if (currGame.gameComplete){
-        console.log(`🎳 [135 game.tsx] Next game`)
-        resetGame()
-        setIndex(games.length)
-      }
-    }catch(e){
-      console.log(`🎳 [141 game.tsx] Error `, e)
-    }  
-  }
+  const nextGame = () => {
+    let games = seriesData.data;
+    console.log("✅ Next Games:");
+    seriesData.data.forEach((g, i) =>
+    console.log(`Game ${i + 1}:`, g.game.frames.map(f => [f.roll1, f.roll2]))
+    );
+  
+    // ✅ Step 1: If navigating history
+    if (index < games.length - 1) {
+      const cloned = JSON.parse(JSON.stringify(games[index + 1].game));
+      setGame(cloned);
+      
+      childRef.current?.setGameNumber(index + 2);
+      setIndex(index + 1);
+      return;
+    }
+  
+    // ✅ Step 2: If current game is finished, SAVE it
+    if (currGame.gameComplete) {
+      console.log(`✅ Saving completed game ${index + 1}`);
+  
+      // Clone finished game
+      const completedGame = JSON.parse(JSON.stringify(currGame));
+  
+      const newGameEntry: Game = {
+        game: completedGame,
+        stats: useBowlingStats(completedGame.frames),
+      };
+  
+      // ⛔ Do not call resetGame() yet!
+      const updatedData = [...seriesData.data];
+      updatedData[index] = newGameEntry; // 🔁 Replace current index
+  
+      // Now create new blank game
+      const newGame = JSON.parse(JSON.stringify(defaultGame));
+      newGame.gameNum = index + 2;
+  
+      const newGameEntryBlank: Game = {
+        game: newGame,
+        stats: useBowlingStats(newGame.frames),
+      };
+  
+      updatedData.push(newGameEntryBlank);
+  
+      const updatedSeriesData: SeriesData = {
+        ...seriesData,
+        data: updatedData,
+      };
+  
+      setSeriesData(updatedSeriesData);
+      console.log("✅ Saved Games:");
+      updatedData.forEach((g, i) =>
+      console.log(`Game ${i + 1}:`, g.game.frames.map(f => [f.roll1, f.roll2]))
+      );
+      setGame(newGame);
+      childRef.current?.setGameNumber(updatedData.length);
+      setIndex(updatedData.length - 1);
+    }
+  };
 
   // Load saved game on startup
   useEffect(() => {
-    loadSession();
+    if (isActive && session)
+      loadSession();
+    else
+      startNewSession();
+
     setFirebaseActive();
   }, []);
 
-  /**
-   * Update the current game that is being streamed
-   * @param game 
-   */
-  const updateCurrentGame = () =>{
-    console.log(`🎳 [158 game.tsx] Update current game`)
-    let newSeriesData = {...seriesData}
-    const newGameEntry: Game = {
-      game: currGame,
-      stats: useBowlingStats(currGame.frames)
-    }
-    newSeriesData.data[newSeriesData.data.length-1] = newGameEntry;
-    updateFirebaseActiveGames(newSeriesData.data)
-    setIndex(seriesData.data.length-1)
-  }
 
   /**
    * A game has just been bowled, update firebase.
    * 
    * @param data The game data for the recently bowled game. 
    */
-  const gameBowled = async () =>{
-    console.log(`🎳 [178 game.tsx] Game bowled.`)
+  const updateData = () =>{
+    console.log(`234`)
     const stats = useBowlingStats(currGame.frames);
-  
-    const statsList: BowlingStats = {
-      finalScore: stats.finalScore,
-      totalStrikes: stats.totalStrikes,
-      totalShots: stats.totalShots,
-      totalSpares: stats.totalSpares,
-      spareOpportunities: stats.spareOpportunities,
-      singlePinAttempts: stats.singlePinAttempts,
-      singlePinSpares: stats.singlePinSpares,
-      strikePercentage: stats.strikePercentage,
-      sparePercentage: stats.sparePercentage,
-      singlePinSparePercentage: stats.singlePinSparePercentage,
-      openFramePercentage: stats.openFramePercentage,
-      openFrames: stats.openFrames,
-      strikeOpportunities: stats.strikeOpportunities,
-      tenPins: stats.tenPins,
-      sevenPins: stats.sevenPins,
-      splits:stats.splits,
-      washouts: stats.washouts,
-      tenPinsConverted: stats.tenPinsConverted,
-      sevenPinsConverted: stats.sevenPinsConverted,
-      splitsConverted: stats.splitsConverted,
-      washoutsConverted: stats.washoutsConverted,
-      pinCombinations: stats.pinCombinations,
-    }
-    addToSerriesStats(statsList, numGames+1)
-    setNumGames(numGames+1)
 
-    let newSeriesData = {...seriesData}
+    const statsList: BowlingStats = {
+      ...stats,
+      pinCombinations: stats.pinCombinations,
+    };
+
     const newGameEntry: Game = {
       game: currGame,
       stats: statsList
-    }
-    newSeriesData.data[newSeriesData.data.length-1] = newGameEntry; // Update currently finished game. 
-    newSeriesData = {...newSeriesData, data: newSeriesData.data, stats: seriesStats}
+    };
+    
+
+    const newSeriesData: SeriesData = {
+      data: [...seriesData.data.slice(0, -1), newGameEntry], // replaces last entry
+      stats: initialStats // ✅ updated stats
+    };
+
     setSeriesData(newSeriesData);
     saveSession(newSeriesData);
+    return newSeriesData;
   }
 
 /**
  * Loads the session from Zustand
  */
 const loadSession = async ()=>{
+  console.log(`262`)
   try {
     // If the game is not in progress, Nothing to load, do nothing.
-    if (isActive && session){
-      sID = session.sessionID;
-      lID = session.leagueID;
-      sName = session.name;
-      sType = session.type;
-      setNumGames(session.numGames);
-      setSeriesData(session.seriesData)
-      setFirstRender(true);
-      setSeriesStats(session.seriesData.stats);
-      lowGame = session.localLowGame;
-      highGame = session.localHighGame;
-    }
-    else{
-      resetGame();
-      session.activeGame = true;
-      let newSeriesData = {...seriesData}
-      const newGameEntry: Game = {
-        game: currGame,
-        stats: useBowlingStats(currGame.frames)
-      }
-      newSeriesData.data[0] = newGameEntry;
-      console.log(`🎳 [229 game.tsx] Good luck and good bowling.`)
-    }
+    sID = session.sessionID;
+    lID = session.leagueID;
+    sName = session.name;
+    sType = session.type;
+    
+    setSeriesData(session.seriesData)
+    setFirstRender(true);
+    childRef.current?.setGameNumber(session.seriesData.data.length);
+    lowGame = session.localLowGame;
+    highGame = session.localHighGame;
   } catch (error) {
     console.error('📛 Error loading game:', error);
   }
@@ -253,9 +281,8 @@ const loadSession = async ()=>{
  * Saves the session to zustand
  */
 const saveSession = async (seriesData:SeriesData) => {
-  session.activeGame = true;
+  console.log(`284`)
   try {
-    console.log('😇 [251, game.tsx]: Saving Game');
     const sessionState:Session = {
       sessionID: sID,
       leagueID: lID,
@@ -265,7 +292,7 @@ const saveSession = async (seriesData:SeriesData) => {
       seriesData: seriesData,
       localHighGame: highGame,
       localLowGame: lowGame,
-      activeGame: false
+      activeGame: true
     };
     setSession(sessionState)
   } catch (error) {
@@ -274,85 +301,153 @@ const saveSession = async (seriesData:SeriesData) => {
 }
 
 /**
- * A session is complete, mark the user as inactive and clear the AsyncStorage
+ * Start new session. 
  */
-const markSessionComplete = async () =>{
-  try {
-    console.log(`🥳 [275 game.tsx] Session Complete.`)
-    resetGame();
-    markUnsaved();
-    clearSession();
-    setFirebaseInActive()
-  } catch (error) {
-    console.error('📛 Error cleaning session from asyn or firebase error:', error);
-  }
+const startNewSession = () =>{
+  console.log(`307`)
+  resetGame();
+  resetGameNum();
+  clearSession();
+  setNumGames(1)
+  useSessionStore.persist.clearStorage();
+  useGameStore.persist.clearStorage();
+  
+  const newGameEntry: Game = {
+    game: currGame,
+    stats: useBowlingStats(currGame.frames),
+  };
+
+  const newSeriesData: SeriesData = {
+    data: [newGameEntry],
+    stats: { ...initialStats }, // ✅ Reset stats here too
+  };
+  highGame = 0;
+  lowGame = 301;
+  setSeriesData(newSeriesData);
+  saveSession(newSeriesData);
+  childRef.current?.setGameNumber(1)
+  console.log(`🎳 [278 game.tsx] New Session Started.`)
 }
+
+/**
+ * Update firebase active game, and save the session. 
+ */
+const updateSession = async ()=>{
+  console.log(`336`)
+  if (index < seriesData.data.length-1) return;
+  if(sessionEnded)return;
+  const data = updateData()
+  saveSession(data)
+  await updateFirebaseActiveGames(data.data)
+
+}
+
+/**
+ * Game is complete, updatefirebase. 
+ */
+const sessionGameComplete = async ()=>{
+  if(index < seriesData.data.length-1)return;
+  console.log(`350`)
+    const stats = useBowlingStats(currGame.frames);
+    
+    const statsList: BowlingStats = {
+      ...stats,
+      pinCombinations: stats.pinCombinations,
+    };
+
+    setNumGames(numGames + 1);
+
+    const newGameEntry: Game = {
+      game: currGame,
+      stats: statsList
+    };
+    
+
+    const newSeriesData: SeriesData = {
+      data: [...seriesData.data.slice(0, -1), newGameEntry], // replaces last entry
+      stats: initialStats // ✅ updated stats
+    };
+
+    setSeriesData(newSeriesData)
+
+    const updatedStats = calculateSeriesStats(newSeriesData); // 🔁 Get updated stats here
+   
+  await updateFirebaseGameComplete(sType,sName,lID,sID,newSeriesData,updatedStats)
+}
+
+/**
+ * A session is complete, update firebase and reset
+ */
+const endSession = ()=>{
+  console.log(`383`)
+  setSessionEnded(true)
+  console.log(`🎳 [349 game.tsx] Ending the session`)
+  if(sType == SESSIONS.league){
+    updateFirebaseLeagueWeekCount(lID, sName.toString())
+  }
+  resetGame();
+  clearSession();
+  useSessionStore.persist.clearStorage();
+  useGameStore.persist.clearStorage();
+  setFirebaseInActive()
+  router.push("/(tabs)/create")
+}
+
 /**
  * Update series stats. 
  * 
  * @param gameStats The stats from the game bowled. 
  * @param games The number of games bowled.
  */
-  const addToSerriesStats = (gameStats: BowlingStats, games: number) =>{
-      setSeriesStats((prevStats)=>({...prevStats,
-        totalShots: gameStats.totalShots + prevStats.totalShots,
-        seriesScore: gameStats.finalScore + prevStats.seriesScore,
-        totalStrikes: gameStats.totalStrikes + prevStats.totalStrikes,
-        totalSpares: gameStats.totalSpares + prevStats.totalSpares,
-        spareOpportunities: gameStats.spareOpportunities + prevStats.spareOpportunities,
-        singlePinAttempts: gameStats.singlePinAttempts + prevStats.singlePinAttempts,
-        singlePinSpares: gameStats.singlePinSpares + prevStats.singlePinSpares,
-        strikePercentage: (gameStats.totalStrikes + prevStats.totalStrikes)/(gameStats.totalShots + prevStats.totalShots)*100,
-        sparePercentage: (gameStats.totalSpares + prevStats.totalSpares)/(gameStats.spareOpportunities + prevStats.spareOpportunities)*100,
-        singlePinSparePercentage: (gameStats.singlePinSpares + prevStats.singlePinSpares)/(gameStats.singlePinAttempts + prevStats.singlePinAttempts)*100,
-        openFrames: (gameStats.openFrames + prevStats.openFrames),
-        openFramePercentage: (gameStats.openFrames + prevStats.openFrames)/(games*10),
-        numberOfGames: games,
-        threeGameSeries: games == 3 ? prevStats.seriesScore + gameStats.finalScore : 0,
-        average: (gameStats.finalScore + prevStats.seriesScore)/games,
-        highGame: Math.max(gameStats.finalScore, prevStats.highGame),
-        lowGame: Math.min(gameStats.finalScore, prevStats.lowGame ),
-        tenPins: gameStats.tenPins + prevStats.tenPins,
-        tenPinsConverted: gameStats.tenPinsConverted + prevStats.sevenPinsConverted,
-        sevenPins: gameStats.sevenPins + prevStats.sevenPins,
-        sevenPinsConverted: gameStats.sevenPinsConverted + prevStats.sevenPinsConverted,
-        tenPinPercentage: (gameStats.tenPinsConverted + prevStats.tenPinsConverted)/(gameStats.tenPins + prevStats.tenPins)*100,
-        sevenPinPercentage: (gameStats.sevenPinsConverted + prevStats.sevenPinsConverted)/(gameStats.sevenPins + prevStats.sevenPins)*100,
-        strikeOpportunities: gameStats.strikeOpportunities + prevStats.strikeOpportunities,
-        splitsTotal: gameStats.splits + prevStats.splitsTotal,
-        splitsConverted: gameStats.splitsConverted + prevStats.splitsConverted,
-        washoutsTotal: gameStats.washouts + prevStats.washoutsTotal,
-        washoutsConverted: gameStats.washoutsConverted + prevStats.washoutsConverted,
-        splitsPercentage: (gameStats.splitsConverted + prevStats.splitsConverted)/(gameStats.splits + prevStats.splitsTotal)*100,
-        washoutsPrecentage: (gameStats.washoutsConverted + prevStats.washoutsConverted)/(gameStats.washouts + prevStats.washoutsTotal)*100,
-        // This needs to be calculated differently. 
-        pinCombinations: prevStats.pinCombinations,
-      }))
-  }
+  const calculateSeriesStats = (newSeriesData: SeriesData) =>{
+    const numGames = newSeriesData.data.length;
+    let seriesStats = {...initialStats};
+    let count = 0;
+    newSeriesData.data.forEach(game => {
+      count++;
+      const gameStats = game.stats
+      const updatedStats: SeriesStats = {
+        ...seriesStats,
+        totalShots: gameStats.totalShots + seriesStats.totalShots,
+        seriesScore: gameStats.finalScore + seriesStats.seriesScore,
+        totalStrikes: gameStats.totalStrikes + seriesStats.totalStrikes,
+        totalSpares: gameStats.totalSpares + seriesStats.totalSpares,
+        spareOpportunities: gameStats.spareOpportunities + seriesStats.spareOpportunities,
+        singlePinAttempts: gameStats.singlePinAttempts + seriesStats.singlePinAttempts,
+        singlePinSpares: gameStats.singlePinSpares + seriesStats.singlePinSpares,
+        strikePercentage: (gameStats.totalStrikes + seriesStats.totalStrikes)/(gameStats.totalShots + seriesStats.totalShots)*100,
+        sparePercentage: (gameStats.totalSpares + seriesStats.totalSpares)/(gameStats.spareOpportunities + seriesStats.spareOpportunities)*100,
+        singlePinSparePercentage: (gameStats.singlePinSpares + seriesStats.singlePinSpares)/(gameStats.singlePinAttempts + seriesStats.singlePinAttempts)*100,
+        openFrames: gameStats.openFrames + seriesStats.openFrames,
+        openFramePercentage: (gameStats.openFrames + seriesStats.openFrames)/(numGames*10),
+        numberOfGames: numGames,
+        threeGameSeries: numGames === 3 ? seriesStats.seriesScore + gameStats.finalScore : 0,
+        average: (gameStats.finalScore + seriesStats.seriesScore)/numGames,
+        highGame: Math.max(gameStats.finalScore, seriesStats.highGame),
+        lowGame: Math.min(gameStats.finalScore, seriesStats.lowGame ),
+        tenPins: gameStats.tenPins + seriesStats.tenPins,
+        tenPinsConverted: gameStats.tenPinsConverted + seriesStats.tenPinsConverted,
+        sevenPins: gameStats.sevenPins + seriesStats.sevenPins,
+        sevenPinsConverted: gameStats.sevenPinsConverted + seriesStats.sevenPinsConverted,
+        tenPinPercentage: (gameStats.tenPinsConverted + seriesStats.tenPinsConverted)/(gameStats.tenPins + seriesStats.tenPins)*100,
+        sevenPinPercentage: (gameStats.sevenPinsConverted + seriesStats.sevenPinsConverted)/(gameStats.sevenPins + seriesStats.sevenPins)*100,
+        strikeOpportunities: gameStats.strikeOpportunities + seriesStats.strikeOpportunities,
+        splitsTotal: gameStats.splits + seriesStats.splitsTotal,
+        splitsConverted: gameStats.splitsConverted + seriesStats.splitsConverted,
+        washoutsTotal: gameStats.washouts + seriesStats.washoutsTotal,
+        washoutsConverted: gameStats.washoutsConverted + seriesStats.washoutsConverted,
+        splitsPercentage: (gameStats.splitsConverted + seriesStats.splitsConverted)/(gameStats.splits + seriesStats.splitsTotal)*100,
+        washoutsPrecentage: (gameStats.washoutsConverted + seriesStats.washoutsConverted)/(gameStats.washouts + seriesStats.washoutsTotal)*100,
+        pinCombinations: seriesStats.pinCombinations,
+        highSeries: 0, // Optional: update if needed
+      };
 
-  /**
-   * Wait for changes to the games Data and update firebase.
-   */
-  useEffect(()=>{
-    if(firstRender){
-      setFirstRender(false);
-      return;
-    }
-    console.log(`🎳 [335 game.tsx] We're updating the game complete here for some reason.`)
-    updateFirebaseGameComplete(sType, sName, lID,sID,seriesData,seriesStats)
-  },[seriesData])
-
-  /**
-   * End the current session. No futher updates to firebase will be made. 
-   * Redirect to create page. 
-   */
-  const endSession = () =>{
-    session.activeGame = false;
-    if(sType == SESSIONS.league){
-      updateFirebaseLeagueWeekCount(lID, sName.toString())
-    }
-    markSessionComplete();
-    router.push("/(tabs)/create")
+      seriesStats = updatedStats
+      
+    });
+   
+  
+    return seriesStats;
   }
 
   return (
@@ -360,9 +455,10 @@ const markSessionComplete = async () =>{
       <View className="flex-1">
         <FrameView 
           ref={childRef}
-          sendDataToParent={gameBowled}
+          sessionGameComplete={sessionGameComplete}
           toggleBowling={()=>{}}
-          updateCurrentGame={updateCurrentGame}
+          updateCurrentGame={updateSession}
+          isHistory={isViewingHistory}
         />
 
         {/* Button Positioned at Bottom Right */}

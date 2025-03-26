@@ -1,12 +1,12 @@
 import { View, Text, TouchableOpacity, Image, PanResponder, Animated, ScrollView, Dimensions  } from 'react-native';
-import { forwardRef, useEffect, useRef, useState } from 'react';
+import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 
 import Frame from './Frame';
 import TenthFrame from './TenthFrame';
 import icons from '@/constants/icons';
-import { defaultFrame } from '@/app/src/values/defaults';
-import { tFrame, tGame } from '@/app/src/values/types';
+import { tGame } from '@/app/src/values/types';
 import useGameViewStore from '@/app/src/zustandStore/gameStore';
+import game from '@/app/screens/game';
 
 const { width } = Dimensions.get('window');
 const pinSize = width * 0.11; // About 12% of screen width
@@ -15,43 +15,49 @@ const frameWidth = width / 10; // or /12 to leave margin
 
 
 type ChildComponentProps = {
-  sendDataToParent: () => void; // Define the function type
+  sessionGameComplete: () => void;
   toggleBowling: (inProgress: boolean) => void;
   updateCurrentGame: () => void;
+  isHistory: boolean;
 };
 
-export type BowlingGameRef = {
-  setGame: (game: tGame) => void;
+export type GameRef = {
+  setGameNumber: (gameNum: number) => void;
   clearGame: () => void;
 }
 
-const FrameView = forwardRef<BowlingGameRef, ChildComponentProps>(
-  ({ sendDataToParent, toggleBowling, updateCurrentGame }, ref) => {
+const FrameView = forwardRef<GameRef, ChildComponentProps>(
+  ({ sessionGameComplete, toggleBowling, updateCurrentGame, isHistory }, ref) => {
   // Game state
   const [pins, setPins] = useState(Array(10).fill(false)); // Track knocked-down pins
   const [count, setCount] = useState(0);
   const scrollRef = useRef<ScrollView>(null);
+  const [gameNum, setGameNum] = useState(1);
 
   // Zustand store 
   const currentFrame = useGameViewStore(state => state.game.currentFrame);
+  const currGame = useGameViewStore(state => state.game);
   const selectedShot = useGameViewStore(state => state.game.selectedShot);
-  const frames = useGameViewStore(state => state.game.frames || [])
+  const frames = useGameViewStore((state) => state.game.frames);
   const gameComplete = useGameViewStore(state => state.game.gameComplete);
-  const setSelectedShot = useGameViewStore(state => state.setSelectedShot);
   const setCurrentFrame = useGameViewStore(state=> state.setSelectedFrame)
   const nextShot = useGameViewStore(state => state.nextShot);
   const prevShot = useGameViewStore(state => state.prevShot);
   const changeFrame = useGameViewStore(state => state.changeFrame);
   const enterShot = useGameViewStore(state => state.enterShot);
-  const setFrame = useGameViewStore(state => state.setFrame);
-  const editFrame = useGameViewStore(state => state.editFrame);
-  const getScore = useGameViewStore(state => state.getScore);
   const resetGame = useGameViewStore(state => state.resetGame);
   const endGame = useGameViewStore(state => state.endGame);
 
-  // Number of games
-  const [numGames, setNumGames] = useState(1);
 
+  useImperativeHandle(ref, () => ({
+    setGameNumber: (num: number) => {
+      setGameNum(num);
+    },
+    clearGame: () => {
+      // logic to clear the game
+    },
+  }));
+  
   useEffect(() => {
     if (currentFrame >= 6) {
       const scrollToX = currentFrame * frameWidth;
@@ -68,8 +74,7 @@ const FrameView = forwardRef<BowlingGameRef, ChildComponentProps>(
    */
   useEffect(()=>{
     if(gameComplete){
-      console.log(`🎳 [71 FrameView.tsx] Marking Gmae complete`)
-      sendDataToParent();
+      sessionGameComplete();
       endGame();
     }
   },[gameComplete])
@@ -78,9 +83,8 @@ const FrameView = forwardRef<BowlingGameRef, ChildComponentProps>(
    * Update the current game on firebase. 
    */
   useEffect(()=>{
-    console.log(`🎳 [80 FrameView.tsx] Update game`)
     updateCurrentGame();
-  },[frames])
+  },[currGame])
 
   /**
    * 
@@ -96,6 +100,7 @@ const FrameView = forwardRef<BowlingGameRef, ChildComponentProps>(
 
   // It's important to only toggle pins that are still standing after the first throw.
   const handlePinToggle = (index: number) => {
+    if (isHistory) return; // 🚫 Block changes while viewing history
     let updatedPins = [...pins];
     if (selectedShot == 1){
       updatedPins[index] = !updatedPins[index];
@@ -120,6 +125,7 @@ const FrameView = forwardRef<BowlingGameRef, ChildComponentProps>(
 
   // Handle unique pin toggle of tenth frame
   function tenthFramePinToggle(index: number){
+    if (isHistory) return;
     let updatedPins = [...pins];
 
     if (selectedShot == 1){
@@ -155,6 +161,7 @@ const FrameView = forwardRef<BowlingGameRef, ChildComponentProps>(
   }
 
   const handleZeroQuickSelect = () =>{
+    if (isHistory) return;
     if(selectedShot == 1)
         enterShot(10, Array(10).fill(false))
     else if(selectedShot == 2){
@@ -193,7 +200,7 @@ const FrameView = forwardRef<BowlingGameRef, ChildComponentProps>(
           </TouchableOpacity>
         ))}
           
-          {/* 10th Frame (Only Displayed, Not Editable) */}
+          {/* 10th Frame  */}
           <TouchableOpacity  onPress={() => handleFrameTouch(9)}>
             <TenthFrame 
             roll1={frames[9].roll1} 
@@ -212,7 +219,7 @@ const FrameView = forwardRef<BowlingGameRef, ChildComponentProps>(
           <Text className="text-2xl text-orange pr-10 justify-between font-bold">
           {gameComplete ? "Game Complete" : `Frame ${currentFrame+1}` }
           </Text>
-          <Text className="text-teal pl-10 text-2xl font-bold ">Game: {numGames}</Text>
+          <Text className="text-teal pl-10 text-2xl font-bold ">Game: {gameNum}</Text>
         </View>
         
         
@@ -290,8 +297,9 @@ const FrameView = forwardRef<BowlingGameRef, ChildComponentProps>(
               style={currentFrame==0 && selectedShot == 1 ? {tintColor: "gray"} : {tintColor: "white"}}/>
           </TouchableOpacity>
 
-          <TouchableOpacity 
-            onPress={()=>{enterShot(count, pins)}} 
+          <TouchableOpacity
+            disabled={isHistory} 
+            onPress={()=>{enterShot(count, pins); updateCurrentGame();}} 
             className=" px-1 py-2 rounded-lg"
           >
             <Image source={icons.enter}

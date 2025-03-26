@@ -422,7 +422,7 @@ const downloadImageFromFirebase = async (imagePath: string): Promise<string | nu
  * @param gamesData 
  * @param seriesStats 
  */
-const updateFirebaseGameComplete = async (type:string, name:string, leagueID:string, sessionID:string, gamesData: SeriesData, seriesStats:SeriesStats) =>{
+const updateFirebaseGameComplete = async (type:string, name:string, leagueID:string, sessionID:string, gamesData: SeriesData, seriesStats: SeriesStats) =>{
   // check type 
   try{
     if (FIREBASE_AUTH.currentUser != null){

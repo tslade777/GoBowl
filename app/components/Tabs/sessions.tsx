@@ -50,8 +50,6 @@ interface StatsTabProps {
     }
 
     const remove = (series: Series)=>{
-        console.log(`Type: ${type}`)
-        console.log(`Long press: series: ${JSON.stringify(series)}`)
         removeSession(type, leagueID, series.id)
         setIsRendered(false);
     }

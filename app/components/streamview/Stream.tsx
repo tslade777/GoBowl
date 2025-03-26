@@ -29,7 +29,7 @@ const Stream = forwardRef<StreamRef, FriendProps>(({id,username,active}, ref) =>
   const [index, setIndex] = useState(0);
   const [currGameNum, setCurrGameNum] = useState(0);
   const [gameNum, setGameNum] = useState(0);
-  const [frameSelected, setSelected] = useState(currentFrame)
+  const [selectedShot, setSelectedShot] = useState(1)
   const viewingHistoryRef = useRef(false);
 
   const [loading, setLoading] = useState(true);
@@ -75,6 +75,7 @@ const Stream = forwardRef<StreamRef, FriendProps>(({id,username,active}, ref) =>
             setFarthestFrame(currentGame.currentFrame)
             setIsFirstRoll(Boolean(currentGame.isFirstRoll));
             setIndex(gamesData.length-1)
+            setSelectedShot(currentGame.selectedShot)
             
             // // Possible show pins being knocked down with a small delay? animations?
             const updatedPins = [...currentGame.frames[currentGame.currentFrame].firstBallPins];
@@ -157,25 +158,26 @@ const Stream = forwardRef<StreamRef, FriendProps>(({id,username,active}, ref) =>
           {frames.slice(0, 9).map((frame, index) => (
             <TouchableOpacity key={index} onPress={() => handleFrameTouch(index)}>
               <Frame 
-                key={index} 
-                frameNumber={index + 1} 
-                roll1={frame.roll1} 
-                roll2={frame.roll2} 
-                total={frame.score}
-                isSelected= {currentFrame==index}
-                isSplit= {frame.isSplit}
+                  key={index} 
+                  frameNumber={index + 1} 
+                  roll1={frame.roll1} 
+                  roll2={frame.roll2} 
+                  total={frame.visible ? frame.score :  -1}
+                  isSelected= {currentFrame==index}
+                  isSplit = {frame.isSplit} 
+                  selectedShot = {selectedShot}
               />      
             </TouchableOpacity>
           ))}
 
           {/* 10th Frame */}
           <TenthFrame 
-          roll1={frames[9].roll1} 
-          roll2={frames[9].roll2} 
-          roll3={frames[9].roll3} 
-          total={frames[9].score}
-          isSelected= {currentFrame==9}  
-          isSplit = {frames[9].isSplit}
+            roll1={frames[9].roll1} 
+            roll2={frames[9].roll2} 
+            roll3={frames[9].roll3} 
+            total={(!gameComplete) ? -1 : frames[9].score}
+            isSelected= {currentFrame==9}  
+            isSplit = {frames[9].isSplit}
           />
           </View>}
          

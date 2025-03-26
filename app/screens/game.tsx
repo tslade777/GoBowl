@@ -1,7 +1,6 @@
 import { View, Text, TouchableOpacity, Image } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
-import BowlingGame, { BowlingGameRef } from '../components/scoreboard/BowlingGame'
 import { useLocalSearchParams } from 'expo-router/build/hooks';
 import { router, useNavigation } from 'expo-router';
 import useBowlingStats from '../hooks/useBowlingStats';
@@ -365,12 +364,18 @@ const endSession = ()=>{
   if(sType == SESSIONS.league){
     updateFirebaseLeagueWeekCount(lID, sName.toString())
   }
+  router.push({
+              pathname: "../screens/endSessionStats",
+              params: {
+                seriesData: JSON.stringify(calculateSeriesStats(seriesData)),
+                title: sName
+              }
+            });
   resetGame();
   clearSession();
   useSessionStore.persist.clearStorage();
   useGameStore.persist.clearStorage();
   setFirebaseInActive()
-  router.push("/(tabs)/create")
 }
 
 /**

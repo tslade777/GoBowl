@@ -14,7 +14,7 @@ const Frame = ({
 }) => {
 
     const { width } = Dimensions.get('window');
-    const frameWidth = width / 10; // or /12 to leave margin
+    const frameWidth = width/10.8; // or /12 to leave margin
     const spare = roll1 + roll2 == 10 && (roll1 != 10)
 
     const totalVal = total == -1 ? '' : total;
@@ -28,7 +28,7 @@ const Frame = ({
             
             {/* Bowling Frame */}
             <View 
-                className={`rounded-md border ${isSelected ? "border-orange" : "border-black"} bg-white ms-0.5`} 
+                className={`rounded-md border ${isSelected ? "border-orange" : "border-black"} bg-white`} 
                 style={{ width:frameWidth, height, borderWidth }}
             >
                 {/* Rolls */}

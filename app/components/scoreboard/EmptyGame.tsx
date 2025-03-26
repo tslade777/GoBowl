@@ -1,8 +1,9 @@
-import { View, Text, TouchableOpacity, ScrollView  } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView, Image  } from 'react-native';
 import {useState } from 'react';
 import Frame from './Frame';
 import TenthFrame from './TenthFrame';
 import { Game } from '@/app/src/values/types';
+import icons from '@/constants/icons';
 
 type GameInfo = {
   gameData: Game;
@@ -16,6 +17,7 @@ const EmptyGame: React.FC<GameInfo> = ({gameData, gameNum}) => {
   // Game state
   const [currentFrame, setCurrentFrame] = useState(0);
   const [pins, setPins] = useState(frames[0].firstBallPins); // Track knocked-down pins
+  const [selectedShot, setSelectedShot] = useState(gameData.game.selectedShot); // Track knocked-down pins
 
   
   // Update frame selection. Call back for frame touch event.
@@ -24,6 +26,81 @@ const EmptyGame: React.FC<GameInfo> = ({gameData, gameNum}) => {
       setCurrentFrame(index);
       setPins(frames[index].firstBallPins)
   }
+
+  /**
+   * Go to the next shot. 
+   * 
+   * @param game The current game to be updated
+   * @returns the new updated game
+   */
+  const goToNextShot = () => {
+      // If its the first ball, go to next shot of current frame
+      if(selectedShot == 1){
+          // unless current is a strike.
+          if(frames[currentFrame].isStrike && currentFrame != 9){
+              setCurrentFrame(currentFrame+1)
+              setSelectedShot(1)
+          }
+          // go to second shot 
+          else{
+            setSelectedShot(2)
+          }
+      }
+      else if(selectedShot == 2){
+          // if it's the tenth frame, go to third shot
+          if(currentFrame == 9){
+              // TODO: restrict based on score.
+              setSelectedShot(3)
+          }
+          else{
+              let newCurrentFrame = currentFrame+1 > 9 ? currentFrame: currentFrame+1;
+              setCurrentFrame(newCurrentFrame)
+              setSelectedShot(1)
+          }
+      }
+      // else go to first shot of next frame
+      else{
+        let newCurrentFrame = currentFrame+1 > 9 ? currentFrame:currentFrame+1;
+          setCurrentFrame(newCurrentFrame)
+          setSelectedShot(1)
+      }
+  };
+  
+  /**
+   * 
+   * @param game The current game to be updated
+   * @returns the new updated game
+   */
+  const goToPrevShot = ()=> {
+  
+    // If its the first ball, go to last shot of last frame
+    if(selectedShot==1){
+      // If last frame is a strike, show the first ball
+      if (frames[currentFrame-1].isStrike){
+          setCurrentFrame(currentFrame-1)
+          setSelectedShot(1)
+      }
+      else{
+        setCurrentFrame(currentFrame-1)
+        setSelectedShot(2)
+      }
+    }
+    // else go to first shot of current frame
+    else{
+        if (selectedShot==3){
+          setSelectedShot(2)
+        }else{
+          setSelectedShot(1)
+        }
+    }
+  };
+  
+  const changeToFrame = (num:number) => {
+    if (currentFrame + num < 0 || currentFrame+num >9) return
+    else
+      setCurrentFrame(currentFrame+num)
+  };
+
     return (
       <View className="items-center p-1 rounded-lg">
         {/* Frames Display */}
@@ -43,7 +120,8 @@ const EmptyGame: React.FC<GameInfo> = ({gameData, gameNum}) => {
               roll2={frame.roll2} 
               total={frame.score}
               isSelected= {currentFrame==index}
-              isSplit={frame.isSplit} 
+              isSplit={frame.isSplit}
+              selectedShot={selectedShot}
             />      
           </TouchableOpacity>
         ))}
@@ -61,6 +139,7 @@ const EmptyGame: React.FC<GameInfo> = ({gameData, gameNum}) => {
                 roll3={frames[9].roll3} 
                 total={frames[9].score}
                 isSelected= {currentFrame==9}  
+                selectedShot={selectedShot}
                 />
             </TouchableOpacity>
           
@@ -95,6 +174,56 @@ const EmptyGame: React.FC<GameInfo> = ({gameData, gameNum}) => {
         ))}
         </View>
         </View>
+        {/* Manual Input Controls */}
+              <View className="flex-col mt-4 items-center"> 
+                <View className='flex-row justify-evenly items-center' >
+                  {/** Previous Frame button */}
+                  <TouchableOpacity 
+                    onPress={()=>{changeToFrame(-1)}}
+                    className="m-2  px-4 py-2 rounded-lg"
+                    disabled={currentFrame==0} 
+                  >
+                    <Image source={icons.previousFrame}
+                      className='w-16 h-16'
+                      resizeMode='contain'
+                      style={currentFrame>0 ? {tintColor: "white"} : {tintColor: "gray"}}/>
+                  </TouchableOpacity>
+                  {/** Previous shot button */}
+                  <TouchableOpacity 
+                    onPress={()=>{goToPrevShot()}}
+                    disabled={currentFrame==0 && selectedShot == 1} 
+                    className="mr-5 px-1 py-2 rounded-lg"
+                  >
+                    <Image source={icons.previousShot}
+                      className='w-10 h-10'
+                      resizeMode='contain'
+                      style={currentFrame==0 && selectedShot == 1 ? {tintColor: "gray"} : {tintColor: "white"}}/>
+                  </TouchableOpacity>
+        
+                  {/** Next shot button */}
+                  <TouchableOpacity 
+                    onPress={()=>{goToNextShot();}}
+                    disabled={(currentFrame == 9 && selectedShot == 3) || (currentFrame != 9 && frames[currentFrame+1].roll1 == -1 && selectedShot ==2)} 
+                    className="ml-5 px-1 py-2 rounded-lg"
+                  >
+                    <Image source={icons.nextShot}
+                      className='w-10 h-10'
+                      resizeMode='contain'
+                      style={currentFrame== 9 && selectedShot == 3 ? {tintColor: "gray"} : {tintColor: "white"}}/>
+                  </TouchableOpacity>
+                  {/** Next Frame button */}
+                  <TouchableOpacity 
+                    onPress={()=>{changeToFrame(1)}} 
+                    disabled={currentFrame==9 || (currentFrame != 9 && frames[currentFrame+1].roll1 == -1)}
+                    className="m-2  px-4 py-2 rounded-lg"
+                  >
+                    <Image source={icons.nextFrame}
+                      className='w-16 h-16'
+                      resizeMode='contain'
+                      style={currentFrame== 9 ? {tintColor: "gray"} : {tintColor: "white"}}/>
+                  </TouchableOpacity>
+                </View>
+            </View>
       </View>
     
   );

@@ -14,7 +14,7 @@ const TenthFrame = ({
 }) => {
   
   const { width } = Dimensions.get('window');
-  const frameWidth = width / 6.5; // or /12 to leave margin
+  const frameWidth = width / 7.5; // or /12 to leave margin
 
   const spare = roll1 + roll2 == 10 && (roll1 != 10)
 
@@ -35,7 +35,7 @@ const TenthFrame = ({
 
       {/* Bowling Frame with Three Roll Sections */}
       <View 
-        className={`rounded-md border ${isSelected ? "border-orange" : "border-black"} bg-white ms-0.5`} 
+        className={`rounded-md border ${isSelected ? "border-orange" : "border-black"} bg-white`} 
         style={{ width:frameWidth, height, borderWidth }}
       >
         {/* Rolls */}

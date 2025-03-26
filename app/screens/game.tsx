@@ -123,7 +123,6 @@ const game = () => {
     if (index > 0) {
       // ✅ Save current game before leaving it
       if (index == seriesData.data.length-1) {
-        console.log("💾 Saving current game before going to history");
   
         const savedGame = JSON.parse(JSON.stringify(currGame));
         const updatedEntry: Game = {
@@ -136,9 +135,6 @@ const game = () => {
         
         setSeriesData(updatedSeries);
         saveSession(updatedSeries);
-        console.log("✅ Saved Games:");
-        updatedSeries.data.forEach((g, i) =>
-        console.log(`Game ${i + 1}:`, g.game.frames.map(f => [f.roll1, f.roll2])));
         
       }
   
@@ -156,10 +152,6 @@ const game = () => {
    */
   const nextGame = () => {
     let games = seriesData.data;
-    console.log("✅ Next Games:");
-    seriesData.data.forEach((g, i) =>
-    console.log(`Game ${i + 1}:`, g.game.frames.map(f => [f.roll1, f.roll2]))
-    );
   
     // ✅ Step 1: If navigating history
     if (index < games.length - 1) {
@@ -173,7 +165,6 @@ const game = () => {
   
     // ✅ Step 2: If current game is finished, SAVE it
     if (currGame.gameComplete) {
-      console.log(`✅ Saving completed game ${index + 1}`);
   
       // Clone finished game
       const completedGame = JSON.parse(JSON.stringify(currGame));
@@ -204,10 +195,6 @@ const game = () => {
       };
   
       setSeriesData(updatedSeriesData);
-      console.log("✅ Saved Games:");
-      updatedData.forEach((g, i) =>
-      console.log(`Game ${i + 1}:`, g.game.frames.map(f => [f.roll1, f.roll2]))
-      );
       setGame(newGame);
       childRef.current?.setGameNumber(updatedData.length);
       setIndex(updatedData.length - 1);
@@ -231,7 +218,6 @@ const game = () => {
    * @param data The game data for the recently bowled game. 
    */
   const updateData = () =>{
-    console.log(`234`)
     const stats = useBowlingStats(currGame.frames);
 
     const statsList: BowlingStats = {
@@ -259,7 +245,6 @@ const game = () => {
  * Loads the session from Zustand
  */
 const loadSession = async ()=>{
-  console.log(`262`)
   try {
     // If the game is not in progress, Nothing to load, do nothing.
     sID = session.sessionID;
@@ -281,7 +266,6 @@ const loadSession = async ()=>{
  * Saves the session to zustand
  */
 const saveSession = async (seriesData:SeriesData) => {
-  console.log(`284`)
   try {
     const sessionState:Session = {
       sessionID: sID,
@@ -304,7 +288,6 @@ const saveSession = async (seriesData:SeriesData) => {
  * Start new session. 
  */
 const startNewSession = () =>{
-  console.log(`307`)
   resetGame();
   resetGameNum();
   clearSession();
@@ -326,14 +309,14 @@ const startNewSession = () =>{
   setSeriesData(newSeriesData);
   saveSession(newSeriesData);
   childRef.current?.setGameNumber(1)
-  console.log(`🎳 [278 game.tsx] New Session Started.`)
+  
 }
 
 /**
  * Update firebase active game, and save the session. 
  */
 const updateSession = async ()=>{
-  console.log(`336`)
+
   if (index < seriesData.data.length-1) return;
   if(sessionEnded)return;
   const data = updateData()
@@ -347,7 +330,6 @@ const updateSession = async ()=>{
  */
 const sessionGameComplete = async ()=>{
   if(index < seriesData.data.length-1)return;
-  console.log(`350`)
     const stats = useBowlingStats(currGame.frames);
     
     const statsList: BowlingStats = {
@@ -379,9 +361,7 @@ const sessionGameComplete = async ()=>{
  * A session is complete, update firebase and reset
  */
 const endSession = ()=>{
-  console.log(`383`)
   setSessionEnded(true)
-  console.log(`🎳 [349 game.tsx] Ending the session`)
   if(sType == SESSIONS.league){
     updateFirebaseLeagueWeekCount(lID, sName.toString())
   }

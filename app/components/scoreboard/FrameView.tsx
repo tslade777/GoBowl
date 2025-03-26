@@ -188,14 +188,14 @@ const FrameView = forwardRef<GameRef, ChildComponentProps>(
         {frames.slice(0, 9).map((frame, index) => (
           <TouchableOpacity key={index} onPress={() => handleFrameTouch(index)}>
             <Frame 
-            key={index} 
-            frameNumber={index + 1} 
-            roll1={frame.roll1} 
-            roll2={frame.roll2} 
-            total={frame.visible ? frame.score :  -1}
-            isSelected= {currentFrame==index}
-            isSplit = {frame.isSplit} 
-            selectedShot = {selectedShot}
+              key={index} 
+              frameNumber={index + 1} 
+              roll1={frame.roll1} 
+              roll2={frame.roll2} 
+              total={frame.visible ? frame.score :  -1}
+              isSelected= {currentFrame==index}
+              isSplit = {frame.isSplit} 
+              selectedShot = {selectedShot}
             />      
           </TouchableOpacity>
         ))}
@@ -332,15 +332,6 @@ const FrameView = forwardRef<GameRef, ChildComponentProps>(
           </TouchableOpacity>
 
         </View>
-        <TouchableOpacity 
-            onPress={()=>{resetGame()}} 
-            className=" px-1 py-2 rounded-lg"
-          >
-            <Image source={icons.home}
-              className='w-14 h-14'
-              resizeMode='contain'
-              />
-          </TouchableOpacity>
         
     </View>
     

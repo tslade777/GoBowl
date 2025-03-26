@@ -10,7 +10,7 @@ type GameInfo = {
 };
 
 const EmptyGame: React.FC<GameInfo> = ({gameData, gameNum}) => {
-  const [frames, setFrames] = useState(gameData.game);
+  const [frames, setFrames] = useState(gameData.game.frames);
 
 
   // Game state
@@ -39,9 +39,9 @@ const EmptyGame: React.FC<GameInfo> = ({gameData, gameNum}) => {
             <Frame 
               key={index} 
               frameNumber={index + 1} 
-              roll1={frame.isStrike ? 'X' : frame.roll1 == '0' ? '-' : frame.roll1} 
-              roll2={frame.isSpare ? '/' : frame.roll2 == '0' ? '-' : frame.roll2} 
-              total={frame.score.toString()}
+              roll1={frame.roll1} 
+              roll2={frame.roll2} 
+              total={frame.score}
               isSelected= {currentFrame==index}
               isSplit={frame.isSplit} 
             />      
@@ -50,16 +50,20 @@ const EmptyGame: React.FC<GameInfo> = ({gameData, gameNum}) => {
           
   
           {/* 10th Frame (Only Displayed, Not Editable) */}
-          <TenthFrame 
-          roll1={frames[9].isStrike ? 'X': frames[9].roll1 == '0' ? '-' : frames[9].roll1} 
-          roll2={(frames[9].roll1 == '10' && frames[9].roll2 == '10') ? 'X' : 
-            frames[9].isSpare ? '/': frames[9].roll2 == '0' ? '-' :frames[9].roll2} 
-          roll3={frames[9].roll3 == '10' ? 'X': (frames[9].roll1 == '10' && frames[9].roll2 != '10'
-            && (parseInt(frames[9].roll2) + parseInt(frames[9].roll3)==10)) ? '/':
-            frames[9].roll3 == '0' ? '-' : frames[9].roll3} 
-          total={frames[9].score.toString()}
-          isSelected= {currentFrame==9}  
-        />
+          <TouchableOpacity
+            onPressIn={()=>handleFrameTouch(9)}
+            delayPressIn={0}
+            delayPressOut={0}
+            >
+                <TenthFrame 
+                roll1={frames[9].roll1} 
+                roll2={frames[9].roll1} 
+                roll3={frames[9].roll3} 
+                total={frames[9].score}
+                isSelected= {currentFrame==9}  
+                />
+            </TouchableOpacity>
+          
         </View>
         
         </ScrollView>

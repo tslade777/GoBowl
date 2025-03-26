@@ -4,7 +4,7 @@ import Frame from '../scoreboard/Frame';
 import TenthFrame from '../scoreboard/TenthFrame';
 import { db } from '../../../firebase.config'
 import { doc, onSnapshot } from 'firebase/firestore';
-import { tGame } from '@/app/src/values/types';
+import { Game, tFrame, tGame } from '@/app/src/values/types';
 
 interface FriendProps {
   id: string;
@@ -19,12 +19,8 @@ export type StreamRef = {
 
 const Stream = forwardRef<StreamRef, FriendProps>(({id,username,active}, ref) => {
   
-  const [frames, setFrames] = useState(
-    Array(10).fill(null).map(() => ({ roll1: '', roll2: '', roll3: '', score: 0 ,
-      firstBallPins: Array(10).fill(false),secondBallPins:Array(10).fill(false), 
-      isSpare: false, isStrike: false, visible: false, isSplit: false }))
-  );
-  const [games, setGames] = useState<tGame[]>([])
+  const [frames, setFrames] = useState<tFrame[]>([]);
+  const [games, setGames] = useState<Game[]>([])
   const [currentFrame, setCurrentFrame] = useState(0);
   const [farthestFrame, setFarthestFrame] = useState(0);
   const [isFirstRoll, setIsFirstRoll] = useState(false);
@@ -33,7 +29,7 @@ const Stream = forwardRef<StreamRef, FriendProps>(({id,username,active}, ref) =>
   const [index, setIndex] = useState(0);
   const [currGameNum, setCurrGameNum] = useState(0);
   const [gameNum, setGameNum] = useState(0);
-  const [frameSelected, setSelected] = useState(currentFrame)
+  const [selectedShot, setSelectedShot] = useState(1)
   const viewingHistoryRef = useRef(false);
 
   const [loading, setLoading] = useState(true);
@@ -69,9 +65,9 @@ const Stream = forwardRef<StreamRef, FriendProps>(({id,username,active}, ref) =>
             return
           }
           else{
-            const gamesData: tGame[] = docSnap.data().games;
+            const gamesData: Game[] = docSnap.data().games;
             if (!gamesData) return;
-            const currentGame: tGame = gamesData[gamesData.length-1];
+            const currentGame: tGame = gamesData[gamesData.length-1].game;
             setGames(gamesData||[])
             setCurrGameNum(currentGame.gameNum)
             setFrames(currentGame.frames);
@@ -79,6 +75,7 @@ const Stream = forwardRef<StreamRef, FriendProps>(({id,username,active}, ref) =>
             setFarthestFrame(currentGame.currentFrame)
             setIsFirstRoll(Boolean(currentGame.isFirstRoll));
             setIndex(gamesData.length-1)
+            setSelectedShot(currentGame.selectedShot)
             
             // // Possible show pins being knocked down with a small delay? animations?
             const updatedPins = [...currentGame.frames[currentGame.currentFrame].firstBallPins];
@@ -113,7 +110,7 @@ const Stream = forwardRef<StreamRef, FriendProps>(({id,username,active}, ref) =>
     }
     else if (index < games.length-2){
       viewingHistoryRef.current = true
-      setGame(games[index+1])
+      setGame(games[index+1].game)
       setIndex(index+1)
     }
     else return
@@ -124,7 +121,7 @@ const Stream = forwardRef<StreamRef, FriendProps>(({id,username,active}, ref) =>
     // Next game will be current game
     if (index > 0){
       viewingHistoryRef.current = true
-      setGame(games[index-1])
+      setGame(games[index-1].game)
       setIndex(index-1)
     }
     else return
@@ -161,28 +158,26 @@ const Stream = forwardRef<StreamRef, FriendProps>(({id,username,active}, ref) =>
           {frames.slice(0, 9).map((frame, index) => (
             <TouchableOpacity key={index} onPress={() => handleFrameTouch(index)}>
               <Frame 
-              key={index} 
-              frameNumber={index + 1} 
-              roll1={frame.isStrike ? 'X' : frame.roll1 == '0' ? '-' : frame.roll1} 
-              roll2={frame.isSpare ? '/' : frame.roll2 == '0' ? '-' : frame.roll2} 
-              total={frame.visible ? '' : farthestFrame > index ? frame.score.toString() : ''}
-              isSelected= {currentFrame==index}
-              isSplit= {frame.isSplit}
+                  key={index} 
+                  frameNumber={index + 1} 
+                  roll1={frame.roll1} 
+                  roll2={frame.roll2} 
+                  total={frame.visible ? frame.score :  -1}
+                  isSelected= {currentFrame==index}
+                  isSplit = {frame.isSplit} 
+                  selectedShot = {selectedShot}
               />      
             </TouchableOpacity>
           ))}
 
           {/* 10th Frame */}
           <TenthFrame 
-          roll1={frames[9].isStrike ? 'X': frames[9].roll1 == '0' ? '-' : frames[9].roll1} 
-          roll2={(frames[9].roll1 == '10' && frames[9].roll2 == '10') ? 'X' : 
-            frames[9].isSpare ? '/': frames[9].roll2 == '0' ? '-' :frames[9].roll2} 
-          roll3={frames[9].roll3 == '10' ? 'X': (frames[9].roll1 == '10' && frames[9].roll2 != '10'
-            && (parseInt(frames[9].roll2) + parseInt(frames[9].roll3)==10)) ? '/':
-            frames[9].roll3 == '0' ? '-' : frames[9].roll3} 
-            total={(!gameComplete) ? '' : frames[9].score.toString()}
-          isSelected= {currentFrame==9}  
-          isSplit = {frames[9].isSplit}
+            roll1={frames[9].roll1} 
+            roll2={frames[9].roll2} 
+            roll3={frames[9].roll3} 
+            total={(!gameComplete) ? -1 : frames[9].score}
+            isSelected= {currentFrame==9}  
+            isSplit = {frames[9].isSplit}
           />
           </View>}
          

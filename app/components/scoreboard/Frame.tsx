@@ -5,12 +5,12 @@ const Frame = ({
     height = 60, 
     borderColor = 'border-black', 
     borderWidth = 2, 
-    roll1 = 0, 
-    roll2 = 0, 
+    roll1 = -1, 
+    roll2 = -1, 
     total = -1,
     isSelected = false,
     isSplit = false,
-    selectedShot = '', // accepts 'roll1' | 'roll2' | null
+    selectedShot = 1, // accepts 'roll1' | 'roll2' | null
 }) => {
 
     const { width } = Dimensions.get('window');
@@ -36,21 +36,21 @@ const Frame = ({
                 <View
                     className={`
                         flex-1 items-center justify-center border-r
-                        ${selectedShot === 'roll1' ? 'bg-teal' : ''}
+                        ${selectedShot == 1 && isSelected ? 'bg-teal' : ''}
                     `}
                     >
                     <Text className={`text-lg font-bold ${isSplit ? 'text-red-500' : 'text-black'}`}>
-                        {roll1 == 10 ? 'X' : roll1 == 0 ? '-' : roll1}
+                        {roll1==-1 ? '' : roll1 == 10 ? 'X' : roll1 == 0 ? '-' : roll1}
                     </Text>
                     </View>
 
                     <View
                     className={`
                         flex-1 items-center justify-center
-                        ${selectedShot === 'roll2' ? 'bg-teal' : ''}
+                        ${selectedShot === 2 && isSelected ? 'bg-teal' : ''}
                     `}
                     >
-                    <Text className="text-lg font-bold">{
+                    <Text className="text-lg font-bold">{roll2 ==-1 ? '':
                      spare ? '/' : roll2 == 0 ? '-' : roll2}</Text>
                     </View>
                 </View>

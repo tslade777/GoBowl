@@ -1,5 +1,5 @@
 import { addDoc, collection, doc, getDoc, getDocs, increment, onSnapshot, orderBy, query, setDoc, Timestamp, updateDoc, where } from "firebase/firestore";
-import { League, Series, SeriesStats, tGame, UserData } from "../src/values/types";
+import { Game, League, Series, SeriesData, SeriesStats, tGame, UserData } from "../src/values/types";
 import { db, FIREBASE_AUTH, storage } from "@/firebase.config";
 import { format } from "date-fns";
 import { CURRENTUSER, SESSIONS } from "../src/config/constants";
@@ -422,7 +422,7 @@ const downloadImageFromFirebase = async (imagePath: string): Promise<string | nu
  * @param gamesData 
  * @param seriesStats 
  */
-const updateFirebaseGameComplete = async (type:string, name:string, leagueID:string, sessionID:string, gamesData: any, seriesStats:SeriesStats) =>{
+const updateFirebaseGameComplete = async (type:string, name:string, leagueID:string, sessionID:string, gamesData: SeriesData, seriesStats: SeriesStats) =>{
   // check type 
   try{
     if (FIREBASE_AUTH.currentUser != null){
@@ -432,13 +432,13 @@ const updateFirebaseGameComplete = async (type:string, name:string, leagueID:str
 
         // Error is in this document. Couldn't find document. NEED TO CREATE SESSION FIRST.
         await updateDoc(doc(db, SESSIONS.league, uID, 'Leagues', leagueID, 'Weeks', sessionID),{
-          games: gamesData,
+          games: gamesData.data,
           stats: seriesStats
         })
       }
       else{
         await updateDoc(doc(db,type, sessionID),{
-          games: gamesData,
+          games: gamesData.data,
           stats: seriesStats
         })
       }
@@ -610,12 +610,12 @@ const getLeaguesByID = async (friendId:string): Promise<League[] | null> => {
 /**
  * Save the current game in firebase.
  */
-const updateFirebaseActiveGames = async (game: tGame[]) =>{
+const updateFirebaseActiveGames = async (games: Game[]) =>{
   try{
     if (FIREBASE_AUTH.currentUser != null){
       let result = FIREBASE_AUTH.currentUser.uid
       await updateDoc(doc(db,"activeUsers", result),{
-        games: game,
+        games: games,
       })
     }
   }catch(e){

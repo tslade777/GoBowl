@@ -50,9 +50,12 @@ export interface Series {
     stats: any[]; // Holds frame-by-frame breakdown of strikes, spares, etc.
   }
 
+  /**
+   * Game and stats for that game. 
+   */
 export interface Game {
-    game: any[];
-    stats: any[];
+    game: tGame; // Game details
+    stats: BowlingStats; // Stat details. 
 }
 
 export interface UserData {
@@ -70,31 +73,22 @@ export interface UserData {
 export interface tGame {
   frames: tFrame[];
   pins: boolean[];
+  selectedShot: number;
   currentFrame: number;
   farthestFrame: number;
-  isFirstRoll: Boolean;
-  isFinalRoll: Boolean;
-  striking: Boolean;
-  gameComplete: Boolean;
-  edited: Boolean;
+  isFirstRoll: boolean;
+  isFinalRoll: boolean;
+  striking: boolean;
+  gameComplete: boolean;
+  edited: boolean;
   gameNum: number;
   finalScore: number,
 }
 
-export interface GameStore {
-  game: tGame;
-  isSaved: boolean
-  setGame: (game: tGame) => void;
-  updateGame: (partial: Partial<tGame>) => void;
-  resetGame: () => void;
-  markSaved: () => void;
-  markUnsaved: () => void;
-}
-
 export interface tFrame {
-    roll1: string;
-    roll2: string;
-    roll3: string;
+    roll1: number;
+    roll2: number;
+    roll3: number;
     score: number;
     firstBallPins: boolean[];
     secondBallPins: boolean[];
@@ -103,6 +97,7 @@ export interface tFrame {
     isStrike: boolean;
     visible: boolean;
     isSplit: boolean;
+    complete: boolean;
   }
 
  export interface BowlingStats {
@@ -152,12 +147,15 @@ export interface tFrame {
     name: string,
     type: string,
     numGames: number,
-    gamesData: any,
-    games: tGame[]
+    seriesData: SeriesData,
     activeGame: boolean, 
-    seriesStats: SeriesStats,
     localHighGame: number,
     localLowGame: number,
+  }
+
+  export interface SeriesData {
+    data: Game[],
+    stats: SeriesStats
   }
 
   const defaultValue = {

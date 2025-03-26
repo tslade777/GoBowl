@@ -1,4 +1,4 @@
-import { SeriesStats, BowlingStats, PinCombinations, Friend, tFrame, tGame } from "./types";
+import { SeriesStats, BowlingStats, PinCombinations, Friend, tFrame, tGame, Session, SeriesData } from "./types";
 // defaults.ts or constants.ts
 export const defaultSeriesStats: SeriesStats = {
   seriesScore: 0,
@@ -61,11 +61,13 @@ export const bowlingStats: BowlingStats = {
 }
 
 export const defaultFrame: tFrame = {
-  roll1: "", roll2: "", roll3: "", score: 0,
+  roll1: -1, roll2: -1, roll3: -1, score: -1,
   firstBallPins: Array(10).fill(false),
   secondBallPins: Array(10).fill(false),
   thirdBallPins: Array(10).fill(false),
-  isSpare: false, isStrike: false, visible: true, isSplit: false }
+  isSpare: false, isStrike: false, visible: false, isSplit: false,
+  complete: false
+}
 
 export const defaultGame: tGame = {
   frames: Array.from({ length: 10 }, () => ({ ...defaultFrame })),
@@ -79,7 +81,25 @@ export const defaultGame: tGame = {
   gameNum: 0,
   pins: [],
   finalScore: 0,
+  selectedShot: 1
 }
+export const defaultSeriesData: SeriesData ={
+  data: [],
+  stats: {...defaultSeriesStats},
+}
+export const defaultSession: Session ={
+  sessionID: "",
+  leagueID: "",
+  name: "",
+  type: "",
+  numGames: 1,
+  seriesData: defaultSeriesData,
+  activeGame: false, 
+  localHighGame: 0,
+  localLowGame: 301,
+}
+
+
 
 export const defaultFriend: Friend = { id: "", username: "Unknown User", profilePic: "", active: false }; // ✅ Prevents `null` issues
   

@@ -8,7 +8,7 @@ import { defaultSeriesStats } from '@/app/src/values/defaults';
 
 
 // Single Item Component
-const LeagueListSingleItem = ({ league, onPress }: { league: League; onPress: () => void }) => {
+const LeagueListSingleItem = ({ league, onPress, weeks }: { weeks:number, league: League; onPress: () => void }) => {
     const [stats, setStats] = useState<SeriesStats>(defaultSeriesStats);
 
     useEffect(()=>{
@@ -28,7 +28,7 @@ const LeagueListSingleItem = ({ league, onPress }: { league: League; onPress: ()
             <View className="bg-gray-300 shadow-md rounded-3xl p-4 my-2 mt-3 mx-4">
                 <View className="flex-row justify-between">
                     <Text className="text-2xl font-pbold text-blue-600">{league.title}</Text>
-                    <Text className="text-gray-900 text-lg font-pbold">Weeks: {league.weeks}</Text>
+                    <Text className="text-gray-900 text-lg font-pbold">Weeks: {weeks}</Text>
                 </View>
                 <View className="flex-row justify-evenly mt-1">
                     <Text className="text-lg text-gray-500">
@@ -47,14 +47,14 @@ const LeagueListSingleItem = ({ league, onPress }: { league: League; onPress: ()
 };
 
 const LeagueList = ({ data, onItemPress }: { data: League[]; onItemPress: (item: any) => void }) => {
-       
+    const weeks = data.length;
       
     return (
         <View className="flex-1 w-full h-50">
             <FlatList
                 data={data}
                 keyExtractor={(item) => item.title}
-                renderItem={({ item }) => <LeagueListSingleItem league={item} onPress={() => onItemPress(item)} />}
+                renderItem={({ item }) => <LeagueListSingleItem weeks={weeks} league={item} onPress={() => onItemPress(item)} />}
             />
         </View>
     );

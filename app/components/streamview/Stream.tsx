@@ -6,6 +6,7 @@ import { db } from '../../../firebase.config'
 import { doc, onSnapshot } from 'firebase/firestore';
 import { Game, tFrame, tGame } from '@/app/src/values/types';
 import icons from '@/constants/icons';
+import { defaultFrame } from '@/app/src/values/defaults';
 
 interface FriendProps {
   id: string;
@@ -20,11 +21,10 @@ export type StreamRef = {
 
 const Stream = forwardRef<StreamRef, FriendProps>(({id,username,active}, ref) => {
   
-  const [frames, setFrames] = useState<tFrame[]>([]);
+  const [frames, setFrames] = useState<tFrame[]>(Array(10).fill({ ...defaultFrame }));
   const [games, setGames] = useState<Game[]>([])
   const [currentFrame, setCurrentFrame] = useState(0);
   const [farthestFrame, setFarthestFrame] = useState(0);
-  const [isFirstRoll, setIsFirstRoll] = useState(false);
   const [gameComplete, setGameComplete] = useState(false)
   const [pins, setPins] = useState(Array(10).fill(false)); // Track knocked-down pins
   const [index, setIndex] = useState(0);
@@ -66,6 +66,7 @@ const Stream = forwardRef<StreamRef, FriendProps>(({id,username,active}, ref) =>
             return
           }
           else{
+            
             const gamesData: Game[] = docSnap.data().games;
             if (!gamesData) return;
             const currentGame: tGame = gamesData[gamesData.length-1].game;
@@ -74,9 +75,9 @@ const Stream = forwardRef<StreamRef, FriendProps>(({id,username,active}, ref) =>
             setFrames(currentGame.frames);
             setCurrentFrame(currentGame.currentFrame);
             setFarthestFrame(currentGame.currentFrame)
-            setIsFirstRoll(Boolean(currentGame.isFirstRoll));
             setIndex(gamesData.length-1)
             setSelectedShot(currentGame.selectedShot)
+            
             
             // // Possible show pins being knocked down with a small delay? animations?
             const updatedPins = [...currentGame.frames[currentGame.currentFrame].firstBallPins];
@@ -91,6 +92,16 @@ const Stream = forwardRef<StreamRef, FriendProps>(({id,username,active}, ref) =>
       return () => unsubscribe();
   };
 
+  useEffect(()=>{
+    let pins = [];
+    if (selectedShot==1)
+      pins = frames[currentFrame].firstBallPins
+    else if(selectedShot==2)
+      pins = frames[currentFrame].secondBallPins
+    else
+      pins = frames[currentFrame].thirdBallPins
+    setPins(pins)
+  },[selectedShot, currentFrame])
 
   // Expose methods to the parent
     useImperativeHandle(ref, () => ({
@@ -208,24 +219,26 @@ const changeToFrame = (num:number) => {
    * @param game The game that needs to be displayed. 
    */
   const setGame = (game: tGame) =>{
+    console.warn(`Setting game`)
     setCurrentFrame(game.currentFrame)
     setFarthestFrame(game.farthestFrame)
-    setIsFirstRoll(Boolean(game.isFirstRoll))
     setGameComplete(Boolean(game.gameComplete))
     setPins(game.pins)
     setFrames(game.frames)
     setGameNum(game.gameNum)
+    setSelectedShot(game.selectedShot)
   }
   
   // Update frame selection. Call back for frame touch event.
   // Only update if 
   const handleFrameTouch = (index: number) => {
-    if (farthestFrame >= index) {
-      setCurrentFrame(index);
-      setIsFirstRoll(true)
-      setPins(frames[index].firstBallPins)
-    }
+    const touchedFrame = frames[index];
+    if(touchedFrame.roll1 == -1 && index != 0 && frames[index-1].roll1 == -1)
+        return;
+    setSelectedShot(1)
+    setCurrentFrame(index)
   }
+
     return (
       <Animated.View className="items-center p-1  rounded-lg "  >
         {/* Frames Display */}

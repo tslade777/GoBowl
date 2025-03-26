@@ -5,6 +5,7 @@ import TenthFrame from '../scoreboard/TenthFrame';
 import { db } from '../../../firebase.config'
 import { doc, onSnapshot } from 'firebase/firestore';
 import { Game, tFrame, tGame } from '@/app/src/values/types';
+import icons from '@/constants/icons';
 
 interface FriendProps {
   id: string;
@@ -128,6 +129,81 @@ const Stream = forwardRef<StreamRef, FriendProps>(({id,username,active}, ref) =>
   }
 
   /**
+   * Go to the next shot. 
+   * 
+   * @param game The current game to be updated
+   * @returns the new updated game
+   */
+  const goToNextShot = () => {
+    // If its the first ball, go to next shot of current frame
+    if(selectedShot == 1){
+        // unless current is a strike.
+        if(frames[currentFrame].isStrike && currentFrame != 9){
+            setCurrentFrame(currentFrame+1)
+            setSelectedShot(1)
+        }
+        // go to second shot 
+        else{
+          setSelectedShot(2)
+        }
+    }
+    else if(selectedShot == 2){
+        // if it's the tenth frame, go to third shot
+        if(currentFrame == 9){
+            // TODO: restrict based on score.
+            setSelectedShot(3)
+        }
+        else{
+            let newCurrentFrame = currentFrame+1 > 9 ? currentFrame: currentFrame+1;
+            setCurrentFrame(newCurrentFrame)
+            setSelectedShot(1)
+        }
+    }
+    // else go to first shot of next frame
+    else{
+      let newCurrentFrame = currentFrame+1 > 9 ? currentFrame:currentFrame+1;
+        setCurrentFrame(newCurrentFrame)
+        setSelectedShot(1)
+    }
+};
+
+/**
+ * 
+ * @param game The current game to be updated
+ * @returns the new updated game
+ */
+const goToPrevShot = ()=> {
+  // If its the first ball, go to last shot of last frame
+  if(selectedShot==1){
+    // If last frame is a strike, show the first ball
+    if (frames[currentFrame-1].isStrike){
+        setCurrentFrame(currentFrame-1)
+        setSelectedShot(1)
+    }
+    else{
+      setCurrentFrame(currentFrame-1)
+      setSelectedShot(2)
+    }
+  }
+  // else go to first shot of current frame
+  else{
+      if (selectedShot==3){
+        setSelectedShot(2)
+      }else{
+        setSelectedShot(1)
+      }
+  }
+};
+
+const changeToFrame = (num:number) => {
+  if (currentFrame + num < 0 || currentFrame+num >9) return
+  else{
+    setSelectedShot(1)
+    setCurrentFrame(currentFrame+num)
+  }
+};
+
+  /**
    * Set the Game as it's updated from firebase.
    * @param game The game that needs to be displayed. 
    */
@@ -157,28 +233,31 @@ const Stream = forwardRef<StreamRef, FriendProps>(({id,username,active}, ref) =>
 
           {frames.slice(0, 9).map((frame, index) => (
             <TouchableOpacity key={index} onPress={() => handleFrameTouch(index)}>
-              <Frame 
-                  key={index} 
-                  frameNumber={index + 1} 
-                  roll1={frame.roll1} 
-                  roll2={frame.roll2} 
-                  total={frame.visible ? frame.score :  -1}
-                  isSelected= {currentFrame==index}
-                  isSplit = {frame.isSplit} 
-                  selectedShot = {selectedShot}
-              />      
-            </TouchableOpacity>
+            <Frame 
+              key={index} 
+              frameNumber={index + 1} 
+              roll1={frame.roll1} 
+              roll2={frame.roll2} 
+              total={frame.visible ? frame.score :  -1}
+              isSelected= {currentFrame==index}
+              isSplit = {frame.isSplit} 
+              selectedShot = {selectedShot}
+            />      
+          </TouchableOpacity>
           ))}
 
-          {/* 10th Frame */}
-          <TenthFrame 
+          {/* 10th Frame  */}
+          <TouchableOpacity  onPress={() => handleFrameTouch(9)}>
+            <TenthFrame 
             roll1={frames[9].roll1} 
             roll2={frames[9].roll2} 
             roll3={frames[9].roll3} 
             total={(!gameComplete) ? -1 : frames[9].score}
-            isSelected= {currentFrame==9}  
+            isSelected= {currentFrame==9}
             isSplit = {frames[9].isSplit}
-          />
+            selectedShot={selectedShot}
+            />
+          </TouchableOpacity>
           </View>}
          
         <View className=" flex-row  px-4">
@@ -209,30 +288,56 @@ const Stream = forwardRef<StreamRef, FriendProps>(({id,username,active}, ref) =>
           </View>
         ))}
         </View>
-        {/* Quick Select Buttons */}
-        <View className="flex-row mt-10 items-center ">
-          <TouchableOpacity 
-            onPress={()=>{}}
-            className="mx-5 pr-4 pl-2 py-2 rounded-lg items-center"
-          >
-            <Text className="text-5xl text-white font-pextrabold">X</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            onPress={()=>{}} 
-            className="mx-5 mt-4 pr-4 pl-2 py-2 rounded-lg items-center"
-          >
-            <Text className="text-5xl text-white font-pextrabold">/</Text>
-          </TouchableOpacity>
-          <TouchableOpacity 
-            onPress={()=>{}} 
-            className="mx-5 mt-5 pr-4 pl-2 py-2 rounded-lg items-center"
-          >
-            <Text className="text-5xl text-white font-pextrabold">-</Text>
-          </TouchableOpacity>
+        {/* Manual Input Controls */}
+          <View className="flex-col mt-4 items-center"> 
+            <View className='flex-row justify-evenly items-center' >
+              {/** Previous Frame button */}
+              <TouchableOpacity 
+                onPress={()=>{changeToFrame(-1)}}
+                className="m-2  px-4 py-2 rounded-lg"
+                disabled={currentFrame==0} 
+              >
+                <Image source={icons.previousFrame}
+                  className='w-16 h-16'
+                  resizeMode='contain'
+                  style={currentFrame>0 ? {tintColor: "white"} : {tintColor: "gray"}}/>
+              </TouchableOpacity>
+              {/** Previous shot button */}
+              <TouchableOpacity 
+                onPress={()=>{goToPrevShot()}}
+                disabled={currentFrame==0 && selectedShot == 1} 
+                className="mr-5 px-1 py-2 rounded-lg"
+              >
+                <Image source={icons.previousShot}
+                  className='w-10 h-10'
+                  resizeMode='contain'
+                  style={currentFrame==0 && selectedShot == 1 ? {tintColor: "gray"} : {tintColor: "white"}}/>
+              </TouchableOpacity>
+    
+              {/** Next shot button */}
+              <TouchableOpacity 
+                onPress={()=>{goToNextShot();}}
+                disabled={(currentFrame == 9 && selectedShot == 3) || (currentFrame != 9 && frames[currentFrame+1].roll1 == -1 && selectedShot ==2)} 
+                className="ml-5 px-1 py-2 rounded-lg"
+              >
+                <Image source={icons.nextShot}
+                  className='w-10 h-10'
+                  resizeMode='contain'
+                  style={currentFrame== 9 && selectedShot == 3 ? {tintColor: "gray"} : {tintColor: "white"}}/>
+              </TouchableOpacity>
+              {/** Next Frame button */}
+              <TouchableOpacity 
+                onPress={()=>{changeToFrame(1)}} 
+                disabled={currentFrame==9 || (currentFrame != 9 && frames[currentFrame+1].roll1 == -1)}
+                className="m-2  px-4 py-2 rounded-lg"
+              >
+                <Image source={icons.nextFrame}
+                  className='w-16 h-16'
+                  resizeMode='contain'
+                  style={currentFrame== 9 ? {tintColor: "gray"} : {tintColor: "white"}}/>
+              </TouchableOpacity>
+            </View>
         </View>
-
-        
-
       </View>
       <View className="">
             

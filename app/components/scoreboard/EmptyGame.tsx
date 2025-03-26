@@ -83,7 +83,6 @@ const EmptyGame: React.FC<GameInfo> = ({gameData, gameNum}) => {
    * @returns the new updated game
    */
   const goToPrevShot = ()=> {
-  
     // If its the first ball, go to last shot of last frame
     if(selectedShot==1){
       // If last frame is a strike, show the first ball

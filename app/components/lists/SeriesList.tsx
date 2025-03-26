@@ -1,15 +1,16 @@
 import { View, Text, FlatList, TouchableOpacity } from 'react-native';
 import React from 'react';
 import parseSessionStats from '@/app/hooks/parseSessionStats';
+import { Series } from '@/app/src/values/types';
 
 
 
 // Single Item Component
-const BowlingSeriesItem = ({ series, onPress }: { series: any; onPress: () => void }) => {
+const BowlingSeriesItem = ({ series, onPress, onHold }: { series: any; onPress: () => void; onHold: ()=>void }) => {
     const stats = parseSessionStats(series);
     
     return (
-        <TouchableOpacity onPress={onPress} activeOpacity={0.7}>
+        <TouchableOpacity onPress={onPress} activeOpacity={0.7} onLongPress={onHold}>
             <View className="bg-gray-300 shadow-md rounded-2xl p-4 my-2 mt-3 mx-4">
                 <View className="flex-row justify-between">
                     <Text className="text-2xl font-pbold text-blue-600">{series.title}</Text>
@@ -31,13 +32,13 @@ const BowlingSeriesItem = ({ series, onPress }: { series: any; onPress: () => vo
     );
 };
 
-const SeriesList = ({ data, onItemPress }: { data: any[]; onItemPress: (item: any) => void }) => {
+const SeriesList = ({ data, onItemPress, onHold }: { data: any[]; onItemPress: (item: any) => void; onHold: (item: Series)=>void; }) => {
     return (
         <View className="flex-1 w-full h-50">
             <FlatList
                 data={data}
                 keyExtractor={(item) => item.id}
-                renderItem={({ item }) => <BowlingSeriesItem series={item} onPress={() => onItemPress(item)} />}
+                renderItem={({ item }) => <BowlingSeriesItem series={item} onPress={() => onItemPress(item)} onHold={()=>onHold(item)} />}
             />
         </View>
     );

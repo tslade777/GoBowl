@@ -51,7 +51,7 @@ const StatsScreen = () => {
           }}
         >
           <Tab.Screen name="Stats">{() => <StatsTab sessionData={sessionData} />}</Tab.Screen>
-          <Tab.Screen name="Sessions">{() => <SessionsTab sessionsData={sessionData} />}</Tab.Screen>
+          <Tab.Screen name="Sessions">{() => <SessionsTab sessionsData={sessionData} type={type} leagueID={""}/>}</Tab.Screen>
         </Tab.Navigator>
       </View>
       </SafeAreaView>

@@ -1,4 +1,4 @@
-import { addDoc, collection, doc, getDoc, getDocs, increment, onSnapshot, orderBy, query, setDoc, Timestamp, updateDoc, where } from "firebase/firestore";
+import { addDoc, collection, deleteDoc, doc, getDoc, getDocs, increment, onSnapshot, orderBy, query, setDoc, Timestamp, updateDoc, where } from "firebase/firestore";
 import { Game, League, Series, SeriesData, SeriesStats, tGame, UserData } from "../src/values/types";
 import { db, FIREBASE_AUTH, storage } from "@/firebase.config";
 import { format } from "date-fns";
@@ -448,6 +448,35 @@ const updateFirebaseGameComplete = async (type:string, name:string, leagueID:str
   }
 }
 
+/**
+ * Save the complete game in firebase
+ * @param type types can {practice, open, league, tournament}
+ * @param name 
+ * @param leagueID 
+ * @param sessionID 
+ * @param gamesData 
+ * @param seriesStats 
+ */
+const removeSession = async (type:string, leagueID:string, sessionID:string) =>{
+  // check type 
+  try{
+    if (FIREBASE_AUTH.currentUser != null){
+            let uID = FIREBASE_AUTH.currentUser.uid
+    
+      if(type == SESSIONS.league){
+
+        // Error is in this document. Couldn't find document. NEED TO CREATE SESSION FIRST.
+        await deleteDoc(doc(db, SESSIONS.league, uID, 'Leagues', leagueID, 'Weeks', sessionID));
+        
+      }
+      else{
+        await deleteDoc(doc(db,type, sessionID));
+      }
+    }
+  }catch(e){
+    console.error("📛 Setting game complete: "+e)
+  }
+}
 
 /**
    * Mark a bowler as bowling
@@ -627,7 +656,8 @@ export {getSessions, startFirebaseSession,
   updateFirebaseLeagueWeekCount, createNewLeauge,
   updateFirebaseGameComplete, getLeagueSessions, uploadImageToFirebase, downloadImageFromFirebase,
   fetchUserData, updateFirebaseActiveGames, setFirebaseActive, setFirebaseInActive, setFirebaseWatching, 
-  getFirebaseWatching, removeFirebaseWatching, fetchUserDataByID, getLeagues, getLeaguesByID, getSessionsByID,getLeagueSessionsByID};
+  getFirebaseWatching, removeFirebaseWatching, fetchUserDataByID, getLeagues, getLeaguesByID, 
+  getSessionsByID,getLeagueSessionsByID, removeSession};
 
 
   const defaultValue = {

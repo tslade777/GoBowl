@@ -6,6 +6,7 @@ import StatsTab from "../components/Tabs/stats";
 import SessionsTab from "../components/Tabs/sessions";
 import { Series } from "@/app/src/values/types";
 import {getLeagueSessions} from "../hooks/firebaseFunctions";
+import { SESSIONS } from "../src/config/constants";
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -62,7 +63,7 @@ const StatsScreenLeague = () => {
               {() => <StatsTab sessionData={sessionData} />}
           </Tab.Screen>
           <Tab.Screen name="Sessions">
-          {() => <SessionsTab sessionsData={sessionData} />}
+          {() => <SessionsTab sessionsData={sessionData} type={SESSIONS.league} leagueID={leagueID} />}
           </Tab.Screen>
         </Tab.Navigator>
       </View>

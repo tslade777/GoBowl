@@ -21,6 +21,8 @@ interface StatsTabProps {
     const [isModalVisible, setIsModalVisible] = useState(false);
     const [isRendered, setIsRendered] = useState(false);
     const [selectedSeries, setSelectedSeries] = useState<Series>(sessionsData[0]);
+    const [selectedIndex, setSelectedIndex] = useState(0);
+    const [sessionData, setSessionData] = useState(sessionsData)
 
     const scale = useSharedValue(0);
     const opacity = useSharedValue(0);
@@ -34,7 +36,8 @@ interface StatsTabProps {
       });
 
     const handleItemPress = (item: Series) => {
-        
+
+        setSelectedSeries(item)  
         setSelected(item.games)
         setShowGames(true);
         if (Array.isArray(item.games) && item.games.length > 0 && Object.keys(item.games[0]).length === 0) {
@@ -49,9 +52,23 @@ interface StatsTabProps {
         })
     }
 
+    const handleViewStats = (series:Series)=>{
+      router.push({
+          pathname: "/screens/historySessionStats",
+          params: {
+            seriesStats: JSON.stringify(series.stats),
+            title: series.title
+          }
+        });
+    }
+
     const remove = (series: Series)=>{
         removeSession(type, leagueID, series.id)
+        let updatedData = sessionsData;
+        updatedData.splice(selectedIndex,1);
+        setSessionData(updatedData)
         setIsRendered(false);
+        closeModal();
     }
 
     /**
@@ -63,9 +80,10 @@ interface StatsTabProps {
       };
 
     
-    const handleSeriesLongPress = (series: Series) => {
+    const handleSeriesLongPress = (series: Series,index:number) => {
         setIsRendered(true);
         setSelectedSeries(series)
+        setSelectedIndex(index)
         if (Platform.OS === "ios") {
               ActionSheetIOS.showActionSheetWithOptions(
                 {
@@ -103,10 +121,21 @@ interface StatsTabProps {
                         <Text className='p-2 text-orange text-2xl font-psemibold'>Games</Text>
                     </View>
                 </View>
-                <GameList data={selectedItem} onItemPress={handleGamePress} /></>
+                <GameList data={selectedItem} onItemPress={handleGamePress} />
+                <View className="w-full items-center justify-center">
+                  <TouchableOpacity
+                    className="bg-green-800 p-3 rounded-xl mb-3 w-[75%]"
+                    onPress={() => handleViewStats(selectedSeries)}
+                    activeOpacity={0.7}
+                    >
+                    <Text className="text-white text-center font-pbold text-2xl">VIEW STATS</Text>
+                  </TouchableOpacity>
+                </View>
+                </>
             ):
-            <SeriesList data={sessionsData} onItemPress={handleItemPress} onHold={handleSeriesLongPress} />
+            <SeriesList data={sessionData} onItemPress={handleItemPress} onHold={handleSeriesLongPress} />
             }
+            
 
             {/* 📌 Modern Animated Modal for Android */}
             {isRendered &&  (
@@ -123,7 +152,14 @@ interface StatsTabProps {
                             {selectedSeries.title}
                         </Text>
                         </View>
-    
+                        <TouchableOpacity
+                        className="bg-green-800 p-3 rounded-xl mb-2"
+                        onPress={() => handleViewStats(selectedSeries)}
+                        activeOpacity={0.7}
+                        >
+                        <Text className="text-white text-center text-lg">View Stats</Text>
+                        </TouchableOpacity>
+
                         <TouchableOpacity
                         className="bg-red-500 p-3 rounded-xl mb-2"
                         onPress={() => remove(selectedSeries)}

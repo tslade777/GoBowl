@@ -32,13 +32,13 @@ const BowlingSeriesItem = ({ series, onPress, onHold }: { series: any; onPress: 
     );
 };
 
-const SeriesList = ({ data, onItemPress, onHold }: { data: any[]; onItemPress: (item: any) => void; onHold: (item: Series)=>void; }) => {
+const SeriesList = ({ data, onItemPress, onHold }: { data: any[]; onItemPress: (item: any) => void; onHold: (item: Series, index: number)=>void; }) => {
     return (
         <View className="flex-1 w-full h-50">
             <FlatList
                 data={data}
                 keyExtractor={(item) => item.id}
-                renderItem={({ item }) => <BowlingSeriesItem series={item} onPress={() => onItemPress(item)} onHold={()=>onHold(item)} />}
+                renderItem={({ item,index}) => <BowlingSeriesItem series={item} onPress={() => onItemPress(item)} onHold={()=>onHold(item,index)} />}
             />
         </View>
     );

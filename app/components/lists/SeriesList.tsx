@@ -24,7 +24,7 @@ const BowlingSeriesItem = ({ series, onPress, onHold }: { series: any; onPress: 
                         High: <Text className="font-pbold">{isNaN(stats.highGame) ? '--' : stats.highGame}</Text>
                     </Text>
                     <Text className="text-lg text-gray-500">
-                        Strikes: <Text className="font-pbold">{isNaN(stats.totalStrikes) ? '--' : stats.totalStrikes}</Text>
+                        Games: <Text className="font-pbold">{isNaN(stats.totalStrikes) ? '--' : stats.numberOfGames}</Text>
                     </Text>
                 </View>
             </View>

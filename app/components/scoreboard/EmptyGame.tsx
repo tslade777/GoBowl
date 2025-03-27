@@ -45,6 +45,7 @@ const EmptyGame: React.FC<GameInfo> = ({gameData, gameNum}) => {
    * @returns the new updated game
    */
   const goToNextShot = () => {
+    console.log(`Next shot`)
       // If its the first ball, go to next shot of current frame
       if(selectedShot == 1){
           // unless current is a strike.
@@ -138,7 +139,6 @@ const EmptyGame: React.FC<GameInfo> = ({gameData, gameNum}) => {
           </TouchableOpacity>
         ))}
           
-  
           {/* 10th Frame (Only Displayed, Not Editable) */}
           <TouchableOpacity
             onPressIn={()=>handleFrameTouch(9)}
@@ -154,7 +154,6 @@ const EmptyGame: React.FC<GameInfo> = ({gameData, gameNum}) => {
                 selectedShot={selectedShot}
                 />
             </TouchableOpacity>
-          
         </View>
         
         </ScrollView>
@@ -191,7 +190,7 @@ const EmptyGame: React.FC<GameInfo> = ({gameData, gameNum}) => {
                 <View className='flex-row justify-evenly items-center' >
                   {/** Previous Frame button */}
                   <TouchableOpacity 
-                    onPress={()=>{changeToFrame(-1)}}
+                    onPressIn={()=>{changeToFrame(-1)}}
                     className="m-2  px-4 py-2 rounded-lg"
                     disabled={currentFrame==0} 
                   >
@@ -202,7 +201,7 @@ const EmptyGame: React.FC<GameInfo> = ({gameData, gameNum}) => {
                   </TouchableOpacity>
                   {/** Previous shot button */}
                   <TouchableOpacity 
-                    onPress={()=>{goToPrevShot()}}
+                    onPressIn={()=>{goToPrevShot()}}
                     disabled={currentFrame==0 && selectedShot == 1} 
                     className="mr-5 px-1 py-2 rounded-lg"
                   >
@@ -214,7 +213,8 @@ const EmptyGame: React.FC<GameInfo> = ({gameData, gameNum}) => {
         
                   {/** Next shot button */}
                   <TouchableOpacity 
-                    onPress={()=>{goToNextShot();}}
+                    onPress={()=>{ console.log('hit')}}
+                    onPressIn={()=>{goToNextShot();}}
                     disabled={(currentFrame == 9 && selectedShot == 3) || (currentFrame != 9 && frames[currentFrame+1].roll1 == -1 && selectedShot ==2)} 
                     className="ml-5 px-1 py-2 rounded-lg"
                   >
@@ -225,7 +225,7 @@ const EmptyGame: React.FC<GameInfo> = ({gameData, gameNum}) => {
                   </TouchableOpacity>
                   {/** Next Frame button */}
                   <TouchableOpacity 
-                    onPress={()=>{changeToFrame(1)}} 
+                    onPressIn={()=>{changeToFrame(1)}} 
                     disabled={currentFrame==9 || (currentFrame != 9 && frames[currentFrame+1].roll1 == -1)}
                     className="m-2  px-4 py-2 rounded-lg"
                   >

@@ -8,12 +8,12 @@ const EndSessionStats = () => {
     const args = useLocalSearchParams();
     let data = args.seriesData as string;
     let title = args.title as string;
-    title = title==''? 'Stats' : title
+    title = title==''? 'Stats' : title + 'Stats'
     const parsedData:SeriesStats = JSON.parse(data)
   return (
     <SafeAreaView className="bg-primary h-full">
         <View className='flex-1 items-center justify-center'>
-            <Text className='text-white text-3xl'>{title}</Text>
+            <Text className='text-white text-3xl font-pbold'>{title}</Text>
             <EndSessionStatsTab sessionData={parsedData}/>
         </View>
     </SafeAreaView>

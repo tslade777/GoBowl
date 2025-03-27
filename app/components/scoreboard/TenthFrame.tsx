@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { View, Text, Dimensions } from 'react-native';
+import { frameHeight } from './Frame';
 
 const TenthFrame = ({  
   height = 60, 
@@ -36,7 +37,7 @@ const TenthFrame = ({
       {/* Bowling Frame with Three Roll Sections */}
       <View 
         className={`rounded-md border ${isSelected ? "border-orange" : "border-black"} bg-white`} 
-        style={{ width:frameWidth, height, borderWidth }}
+        style={{ width:frameWidth, height:frameHeight, borderWidth }}
       >
         {/* Rolls */}
         <View className="flex-row">

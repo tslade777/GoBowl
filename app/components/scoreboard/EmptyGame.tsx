@@ -4,6 +4,7 @@ import Frame from './Frame';
 import TenthFrame from './TenthFrame';
 import { Game } from '@/app/src/values/types';
 import icons from '@/constants/icons';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 type GameInfo = {
   gameData: Game;
@@ -115,17 +116,18 @@ const EmptyGame: React.FC<GameInfo> = ({gameData, gameNum}) => {
   };
 
     return (
-      <View className="items-center p-1 rounded-lg">
+      <SafeAreaView className='flex-1' >
+          <View className="flex-1 items-center p-1 rounded-lg" >
         {/* Frames Display */}
-        <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        <View className="flex-row space-x-1" >
+        
+        <View className=" w-full flex-row justify-center space-x-1" pointerEvents="box-none">
         {frames.slice(0, 9).map((frame, index) => (
           <TouchableOpacity
             onPressIn={()=>handleFrameTouch(index)}
             delayPressIn={0}
             delayPressOut={0}
             key={index}
-            onPress={() => {}}>
+            >
             <Frame 
               key={index} 
               frameNumber={index + 1} 
@@ -155,8 +157,7 @@ const EmptyGame: React.FC<GameInfo> = ({gameData, gameNum}) => {
                 />
             </TouchableOpacity>
         </View>
-        
-        </ScrollView>
+    
         <View className=" flex-row  px-4">
           <Text className="text-2xl text-orange pr-10 justify-between font-bold">Game Complete</Text>
           <Text className="text-teal pl-10 text-2xl font-bold ">Game: {gameNum}</Text>
@@ -237,6 +238,8 @@ const EmptyGame: React.FC<GameInfo> = ({gameData, gameNum}) => {
                 </View>
             </View>
       </View>
+      </SafeAreaView>
+      
     
   );
   };

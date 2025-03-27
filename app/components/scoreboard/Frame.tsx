@@ -1,5 +1,7 @@
 import { View, Text, Dimensions } from 'react-native';
-
+const { width } = Dimensions.get('window');
+export const frameWidth = width/10.8; // or /12 to leave margin
+export const frameHeight = frameWidth*1.55;
 const Frame = ({ 
     frameNumber = 1, 
     height = 60, 
@@ -13,8 +15,7 @@ const Frame = ({
     selectedShot = 1, // accepts 'roll1' | 'roll2' | null
 }) => {
 
-    const { width } = Dimensions.get('window');
-    const frameWidth = width/10.8; // or /12 to leave margin
+    
     const spare = roll1 + roll2 == 10 && (roll1 != 10)
 
     const totalVal = total == -1 ? '' : total;
@@ -29,7 +30,7 @@ const Frame = ({
             {/* Bowling Frame */}
             <View 
                 className={`rounded-md border ${isSelected ? "border-orange" : "border-black"} bg-white`} 
-                style={{ width:frameWidth, height, borderWidth }}
+                style={{ width:frameWidth, height:frameHeight, borderWidth }}
             >
                 {/* Rolls */}
                 <View className="flex-row">

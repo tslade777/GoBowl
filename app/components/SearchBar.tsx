@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from "react";
 import { View, TextInput, FlatList,Image, Text, TouchableOpacity, Keyboard } from "react-native";
-import "react-native-gesture-handler";
 import { Friend } from "../src/values/types";
 import icons from "@/constants/icons";
 

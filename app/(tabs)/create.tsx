@@ -45,7 +45,6 @@ const animatedStyle = useAnimatedStyle(() => {
   const showOptions = async (stype:string) => {
     setSessionType(stype)
     
-    console.log(`⚠️[48, create.tsx] Game active: ${isActive}. Session: ${session}`);
     if(isActive && session){
       // The session type clicked, is the currently active session, load it.
       if(stype == session.type){

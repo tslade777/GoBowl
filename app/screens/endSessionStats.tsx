@@ -30,7 +30,7 @@ const EndSessionStats = () => {
             <TouchableOpacity
                 className=''
                 onPress={() => {console.log('press');}}
-                onPressIn={() => {router.push('/(tabs)/create')}}>
+                onPressIn={() => {router.replace('/(tabs)/create')}}>
               <Text className='text-white text-xl font-psemibold'>Back</Text>
             </TouchableOpacity>
           ),

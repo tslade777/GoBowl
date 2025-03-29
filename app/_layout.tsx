@@ -30,7 +30,9 @@ if(!fontsLoaded && !error) return null;
 
   return (
     <>
-      <Stack>
+      <Stack screenOptions={{
+        animation: "slide_from_right",
+  }}>
         
         <Stack.Screen name="index" options={{headerShown:
           false 
@@ -38,6 +40,8 @@ if(!fontsLoaded && !error) return null;
         <Stack.Screen 
           name="screens/game" 
           options={{
+            
+            presentation: 'transparentModal',
             headerShadowVisible:false,
             headerTitleAlign:'center',
             title:"",
@@ -49,6 +53,8 @@ if(!fontsLoaded && !error) return null;
           <Stack.Screen 
           name="screens/endSessionStats" 
           options={{
+           
+            presentation: 'transparentModal',
             headerShadowVisible:false,
             headerTitleAlign:'center',
             title:"",
@@ -60,6 +66,8 @@ if(!fontsLoaded && !error) return null;
           <Stack.Screen 
           name="screens/historySessionStats" 
           options={{
+           
+            presentation: 'transparentModal',
             headerShadowVisible:false,
             headerTitleAlign:'center',
             title:"",
@@ -69,6 +77,8 @@ if(!fontsLoaded && !error) return null;
             headerTintColor: 'white'
           }}/>
           <Stack.Screen name="screens/statsScreen" options={{
+         
+          presentation: 'transparentModal',
           headerShadowVisible:false,
           title:"",
           headerStyle: {
@@ -77,6 +87,8 @@ if(!fontsLoaded && !error) return null;
           headerTintColor: 'white'
           }}/>
           <Stack.Screen name="screens/leagues" options={{
+            
+            presentation: 'transparentModal',
           headerShadowVisible:false,
           title:"",
           headerStyle: {
@@ -85,6 +97,7 @@ if(!fontsLoaded && !error) return null;
           headerTintColor: 'white'
           }}/>
           <Stack.Screen name="screens/leagueStats" options={{
+            presentation: 'transparentModal',
           headerShadowVisible:false,
           title:"",
           headerStyle: {
@@ -93,6 +106,7 @@ if(!fontsLoaded && !error) return null;
           headerTintColor: 'white'
           }}/>
           <Stack.Screen name="streamview" options={{
+            presentation: 'transparentModal',
           headerShadowVisible:false,
           title:"",
           headerStyle: {
@@ -101,6 +115,7 @@ if(!fontsLoaded && !error) return null;
           headerTintColor: 'white'
           }}/>
           <Stack.Screen name="screens/statsScreenLeagues" options={{
+            presentation: 'transparentModal',
           headerShadowVisible:false,
           title:"",
           headerStyle: {
@@ -109,6 +124,7 @@ if(!fontsLoaded && !error) return null;
           headerTintColor: 'white'
           }}/>
           <Stack.Screen name="screens/friendProfile" options={{
+            presentation: 'transparentModal',
           headerShadowVisible:false,
           title:"",
           headerStyle: {
@@ -119,6 +135,7 @@ if(!fontsLoaded && !error) return null;
           <Stack.Screen 
             name="screens/previousGame" 
             options={{
+              presentation: 'transparentModal',
             headerShadowVisible:false,
             title:"",
             headerStyle: {
@@ -127,10 +144,12 @@ if(!fontsLoaded && !error) return null;
             headerTintColor: 'white'
           }}/>
           <Stack.Screen name="(auth)" options={{headerShown:
-          false 
+          false,
+          presentation: 'transparentModal',
         }} />
         <Stack.Screen name="(tabs)" options={{headerShown:
-          false 
+          false,
+          presentation: 'transparentModal',
         }} />
       </Stack>
        <Toast config={toastConfig}/>

@@ -116,7 +116,7 @@ const EmptyGame: React.FC<GameInfo> = ({gameData, gameNum}) => {
   };
 
     return (
-      <SafeAreaView className='flex-1' >
+      <SafeAreaView className='flex-1 bg-primary' >
           <View className="flex-1 items-center p-1 rounded-lg" >
         {/* Frames Display */}
         

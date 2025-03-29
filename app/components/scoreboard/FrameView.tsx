@@ -190,7 +190,7 @@ const FrameView = forwardRef<GameRef, ChildComponentProps>(
   }
 
     return (
-      <Animated.View className="items-center p-1  rounded-lg"  >
+      <Animated.View className="items-center p-1  rounded-lg bg-primary"  >
         {/* Frames Display */}
         <ScrollView horizontal showsHorizontalScrollIndicator={false} ref={scrollRef}>
         <View className="flex-row space-x-1 mx-1" >

@@ -250,7 +250,7 @@ const changeToFrame = (num:number) => {
   }
 
     return (
-      <Animated.View className="items-center p-1  rounded-lg "  >
+      <Animated.View className="items-center p-1 bg-primary  rounded-lg "  >
         {/* Frames Display */}
         {loading ?<ActivityIndicator size='large' color='#F24804' /> : <View className="flex-row space-x-1" >
 

@@ -200,7 +200,12 @@ const Profile = () => {
         <Suspense fallback={<ActivityIndicator size="large" color="#F24804" />}>
         <Tab.Navigator
           screenOptions={{
-            lazy: true, // Lazy load tabs (fixes freezing issues)
+           lazy: true, // Lazy load tabs (fixes freezing issues)
+            lazyPlaceholder: () => (
+              <View className="flex-1 bg-primary items-center justify-center">
+                <ActivityIndicator size="large" color="#F24804" />
+              </View>
+            ),
             tabBarStyle: { backgroundColor: "#1E293B", borderRadius: 15, marginHorizontal: 10, marginTop: 5 },
             tabBarLabelStyle: { fontSize: 20, fontWeight: "bold", textTransform: "capitalize" },
             tabBarIndicatorStyle: { backgroundColor: "#F24804", height: 4 },

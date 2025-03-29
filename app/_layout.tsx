@@ -2,6 +2,8 @@ import React, { useEffect } from 'react'
 import { SplashScreen, Stack } from 'expo-router'
 import {useFonts } from 'expo-font'
 import "../global.css";
+import Toast from 'react-native-toast-message';
+import toastConfig from '@/toastConfig';
 
 SplashScreen.preventAutoHideAsync();
 
@@ -27,7 +29,9 @@ const RootLayout = () => {
 if(!fontsLoaded && !error) return null;
 
   return (
+    <>
       <Stack>
+        
         <Stack.Screen name="index" options={{headerShown:
           false 
         }} />
@@ -129,6 +133,9 @@ if(!fontsLoaded && !error) return null;
           false 
         }} />
       </Stack>
+       <Toast config={toastConfig}/>
+    </>
+      
   )
 }
 

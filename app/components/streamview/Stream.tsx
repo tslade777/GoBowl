@@ -7,6 +7,7 @@ import { doc, onSnapshot } from 'firebase/firestore';
 import { Game, tFrame, tGame } from '@/app/src/values/types';
 import icons from '@/constants/icons';
 import { defaultFrame } from '@/app/src/values/defaults';
+import Toast from 'react-native-toast-message';
 
 interface FriendProps {
   id: string;
@@ -38,6 +39,7 @@ const Stream = forwardRef<StreamRef, FriendProps>(({id,username,active}, ref) =>
 
   // 🛑 Ensure Unsubscription When Component Unmounts
   useEffect(() => {
+    
     const unsubscribe = updateFirebaseCurrentGame();
 
     return () => {
@@ -58,7 +60,15 @@ const Stream = forwardRef<StreamRef, FriendProps>(({id,username,active}, ref) =>
             // Session over, exit screen
             // Show model to warn user that friend is done bowling.
             // Don't kick them out. let them view friends games
-            console.warn(`user is no longer live`)
+            Toast.show({
+              type: 'customInfo',
+              text1: `${username} is no longer live!`,
+              text2: `Stay and reveiw their games or leave if you'd like`,
+              position: 'bottom',
+              bottomOffset: 100,
+              visibilityTime: 4000,
+            });
+            console.log('Toast should be shown')
           }
 
           // The user is viewing previous games and shouldn't be pulled to the current game
@@ -301,6 +311,7 @@ const changeToFrame = (num:number) => {
           </View>
         ))}
         </View>
+        
         {/* Manual Input Controls */}
           <View className="flex-col mt-4 items-center"> 
             <View className='flex-row justify-evenly items-center' >

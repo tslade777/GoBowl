@@ -13,6 +13,8 @@ import { fetchUserData } from "./hooks/firebaseFunctions";
 import { enableScreens } from "react-native-screens";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import useGameStore from "./src/zustandStore/store";
+import Toast from 'react-native-toast-message';
+import toastConfig from '@/toastConfig';
 
 enableScreens();
 
@@ -40,6 +42,7 @@ export default function RootLayout() {
         <Image source={images.logo}
         className="w-[400px] h-[400]"
         resizeMode="contain"/>
+        
 
         <View className="relative mt-5">
           <Text className="text-3xl text-white text-center">

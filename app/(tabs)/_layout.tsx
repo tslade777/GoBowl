@@ -5,6 +5,8 @@ import { Tabs,  Stack} from 'expo-router'
 import {icons} from '../../constants'
 import { getLocalImagePath } from '../hooks/ImageFunctions';
 import { getFromStorage } from '../hooks/userDataFunctions';
+import Toast from 'react-native-toast-message';
+import toastConfig from '@/toastConfig';
 
 const TabIcon = ({icon, color, focused}:{icon:any, color?:any, focused:any}) => {
   return (
@@ -51,6 +53,7 @@ const TabsLayout = () => {
 
   return (
     <>
+   
       <Stack.Screen name="index" options={{headerShown:false}}/>
       <Tabs
         screenOptions={{

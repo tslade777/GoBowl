@@ -1,13 +1,28 @@
-import { View, Text, TouchableOpacity, SafeAreaView } from 'react-native'
+import { View, Text, TouchableOpacity, SafeAreaView, BackHandler } from 'react-native'
 import React, { useEffect } from 'react'
 import EndSessionStatsTab from '../components/Tabs/endSessionStatsTab'
-import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
 import { SeriesData, SeriesStats } from '../src/values/types';
 
 const EndSessionStats = () => {
 
     const navigation = useNavigation();
     const router = useRouter();
+
+    useFocusEffect(
+      React.useCallback(() => {
+        const onBackPress = () => {
+          // custom logic here
+          router.replace('/(tabs)/create')
+          return true; // prevent default goBack
+        };
+    
+        BackHandler.addEventListener('hardwareBackPress', onBackPress);
+    
+        return () =>
+          BackHandler.removeEventListener('hardwareBackPress', onBackPress);
+      }, [])
+    );
 
     useEffect(() => {
         navigation.setOptions({

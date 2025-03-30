@@ -165,7 +165,7 @@ interface StatsTabProps {
                         onPress={() => remove(selectedSeries)}
                         activeOpacity={0.7}
                         >
-                        <Text className="text-white text-center text-lg">Remove Series?</Text>
+                        <Text className="text-white text-center text-lg">Remove Series</Text>
                         </TouchableOpacity>
     
                         <TouchableOpacity

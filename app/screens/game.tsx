@@ -16,6 +16,7 @@ import useGameStore from '../src/zustandStore/store';
 import useSessionStore from '../src/zustandStore/sessionStore';
 import FrameView, { GameRef } from '../components/scoreboard/FrameView';
 import useGameViewStore from '../src/zustandStore/gameStore';
+import Toast from 'react-native-toast-message';
 
 
 const initialStats: SeriesStats = {
@@ -31,6 +32,7 @@ const game = () => {
   const [numViewers, setNumViewers] = useState(0)
   const [sessionEnded, setSessionEnded] = useState(false)
   const [isViewingHistory, setIsViewingHistory] = useState(false);
+  const [warned, setWarned] = useState(false);
 
   const resetGame = useGameViewStore((state) => state.resetGame)
   const setGame = useGameViewStore((state) => state.setGame)
@@ -150,6 +152,7 @@ const game = () => {
    * Start then next game
    */
   const nextGame = () => {
+    setWarned(false)
     let games = seriesData.data;
   
     // ✅ Step 1: If navigating history
@@ -253,6 +256,7 @@ const loadSession = async ()=>{
     
     setSeriesData(session.seriesData)
     setFirstRender(true);
+    setWarned(false)
     childRef.current?.setGameNumber(session.seriesData.data.length);
     lowGame = session.localLowGame;
     highGame = session.localHighGame;
@@ -291,6 +295,7 @@ const startNewSession = () =>{
   resetGameNum();
   clearSession();
   setNumGames(1)
+  setWarned(false)
   useSessionStore.persist.clearStorage();
   useGameStore.persist.clearStorage();
   
@@ -315,7 +320,7 @@ const startNewSession = () =>{
  * Update firebase active game, and save the session. 
  */
 const updateSession = async ()=>{
-
+  setWarned(false)
   if (index < seriesData.data.length-1) return;
   if(sessionEnded)return;
   const data = updateData()
@@ -360,6 +365,18 @@ const sessionGameComplete = async ()=>{
  * A session is complete, update firebase and reset
  */
 const endSession = ()=>{
+  if(!warned){
+    setWarned(true)
+    Toast.show({
+      type: 'customInfo',
+      text1: `Heads up! You're ending the session!`,
+      text2: `Press again to end your session`,
+      position: 'bottom',
+      bottomOffset: 100,
+      visibilityTime: 4000,
+    });
+    return;
+  }
   setSessionEnded(true)
   if(sType == SESSIONS.league){
     updateFirebaseLeagueWeekCount(lID, sName.toString())

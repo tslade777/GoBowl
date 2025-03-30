@@ -43,7 +43,6 @@ const useGameViewStore = create<ScoreboardStore>()(
         set({ game: updatedGame });
       },
       nextShot: () => {
-        console.log(`[40 gameStore.ts]👆 Next Shot`)
         const updatedGame = goToNextShot(get().game);
         set({ game: updatedGame });
       },

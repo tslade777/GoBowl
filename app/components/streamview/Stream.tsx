@@ -68,7 +68,6 @@ const Stream = forwardRef<StreamRef, FriendProps>(({id,username,active}, ref) =>
               bottomOffset: 100,
               visibilityTime: 4000,
             });
-            console.log('Toast should be shown')
           }
 
           // The user is viewing previous games and shouldn't be pulled to the current game

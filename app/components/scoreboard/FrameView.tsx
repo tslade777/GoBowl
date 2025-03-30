@@ -1,4 +1,4 @@
-import { View, Text, TouchableOpacity, Image, PanResponder, Animated, ScrollView, Dimensions  } from 'react-native';
+import { View, Text, TouchableOpacity, Image, PanResponder, Animated, ScrollView, Dimensions, Pressable  } from 'react-native';
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
 
 import Frame from './Frame';
@@ -9,7 +9,7 @@ import useGameViewStore from '@/app/src/zustandStore/gameStore';
 import game from '@/app/screens/game';
 
 const { width } = Dimensions.get('window');
-const pinSize = width * 0.11; // About 12% of screen width
+const pinSize = width * 0.5; // About 12% of screen width
 const frameButtonSize = width * 0.10;
 const frameWidth = width / 10; // or /12 to leave margin
 
@@ -238,18 +238,24 @@ const FrameView = forwardRef<GameRef, ChildComponentProps>(
           {[ [6, 7, 8, 9], [3, 4, 5], [1, 2], [0] ].map((row, rowIndex) => (
           <View key={rowIndex}  className="flex-row justify-center" >
             {row.map((index) => (
-              <TouchableOpacity 
-                key={index} 
-                activeOpacity={0}
-                onPress={() => {currentFrame == 9 ? tenthFramePinToggle(index) : handlePinToggle(index);} } 
-                style={{ width: pinSize, height: pinSize, margin: 6, borderRadius: pinSize / 2 }}
-                className={`m-2 rounded-full items-center justify-center border-2 shadow-lg ${
-                  pins[index] ? 'bg-gray-600 border-black-100' : 'bg-white border-black-100'
-                }`}
-              >
-                <Text className={`${pins[index] ? "text-white" : "text-black"} font-pbold`}>
-                  {index + 1}</Text>
-              </TouchableOpacity>
+              <Pressable
+              key={index}
+              onPress={() => {
+                currentFrame === 9
+                  ? tenthFramePinToggle(index)
+                  : handlePinToggle(index);
+              }}
+              style={({ pressed }) => ({
+                opacity: pressed ? 0.7 : 1,
+              })}
+              className={`w-12 h-12 m-2 rounded-full items-center justify-center border-2 shadow-lg ${
+                pins[index] ? 'bg-gray-600 border-black-100' : 'bg-white border-black-100'
+              }`}
+            >
+              <Text className={`${pins[index] ? 'text-white' : 'text-black'} font-pbold`}>
+                {index + 1}
+              </Text>
+            </Pressable>
             ))}
           </View>
         ))}
@@ -319,7 +325,7 @@ const FrameView = forwardRef<GameRef, ChildComponentProps>(
 
           {/** Next shot button */}
           <TouchableOpacity 
-            onPress={()=>{nextShot(); console.log(`[290 FrameView.tsx]👆 Next Shot`)}}
+            onPress={()=>{nextShot();}}
             disabled={(currentFrame == 9 && selectedShot == 3) || (currentFrame != 9 && frames[currentFrame+1].roll1 == -1 && selectedShot ==2)} 
             className="ml-5 px-1 py-2 rounded-lg"
           >

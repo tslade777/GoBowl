@@ -98,7 +98,7 @@ interface StatsTabProps {
               );
             } else {
               scale.value = 0.8;
-              opacity.value = 0;
+              opacity.value = 0.0;
               setTimeout(() => {
                 setIsModalVisible(true);
                 scale.value = withSpring(1);

@@ -1,4 +1,4 @@
-import { View, Text, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, Pressable } from 'react-native';
 import React from 'react';
 import parseSessionStats from '@/app/hooks/parseSessionStats';
 import { Series } from '@/app/src/values/types';
@@ -10,25 +10,36 @@ const BowlingSeriesItem = ({ series, onPress, onHold }: { series: any; onPress: 
     const stats = parseSessionStats(series);
     
     return (
-        <TouchableOpacity onPress={onPress} activeOpacity={0.7} onLongPress={onHold}>
-            <View className="bg-gray-300 shadow-md rounded-2xl p-4 my-2 mt-3 mx-4">
-                <View className="flex-row justify-between">
-                    <Text className="text-2xl font-pbold text-blue-600">{series.title}</Text>
-                    <Text className="text-gray-900 text-lg font-pbold">{series.date.toLocaleDateString()}</Text>
-                </View>
-                <View className="flex-row justify-evenly mt-1">
-                    <Text className="text-lg text-gray-500">
-                        Avg: <Text className="font-pbold">{isNaN(stats.average) ? '--' : stats.average.toFixed(2)}</Text>
-                    </Text>
-                    <Text className="text-lg text-gray-500">
-                        High: <Text className="font-pbold">{isNaN(stats.highGame) ? '--' : stats.highGame}</Text>
-                    </Text>
-                    <Text className="text-lg text-gray-500">
-                        Games: <Text className="font-pbold">{isNaN(stats.totalStrikes) ? '--' : stats.numberOfGames}</Text>
-                    </Text>
-                </View>
-            </View>
-        </TouchableOpacity>
+        <Pressable
+  onPress={onPress}
+  onLongPress={onHold}
+>
+  {({ pressed }) => (
+    <View
+      className="bg-gray-300 shadow-md rounded-2xl p-4 my-2 mt-3 mx-4"
+      style={{
+        transform: [{ scale: pressed ? 0.97 : 1 }],
+        opacity: pressed ? 0.85 : 1,
+      }}
+    >
+      <View className="flex-row justify-between">
+        <Text className="text-2xl font-pbold text-blue-600">{series.title}</Text>
+        <Text className="text-gray-900 text-lg font-pbold">{series.date.toLocaleDateString()}</Text>
+      </View>
+      <View className="flex-row justify-evenly mt-1">
+        <Text className="text-lg text-gray-500">
+          Avg: <Text className="font-pbold">{isNaN(stats.average) ? '--' : stats.average.toFixed(2)}</Text>
+        </Text>
+        <Text className="text-lg text-gray-500">
+          High: <Text className="font-pbold">{isNaN(stats.highGame) ? '--' : stats.highGame}</Text>
+        </Text>
+        <Text className="text-lg text-gray-500">
+          Games: <Text className="font-pbold">{isNaN(stats.totalStrikes) ? '--' : stats.numberOfGames}</Text>
+        </Text>
+      </View>
+    </View>
+  )}
+</Pressable>
     );
 };
 

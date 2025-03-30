@@ -188,7 +188,6 @@ const FrameView = forwardRef<GameRef, ChildComponentProps>(
   const resetPins = () =>{
     setPins(Array(10).fill(false))
   }
-
     return (
       <Animated.View className="items-center p-1  rounded-lg bg-primary"  >
         {/* Frames Display */}
@@ -326,7 +325,8 @@ const FrameView = forwardRef<GameRef, ChildComponentProps>(
           {/** Next shot button */}
           <TouchableOpacity 
             onPress={()=>{nextShot();}}
-            disabled={(currentFrame == 9 && selectedShot == 3) || (currentFrame != 9 && frames[currentFrame+1].roll1 == -1 && selectedShot ==2)} 
+            disabled={(currentFrame == 9 && selectedShot == 3) || 
+              (currentFrame != 9 && frames[currentFrame+1].roll1 == -1 && selectedShot ==2) || (frames[currentFrame].roll1 == -1)} 
             className="ml-5 px-1 py-2 rounded-lg"
           >
             <Image source={icons.nextShot}
@@ -337,7 +337,7 @@ const FrameView = forwardRef<GameRef, ChildComponentProps>(
           {/** Next Frame button */}
           <TouchableOpacity 
             onPress={()=>{changeFrame(1)}} 
-            disabled={currentFrame==9 || (currentFrame != 9 && frames[currentFrame+1].roll1 == -1)}
+            disabled={currentFrame==9 || (currentFrame != 9 && frames[currentFrame+1].roll1 == -1 && frames[currentFrame].roll1==-1)}
             className="m-2  px-4 py-2 rounded-lg"
           >
             <Image source={icons.nextFrame}

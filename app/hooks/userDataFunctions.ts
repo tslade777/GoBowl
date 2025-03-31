@@ -8,7 +8,6 @@ export const getFromStorage = async (): Promise<UserData | null> => {
         const jsonVal = await AsyncStorage.getItem(CURRENTUSER);
 
         if (!jsonVal){
-          console.log(`null user. nothing saved`)
           return null;}
 
         const data  = JSON.parse(jsonVal);

@@ -3,7 +3,7 @@ import React, { useEffect, useState } from 'react'
 import "../../global.css";
 import { Tabs,  Stack} from 'expo-router'
 import {icons} from '../../constants'
-import { getLocalImagePath } from '../hooks/ImageFunctions';
+import { checkIfImageExists, getLocalImagePath } from '../hooks/ImageFunctions';
 import { getFromStorage } from '../hooks/userDataFunctions';
 import Toast from 'react-native-toast-message';
 import toastConfig from '@/toastConfig';
@@ -44,10 +44,16 @@ const TabsLayout = () => {
     // TODO: If user is null, get image from firebase.
     const user = await getFromStorage()
     if(user){
-      setProfileImage(getLocalImagePath(`${user.username}.png`))
+      if(await checkIfImageExists(`${user.username}.png`)){
+        setProfileImage(getLocalImagePath(`${user.username}.png`))
+      }
+      else{
+        setProfileImage(null);
+      }
     }
     else{
-      console.error(`📛 User is null in layout line 48`) 
+      console.error(`📛 User is null in layout line 48`);
+      setProfileImage(null); 
     }
   }
 

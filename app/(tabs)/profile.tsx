@@ -6,7 +6,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { router} from 'expo-router';
 import { icons } from '@/constants';
-import { getLocalImagePath, handleImageSelection } from '../hooks/ImageFunctions';
+import { checkIfImageExists, getLocalImagePath, handleImageSelection } from '../hooks/ImageFunctions';
 import { SeriesStats, UserData } from '../src/values/types';
 import { getFromStorage } from '../hooks/userDataFunctions';
 import getAllStats from '../hooks/allStats';
@@ -15,6 +15,7 @@ import ProfileBio from '../components/Tabs/profileBio';
 import ProfileStats from '../components/Tabs/profileStats';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import { fetchUserDataByID } from '../hooks/firebaseFunctions';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Tab = createMaterialTopTabNavigator();
 
@@ -44,7 +45,6 @@ const Profile = () => {
 
   useEffect(() => {
     let isMounted = true;
-    // TODO: add loading to profile page
     const getUserData = async () => {
       try {
         const stats = await getAllStats();
@@ -55,7 +55,11 @@ const Profile = () => {
         if(!user && currentUser)
             user = await fetchUserDataByID(currentUser.uid);
         if (isMounted && user) {
-          setProfileImage(getLocalImagePath(`${user.username}.png`));
+          if(await checkIfImageExists(`${user.username}.png`)){
+            setProfileImage(getLocalImagePath(`${user.username}.png`));
+          }else{
+            setProfileImage(null)
+          }
           setUserData(user);
           setEditedData(user);
         }
@@ -131,6 +135,7 @@ const Profile = () => {
         await updateDoc(userRef, { active: false });
       }
       router.replace('/(auth)/sign-in');
+      AsyncStorage.clear();
     } catch (error) {
       console.error("📛 Error logging out: ", error);
     }

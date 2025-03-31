@@ -28,6 +28,7 @@ export default function LiveListItem({
       }
       else{
         console.error(`📛 Error finding ${username}'s profile picture: `)
+        setProfileImage(undefined)
       }
     }
     checkProfilePicture()

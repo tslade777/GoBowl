@@ -134,7 +134,6 @@ const Friends = () => {
           active: doc.data().active,
         }))
       );
-      console.log(`USERS: ${JSON.stringify(usersList)}`)
       setUsersData(usersList.filter((user) => user.id !== currentUser.uid));
     } catch (error) {
       console.error("📛 Error fetching users:", error);
@@ -150,7 +149,6 @@ const Friends = () => {
 
   // Add User to Friends List in Firebase
   const addFriend = async (user: Friend) => {
-    console.log(`Friend: ${JSON.stringify(user)}`)
     router.push({
       pathname: "/screens/friendProfile",
       params: {

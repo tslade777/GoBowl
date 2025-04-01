@@ -131,10 +131,10 @@ const Friends = () => {
           id: doc.data().id,
           username: doc.data().username,
           profilePic: await getPic(doc.data().id, doc.data().username) || "",
-          active: doc.data().active || false,
+          active: doc.data().active,
         }))
       );
-
+      console.log(`USERS: ${JSON.stringify(usersList)}`)
       setUsersData(usersList.filter((user) => user.id !== currentUser.uid));
     } catch (error) {
       console.error("📛 Error fetching users:", error);

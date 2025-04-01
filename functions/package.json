@@ -6,7 +6,8 @@
     "shell": "firebase functions:shell",
     "start": "npm run shell",
     "deploy": "firebase deploy --only functions",
-    "logs": "firebase functions:log"
+    "logs": "firebase functions:log",
+     "lint": "echo 'No linting configured.'"
   },
   "engines": {
     "node": "22"
@@ -19,5 +20,6 @@
   "devDependencies": {
     "firebase-functions-test": "^3.1.0"
   },
-  "private": true
+  "private": true,
+  "type": "module"
 }

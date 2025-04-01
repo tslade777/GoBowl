@@ -404,9 +404,7 @@ const endSession = ()=>{
   const calculateSeriesStats = (newSeriesData: SeriesData) =>{
     const numGames = newSeriesData.data.length;
     let seriesStats = {...initialStats};
-    let count = 0;
     newSeriesData.data.forEach(game => {
-      count++;
       const gameStats = game.stats
       const updatedStats: SeriesStats = {
         ...seriesStats,
@@ -417,7 +415,7 @@ const endSession = ()=>{
         spareOpportunities: gameStats.spareOpportunities + seriesStats.spareOpportunities,
         singlePinAttempts: gameStats.singlePinAttempts + seriesStats.singlePinAttempts,
         singlePinSpares: gameStats.singlePinSpares + seriesStats.singlePinSpares,
-        strikePercentage: (gameStats.totalStrikes + seriesStats.totalStrikes)/(gameStats.totalShots + seriesStats.totalShots)*100,
+        strikePercentage: (gameStats.totalStrikes + seriesStats.totalStrikes)/(gameStats.strikeOpportunities + seriesStats.strikeOpportunities)*100,
         sparePercentage: (gameStats.totalSpares + seriesStats.totalSpares)/(gameStats.spareOpportunities + seriesStats.spareOpportunities)*100,
         singlePinSparePercentage: (gameStats.singlePinSpares + seriesStats.singlePinSpares)/(gameStats.singlePinAttempts + seriesStats.singlePinAttempts)*100,
         openFrames: gameStats.openFrames + seriesStats.openFrames,

@@ -38,7 +38,7 @@ import { bowlingStats } from "../src/values/defaults";
         secondBallPins, thirdBallPins, score, visible, isSplit } = frames[index];
       finalScore = score; // Last frame will have the final score
       
-      // Tenth frame special stats
+      // Tenth frame special stats for strikes and strike opportunities
       if(index==9){
         totalStrikes += roll1==10? 1:0
         totalStrikes += roll2==10? 1:0
@@ -49,24 +49,59 @@ import { bowlingStats } from "../src/values/defaults";
         if(isStrike && roll2 == 10)strikeOpportunities+=1
       }
       else strikeOpportunities += 1;
+
       // Frame strike or spare stats
       if (isStrike && index != 9) totalStrikes++;
       if (isSpare) totalSpares++;
   
       // Identify single-pin spare opportunities
-      if (!isStrike && roll2 !== -1 && firstBallPins.filter(Boolean).length === 9) {
+      if (!isStrike && roll2 != -1 && firstBallPins.filter(Boolean).length == 9 && index !=9) {
         singlePinAttempts++;
         if (isSpare) singlePinSpares++;
 
-        if (firstBallPins[9]){
+        if (!firstBallPins[9]){
           tenPins += 1;
           if (isSpare)
             tenPinsConverted += 1;
         }
-        else if (firstBallPins[6]){
+        else if (!firstBallPins[6]){
           sevenPins += 1;
           if(isSpare)
             sevenPinsConverted += 1;
+        }
+      }
+      // Track 10th frame single pins
+      else if (index==9){
+        console.log(`10th frame spare calculation`)
+        // tenth frame first ball single pin
+        if (roll1 != 10 && firstBallPins.filter(Boolean).length == 9){
+          singlePinAttempts++;
+          if (isSpare) singlePinSpares++;
+          if (!firstBallPins[9]){
+            tenPins += 1;
+            if (isSpare)
+              tenPinsConverted += 1;
+          }
+          else if (!firstBallPins[6]){
+            sevenPins += 1;
+            if(isSpare)
+              sevenPinsConverted += 1;
+          }
+        }
+        // Second ball single pin
+        else if(roll1==10 && secondBallPins.filter(Boolean).length == 9){
+          singlePinAttempts++;
+          if (isSpare) singlePinSpares++;
+          if (!firstBallPins[9]){
+            tenPins += 1;
+            if (isSpare)
+              tenPinsConverted += 1;
+          }
+          else if (!firstBallPins[6]){
+            sevenPins += 1;
+            if(isSpare)
+              sevenPinsConverted += 1;
+          }
         }
       }
 

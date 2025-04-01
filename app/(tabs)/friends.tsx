@@ -1,8 +1,9 @@
 import { View, Text, FlatList, ActivityIndicator, TouchableOpacity, TouchableWithoutFeedback, Keyboard, 
-  Platform, ActionSheetIOS, Modal, Image } from 'react-native';
+  Platform, ActionSheetIOS, Modal, Image, 
+  RefreshControl} from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { collection, doc, getDocs, onSnapshot, query, where, updateDoc } from 'firebase/firestore';
+import { collection, doc, getDocs, onSnapshot, query, where, updateDoc, getDoc } from 'firebase/firestore';
 import { FIREBASE_AUTH, db } from '@/firebase.config';
 import SearchBar from "../components/SearchBar";
 import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from "react-native-reanimated";
@@ -24,7 +25,9 @@ const Friends = () => {
   const [isModalVisible, setIsModalVisible] = useState(false);
 
   
-  const [selectedFriend, setSelectedFriend] = useState<Friend>(defaultFriend); // ✅ Uses default instead of `null`
+  const [selectedFriend, setSelectedFriend] = useState<Friend>(defaultFriend);
+
+  const [refreshing, setRefreshing] = useState(false);
 
   
   const scale = useSharedValue(0);
@@ -39,6 +42,33 @@ const Friends = () => {
   });
 
   const currentUser = FIREBASE_AUTH.currentUser;
+
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    fetchUserData();
+    fetchFriends();
+    setRefreshing(false);
+  };
+
+  const fetchFriends = async () => {
+    if (!currentUser) return;
+  
+    try {
+      const docRef = doc(db, 'userFriends', currentUser.uid);
+      const docSnap = await getDoc(docRef);
+  
+      if (docSnap.exists()) {
+        const friendsList: Friend[] = docSnap.data().friendsList || [];
+        setFriends(friendsList);
+      } else {
+        setFriends([]); // fallback if no data
+      }
+
+    } catch (error) {
+      console.error("Error fetching friends:", error);
+    } 
+  };
 
   // Load Friends List on Mount
   useEffect(() => {
@@ -94,7 +124,7 @@ const Friends = () => {
           id: doc.data().id,
           username: doc.data().username,
           profilePic: await getPic(doc.data().id, doc.data().username) || "",
-          active: false,
+          active: doc.data().active || false,
         }))
       );
 
@@ -113,10 +143,12 @@ const Friends = () => {
 
   // Add User to Friends List in Firebase
   const addFriend = async (user: Friend) => {
+    console.log(`Friend: ${JSON.stringify(user)}`)
     router.push({
       pathname: "/screens/friendProfile",
       params: {
         friend: JSON.stringify(user),
+        active: JSON.stringify(user.active)
       }
     })
   };
@@ -249,6 +281,9 @@ const Friends = () => {
               <LiveListItem username={item.username} profilePicture={item.profilePic} active={item.active} 
               onHold={()=>{handleLongPress(item)}} onTouch={()=>{handlePress(item)}}></LiveListItem>
             )}
+            refreshControl={
+              <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+            }
           />
         )}
 

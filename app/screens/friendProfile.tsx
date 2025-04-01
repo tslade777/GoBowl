@@ -42,14 +42,16 @@ const FriendProfile = () => {
   const [newFriend, setNewFriend] = useState<Friend>()
 
   useEffect(() => {
-    const {friend, friends, friendsList} = params as { 
+    const {friend, active, friendsList} = params as { 
       friend: string 
-      friends: string; 
+      active: string; 
       friendsList?: string; 
     };
 
     let parsedFriend: Friend = defaultFriend;
+    let friendActive: boolean = JSON.parse(active);
     parsedFriend = friend ? JSON.parse(friend) as Friend: defaultFriend;
+    setActive(friendActive)
     setFriendID(parsedFriend.id)
     getFriendsList();
   }, []);
@@ -60,17 +62,19 @@ const FriendProfile = () => {
    */
   const getParams = async (usersFriends:Friend[])=>{
     if( Object.keys(params).length > 0){
-      const {friend, friends, friendsList} = params as { 
+      const {friend, active, friendsList} = params as { 
         friend: string 
-        friends: string; 
+        active: string; 
         friendsList?: string; 
       };
       
       // Parse the string back into a Friend object
       let parsedFriend: Friend = defaultFriend;
+      let friendActive: boolean = JSON.parse(active);
       parsedFriend = friend ? JSON.parse(friend) as Friend: defaultFriend;
       try {
         if(parsedFriend)
+          parsedFriend.active = friendActive;
           setNewFriend(parsedFriend)
       } catch (error) {
         console.error("📛 Error parsing friend data:", error);

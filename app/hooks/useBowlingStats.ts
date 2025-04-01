@@ -72,7 +72,6 @@ import { bowlingStats } from "../src/values/defaults";
       }
       // Track 10th frame single pins
       else if (index==9){
-        console.log(`10th frame spare calculation`)
         // tenth frame first ball single pin
         if (roll1 != 10 && firstBallPins.filter(Boolean).length == 9){
           singlePinAttempts++;

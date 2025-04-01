@@ -176,12 +176,14 @@ const FrameView = forwardRef<GameRef, ChildComponentProps>(
     else if(selectedShot == 2){
         if(currentFrame==9 && frames[9].roll1==10)
             enterShot(10, Array(10).fill(false))
-        enterShot(0, frames[9].firstBallPins);
+        else
+          enterShot(0, frames[9].firstBallPins);
     }
     else{
         if (frames[9].roll2 != 10 && frames[9].isStrike)
             enterShot(0, frames[9].secondBallPins);
-        enterShot(0, Array(10).fill(false));
+        else
+          enterShot(0, Array(10).fill(false));
     }
   }
 

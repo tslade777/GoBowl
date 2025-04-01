@@ -27,6 +27,7 @@ interface StatsTabProps {
     const scale = useSharedValue(0);
     const opacity = useSharedValue(0);
 
+
     // 🔹 Animated styles (Fixes direct value access in JSX)
       const animatedStyle = useAnimatedStyle(() => {
         return {

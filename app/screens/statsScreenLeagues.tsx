@@ -15,8 +15,10 @@ const StatsScreenLeague = () => {
     const leagueID = params.leagueID as string;
     const leagueName = params.leagueName as string;
     const [sessionData, setSessionData] = useState<Series[]>([]);
+    const [loading, setLoading] = useState(true);
+
     
-      useEffect(() => {
+    useEffect(() => {
         // TODO: Create loading for fetching data
         fetchData()
     }, []);
@@ -24,7 +26,16 @@ const StatsScreenLeague = () => {
     const fetchData = async () =>{
       const sessions = await getLeagueSessions(leagueID);
       setSessionData(sessions)
+      setLoading(false); // Done loading
     }
+
+    const SessionsTabWrapper = () => (
+      <SessionsTab
+        sessionsData={sessionData}
+        type={SESSIONS.league}
+        leagueID={leagueID}
+      />
+    );
 
     return (
       <View className="flex-1 bg-primary">
@@ -34,6 +45,9 @@ const StatsScreenLeague = () => {
         </View>
   
         {/* Nested Top Tabs */}
+        {loading ? (
+        <Text className="text-white text-center mt-10">Loading...</Text>
+        ) : (
         <Tab.Navigator
         screenOptions={{
           tabBarStyle: {
@@ -62,10 +76,10 @@ const StatsScreenLeague = () => {
           <Tab.Screen name="Stats">
               {() => <StatsTab sessionData={sessionData} />}
           </Tab.Screen>
-          <Tab.Screen name="Sessions">
-          {() => <SessionsTab sessionsData={sessionData} type={SESSIONS.league} leagueID={leagueID} />}
+          <Tab.Screen name="Sessions" component={SessionsTabWrapper}>
           </Tab.Screen>
         </Tab.Navigator>
+        )}
       </View>
     );
   };

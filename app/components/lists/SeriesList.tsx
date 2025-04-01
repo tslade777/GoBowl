@@ -6,7 +6,7 @@ import { Series } from '@/app/src/values/types';
 
 
 // Single Item Component
-const BowlingSeriesItem = ({ series, onPress, onHold }: { series: any; onPress: () => void; onHold: ()=>void }) => {
+const BowlingSeriesItem = ({ series, onPress, onHold }: { series: Series; onPress: () => void; onHold: ()=>void }) => {
     const stats = parseSessionStats(series);
     
     return (
@@ -43,7 +43,7 @@ const BowlingSeriesItem = ({ series, onPress, onHold }: { series: any; onPress: 
     );
 };
 
-const SeriesList = ({ data, onItemPress, onHold }: { data: any[]; onItemPress: (item: any) => void; onHold: (item: Series, index: number)=>void; }) => {
+const SeriesList = ({ data, onItemPress, onHold }: { data: Series[]; onItemPress: (item: any) => void; onHold: (item: Series, index: number)=>void; }) => {
     return (
         <View className="flex-1 w-full h-50">
             <FlatList

@@ -13,7 +13,7 @@ const LeagueListSingleItem = ({ league, onPress, weeks }: { weeks:number, league
 
     useEffect(()=>{
         fetchData();
-    })
+    },[])
 
     const fetchData = async ()  =>{
         const sessions = await getLeagueSessions(league.leagueID);

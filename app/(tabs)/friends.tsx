@@ -3,7 +3,7 @@ import { View, Text, FlatList, ActivityIndicator, TouchableOpacity, TouchableWit
   RefreshControl} from 'react-native';
 import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { collection, doc, getDocs, onSnapshot, query, where, updateDoc, getDoc } from 'firebase/firestore';
+import { collection, doc, getDocs, onSnapshot, query, where, updateDoc, getDoc, setDoc } from 'firebase/firestore';
 import { FIREBASE_AUTH, db } from '@/firebase.config';
 import SearchBar from "../components/SearchBar";
 import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from "react-native-reanimated";
@@ -103,13 +103,20 @@ const Friends = () => {
 
   // Update Friends List When Active Users Change
   useEffect(() => {
-    setFriends(prevFriends =>
-      prevFriends.map(friend => ({
-        ...friend,
-        active: activeFriends.includes(friend.id) // Update active status
-      }))
-    );
+    const updatedFriends:Friend[] = friends.map(friend => ({
+      ...friend,
+      active: activeFriends.includes(friend.id),
+    }));
+    setFriends(updatedFriends)
+    updateFriendsList(updatedFriends)
   }, [activeFriends]); // Runs when `activeFriends` changes
+
+  const updateFriendsList = async (updatedFriends: Friend[]) =>{
+    if (!currentUser) return;
+    setDoc(doc(db, `userFriends`, currentUser.uid),{
+      friendsList: updatedFriends
+    })
+  }
 
   // Fetch All Users on SearchBar Focus (Prevents Unnecessary Fetches)
   const fetchUserData = async () => {

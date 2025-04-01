@@ -11,8 +11,6 @@ import { tGame } from '../values/types';
 export const goToNextShot = (game: tGame): tGame => {
   let updated = { ...game };
 
-    console.log(`[40 gameStore.ts]👆 Next Shot`)
-
     // If its the first ball, go to next shot of current frame
     if(updated.selectedShot == 1){
         // unless current is a strike.

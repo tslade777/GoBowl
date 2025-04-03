@@ -25,7 +25,7 @@ const EmptyGame: React.FC<GameInfo> = ({gameData, gameNum}) => {
   // Only update if 
   const handleFrameTouch = (index: number) => {
       setCurrentFrame(index);
-      setPins(frames[index].firstBallPins)
+      setSelectedShot(1)
   }
 
   useEffect(()=>{

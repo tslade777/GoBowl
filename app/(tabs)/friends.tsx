@@ -43,7 +43,6 @@ const Friends = () => {
 
   const currentUser = FIREBASE_AUTH.currentUser;
 
-
   const onRefresh = async () => {
     setRefreshing(true);
     fetchUserData();
@@ -103,25 +102,32 @@ const Friends = () => {
 
   // Update Friends List When Active Users Change
   useEffect(() => {
-    const updatedFriends:Friend[] = friends.map(friend => ({
-      ...friend,
-      active: activeFriends.includes(friend.id),
-    }));
-    setFriends(updatedFriends)
-    updateFriendsList(updatedFriends)
+    setFriends(prevFriends =>
+      prevFriends.map(friend => ({
+        ...friend,
+        active: activeFriends.includes(friend.id) // Update active status
+      }))
+    );
   }, [activeFriends]); // Runs when `activeFriends` changes
 
-  const updateFriendsList = async (updatedFriends: Friend[]) =>{
+  const updateFriendsList = async () =>{
     if (!currentUser) return;
-    setDoc(doc(db, `userFriends`, currentUser.uid),{
-      friendsList: updatedFriends
+    updateDoc(doc(db, `userFriends`, currentUser.uid),{
+      friendsList: friends
     })
   }
+
+  useEffect(()=>{
+    if(!friends || friends.length == 0)
+      return;
+    updateFriendsList()
+  },[friends])
+
 
   // Fetch All Users on SearchBar Focus (Prevents Unnecessary Fetches)
   const fetchUserData = async () => {
     try {
-      if (!currentUser || usersData.length > 0) return; // Prevent unnecessary re-fetch
+      if (!currentUser) return; // Prevent unnecessary re-fetch
 
       setSearchLoading(true);
       const q = query(collection(db, 'users'));
@@ -270,7 +276,7 @@ const Friends = () => {
         <Text className='text-3xl text-center text-white mb-4 font-psemibold'>My Friends</Text>
 
         <View className="mb-4">
-          <SearchBar data={usersData} onSelect={addFriend} onFocus={() => {}} />
+          <SearchBar data={usersData} onSelect={addFriend} onFocus={() => {fetchUserData();}} />
         </View>
 
         {loading ? (

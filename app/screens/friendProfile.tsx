@@ -49,9 +49,9 @@ const FriendProfile = () => {
     };
 
     let parsedFriend: Friend = defaultFriend;
-    let friendActive: boolean = JSON.parse(active);
+    //let friendActive: boolean = JSON.parse(active);
     parsedFriend = friend ? JSON.parse(friend) as Friend: defaultFriend;
-    setActive(friendActive)
+    //setActive(friendActive)
     setFriendID(parsedFriend.id)
     getFriendsList();
   }, []);
@@ -70,18 +70,13 @@ const FriendProfile = () => {
       
       // Parse the string back into a Friend object
       let parsedFriend: Friend = defaultFriend;
-      let friendActive: boolean = JSON.parse(active);
       parsedFriend = friend ? JSON.parse(friend) as Friend: defaultFriend;
       try {
         if(parsedFriend)
-          parsedFriend.active = friendActive;
           setNewFriend(parsedFriend)
       } catch (error) {
         console.error("📛 Error parsing friend data:", error);
       }
-
-      // get friends list
-      setActive(Boolean(parsedFriend.active))
 
       if (await checkIfImageExists(`${parsedFriend.username}.png`)){
         const localPath = getLocalImagePath(`${parsedFriend.username}.png`);

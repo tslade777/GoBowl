@@ -199,8 +199,8 @@ export const calculateTotalScore = (game: tGame) => {
       // Tenth frame will only depend on itself. NO BONUS
       else if (i==9){
         totalScore += frames[9].roll1;
-        totalScore += frames[9].roll2;
-        totalScore += frames[9].roll3;
+        totalScore += frames[9].roll2 == -1 ? 0: frames[9].roll2;
+        totalScore += frames[9].roll3 == -1 ? 0: frames[9].roll3;
       }
       // Case when current shot is a strike
       else if(frame.isStrike){

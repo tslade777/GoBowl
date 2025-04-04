@@ -9,7 +9,7 @@ import { listAll, getDownloadURL, ref } from 'firebase/storage';
 import GameStatTile from '../gamestattile';
 
 interface Game {
-  id: string;
+  sessionID: string;
   userID: string;
   username: string;
   highestScore: number;
@@ -21,6 +21,8 @@ interface Game {
 const Home = () => {
   const [games, setGames] = useState<Game[]>([]);
   const [loading, setLoading] = useState(true);
+  const SESSION_TYPES = ['practiceSessions', 'openSessions', 'leagueSessions', 'tournamentSessions'];
+  let allGames: Game[] = [];
 
   useEffect(() => {
     const fetchFriendGames = async () => {
@@ -38,29 +40,33 @@ const Home = () => {
           return;
         }
 
-        const sessionSnapshot = await getDocs(collection(db, 'practiceSessions'));
-
-        const filteredGames: Game[] = await Promise.all(
-          sessionSnapshot.docs
-            .map(doc => ({ id: doc.id, ...doc.data() }))
-            .filter((session: any) => friendIDs.includes(session.userID))
-            .map(async (session: any) => {
-              const friend = friendsList.find((f: any) => f.id === session.userID);
-              const profilePic = await fetchProfileImage(session.userID);
-
-              return {
-                id: session.id,
-                userID: session.userID,
-                username: friend?.username || 'Friend',
-                highestScore: session.stats?.highGame || 0,
-                lastGame: session.date?.toDate().toLocaleDateString() || '',
-                mode: 'Practice',
-                profilePic,
-              };
-            })
-        );
-
-        setGames(filteredGames);
+        for (const sessionType of SESSION_TYPES) {
+          const sessionSnapshot = await getDocs(collection(db, sessionType));
+        
+          const games = await Promise.all(
+            sessionSnapshot.docs
+              .map(doc => ({ id: doc.id, ...doc.data() }))
+              .filter((session: any) => friendIDs.includes(session.userID))
+              .map(async (session: any) => {
+                const friend = friendsList.find((f: any) => f.id === session.userID);
+                const profilePic = await fetchProfileImage(session.userID);
+        
+                return {
+                  sessionID: session.id,
+                  userID: session.userID,
+                  username: friend?.username || 'Friend',
+                  highestScore: session.stats?.highGame || 0,
+                  lastGame: session.date?.toDate().toLocaleDateString() || '',
+                  mode: sessionType,
+                  profilePic,
+                };
+              })
+          );
+        
+          allGames.push(...games);
+        }
+        
+        setGames(allGames);
       } catch (error) {
         console.error("Error fetching friend games: ", error);
       } finally {
@@ -91,7 +97,7 @@ const Home = () => {
       ) : (
         <FlatList
           data={games}
-          keyExtractor={(item) => item.id}
+          keyExtractor={(item) => item.sessionID}
           renderItem={({ item }) => <GameStatTile game={item} />}
         />
       )}

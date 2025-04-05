@@ -16,7 +16,6 @@ const GameStatTile = ({ game }: { game: Game }) => {
   const router = useRouter();
 
   const handlePress = () => {
-    console.log("Clicked game:", game);
     router.push({
       pathname: '/screens/friendSessions',
       params: {

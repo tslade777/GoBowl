@@ -24,6 +24,9 @@ const FriendSessions = () => {
   };
 
   const handleSeriesPress = (series: Series) => {
+    if (Array.isArray(series.games) && series.games.length > 0 && Object.keys(series.games[0]).length === 0) {
+        series.games.shift();
+      }
     setSelectedSeries(series);
     setShowGames(true);
   };

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { View, Text, SafeAreaView, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, SafeAreaView, TouchableOpacity, ActivityIndicator, Platform, StatusBar } from 'react-native';
 import { useLocalSearchParams } from 'expo-router';
 import { Series } from '@/app/src/values/types';
 import SeriesList from '../components/lists/SeriesList';
@@ -7,12 +7,21 @@ import GameList from '../components/lists/GameList';
 import { ArrowLeft } from 'lucide-react-native';
 import { router } from 'expo-router';
 import { getSessionsByID } from '../hooks/firebaseFunctions'
+import { useNavigation } from 'expo-router';
+import { useLayoutEffect } from 'react';
+
+
 
 const FriendSessions = () => {
   const { friendID, username, type } = useLocalSearchParams();
   const [sessionsData, setSessionsData] = useState<Series[]>([]);
   const [selectedSeries, setSelectedSeries] = useState<Series | null>(null);
   const [showGames, setShowGames] = useState(false);
+  const navigation = useNavigation();
+
+  useLayoutEffect(() => {
+    navigation.setOptions({ headerShown: false });
+  }, []);
 
   useEffect(() => {
     fetchSessions();
@@ -43,8 +52,19 @@ const FriendSessions = () => {
 
   return (
     <SafeAreaView className="flex-1 bg-primary">
-      <View className="py-4 px-6 justify-center items-center bg-blue-500">
-        <Text className="text-orange text-3xl font-pbold">{username}'s Games</Text>
+      <View
+        className="bg-primary px-4 py-3 flex-row items-center justify-between"
+        style={{ paddingTop: Platform.OS === 'android' ? StatusBar.currentHeight : 50 }}
+      >
+        <TouchableOpacity onPress={() => router.back()}>
+          <ArrowLeft size={28} color="#F24804" />
+        </TouchableOpacity>
+
+        <Text className="text-orange text-2xl font-pbold text-center flex-1 ml-[-28px]">
+          {username}'s Games
+        </Text>
+
+        <View style={{ width: 28 }} />
       </View>
 
       {sessionsData.length === 0 ? (

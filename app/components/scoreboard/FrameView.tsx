@@ -249,7 +249,7 @@ const FrameView = forwardRef<GameRef, ChildComponentProps>(
               style={({ pressed }) => ({
                 opacity: pressed ? 0.7 : 1,
               })}
-              className={`w-12 h-12 m-2 rounded-full items-center justify-center border-2 shadow-lg ${
+              className={`w-14 h-14 m-2 rounded-full items-center justify-center border-2 shadow-lg ${
                 pins[index] ? 'bg-gray-600 border-black-100' : 'bg-white border-black-100'
               }`}
             >

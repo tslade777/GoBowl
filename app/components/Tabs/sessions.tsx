@@ -48,6 +48,7 @@ interface StatsTabProps {
     };
 
     const handleGamePress = (game: Game, gameNum: number) => {
+      console.log("Clicked game:", sessionsData);
         router.push({pathname:"/screens/previousGame",
             params: {gameData: JSON.stringify(game), gameNumber: gameNum}
         })

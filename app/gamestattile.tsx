@@ -1,13 +1,47 @@
-import { View, Text } from 'react-native';
+import { View, Text, Image, Pressable } from 'react-native';
+import React from 'react';
+import { useRouter } from 'expo-router';
 
-const GameStatTile = ({ game }: { game: any }) => {
+interface Game {
+  userID: string;
+  username: string;
+  highestScore: number;
+  lastGame: string;
+  mode: string;
+  profilePic: string;
+  sessionID: string;
+}
+
+const GameStatTile = ({ game }: { game: Game }) => {
+  const router = useRouter();
+
+  const handlePress = () => {
+    router.push({
+      pathname: '/screens/friendSessions',
+      params: {
+        friendID: game.userID,
+        sessionID: game.sessionID,
+        username: game.username,
+        type: game.mode,
+      },
+    });
+  };
   return (
-    <View className="bg-gray-800 p-4 m-2 rounded-lg">
-      <Text className="text-white text-lg font-bold">{game.username}</Text>
-      <Text className="text-gray-300">Highest Score: {game.highestScore}</Text>
-      <Text className="text-gray-300">Last Game: {game.lastGame}</Text>
-      <Text className="text-gray-300">Mode: {game.mode}</Text>
-    </View>
+    <Pressable onPress={handlePress}>
+      <View className="bg-slate-800 p-4 m-2 rounded-lg flex-row items-center">
+        <Image
+          source={{ uri: game.profilePic }}
+          className="w-12 h-12 rounded-full mr-4"
+          resizeMode="cover"
+        />
+        <View>
+          <Text className="text-white font-bold text-lg">{game.username}</Text>
+          <Text className="text-white">Highest Score: {game.highestScore}</Text>
+          <Text className="text-white">Last Game: {game.lastGame}</Text>
+          <Text className="text-white">Mode: {game.mode}</Text>
+        </View>
+      </View>
+    </Pressable>
   );
 };
 

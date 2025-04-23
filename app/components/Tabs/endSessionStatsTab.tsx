@@ -9,7 +9,8 @@ interface StatsTabProps {
 }
 
 const EndSessionStatsTab: React.FC<StatsTabProps> = ({ sessionData }) => {
-    const stats = sessionData
+    const stats = sessionData;
+    const openPercentage = (stats.openFrames/12)*100;
     return (
         <View className="flex-1 bg-primary justify-center items-center">
           
@@ -35,7 +36,7 @@ const EndSessionStatsTab: React.FC<StatsTabProps> = ({ sessionData }) => {
               strokeWidthFactor={0.15} title='Singel Pin' />
             </View>
             <View className="flex-1 items-center">
-            <DonutChart percentage={stats.openFramePercentage} size={125} 
+            <DonutChart percentage={openPercentage} size={125} 
               strokeWidthFactor={0.15} title='Open' />
             </View>
           </View>

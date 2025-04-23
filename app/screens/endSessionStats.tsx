@@ -12,7 +12,6 @@ const EndSessionStats = () => {
     useFocusEffect(
       React.useCallback(() => {
         const onBackPress = () => {
-          // custom logic here
           router.replace('/(tabs)/create')
           return true; // prevent default goBack
         };

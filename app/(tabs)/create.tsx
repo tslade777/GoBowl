@@ -205,6 +205,20 @@ const animatedStyle = useAnimatedStyle(() => {
     })
     setSessionName("")
   }
+
+  const formatSessionName = (session:string) => {
+    // Remove trailing 's' if it exists
+      if (session.endsWith('s')) {
+        session = session.slice(0, -1);
+      }
+
+      const match = session.match(/^(.*?)(Session)$/);
+      if (!match) return session;
+
+      const [_, type, word] = match;
+      const capitalizedType = type.charAt(0).toUpperCase() + type.slice(1);
+      return `${capitalizedType} ${word}`;
+  }
   
   return (
     <SafeAreaView className={"bg-primary h-full"}>
@@ -245,7 +259,7 @@ const animatedStyle = useAnimatedStyle(() => {
                   style={[animatedStyle, { width: width * 0.65 }]}
                 >
                   <Text className="text-3xl font-pbold text-center mb-4 text-black">
-                  {`${sessionType}`}
+                  {`${formatSessionName(sessionType)}`}
                   </Text>
                   <TextInput
                           className="h-12 mb-2 border border-gray-300 rounded-2xl px-3 bg-white"

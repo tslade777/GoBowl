@@ -38,7 +38,7 @@ const LeagueListSingleItem = ({ league, onPress }: { league: League; onPress: ()
                         Game: <Text className="font-pbold">{stats.highGame}</Text>
                     </Text>
                     <Text className="text-lg text-gray-500">
-                        Series: <Text className="font-pbold">{stats.seriesScore}</Text>
+                        Series: <Text className="font-pbold">{stats.highSeries}</Text>
                     </Text>
                 </View>
             </View>

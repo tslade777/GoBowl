@@ -1,6 +1,5 @@
 import { View, Text } from 'react-native'
 import React from 'react'
-import "../../global.css";
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 
@@ -9,13 +8,13 @@ const AuthLayout = () => {
     <>
       <Stack>
         <Stack.Screen 
-        name = "sign-in"
+        name = "sign-in.tsx"
         options={{
             headerShown: false
           }}
         />
          <Stack.Screen 
-        name = "sign-up"
+        name = "sign-up.tsx"
         options={{
             headerShown: false
           }}

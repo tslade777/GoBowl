@@ -1,15 +1,14 @@
 import { View, Text, Platform, ActionSheetIOS, Modal, TouchableWithoutFeedback, Animated, TouchableOpacity, TextInput, Alert, Dimensions } from 'react-native'
 import React, {  useState } from 'react'
-import "../../global.css";
 import { SafeAreaView } from 'react-native-safe-area-context';
-import BowlingGameButton from "../components/buttons/BowlingGameButton";
+import BowlingGameButton from "@/src/components/buttons/BowlingGameButton";
 import { router } from "expo-router";
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
-import {startFirebaseSession} from "@/app/hooks/firebaseFunctions"
-import { ACTIVESESSION,  SESSIONS, SESSIONSTARTED } from '../src/config/constants';
+import {startFirebaseSession} from "@/src/hooks/firebaseFunctions"
+import { ACTIVESESSION,  SESSIONS, SESSIONSTARTED } from '../../src/config/constants';
 import { images } from '@/constants';
-import useSessionStore from '../src/zustandStore/sessionStore';
+import useSessionStore from '../../src/zustandStore/sessionStore';
 
 
 

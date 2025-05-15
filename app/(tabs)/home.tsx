@@ -1,12 +1,11 @@
 import { View, Text, FlatList, ActivityIndicator } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import "../../global.css";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { collection, getDoc, getDocs, doc } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { db, storage } from '@/firebase.config';
 import { listAll, getDownloadURL, ref } from 'firebase/storage';
-import GameStatTile from '../gamestattile';
+import GameStatTile from '../../src/gamestattile';
 
 interface Game {
   sessionID: string;

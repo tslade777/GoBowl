@@ -5,13 +5,13 @@ import React, { useEffect, useState } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { collection, doc, getDocs, onSnapshot, query, where, updateDoc, getDoc, setDoc } from 'firebase/firestore';
 import { FIREBASE_AUTH, db } from '@/firebase.config';
-import SearchBar from "../components/SearchBar";
+import SearchBar from "@/src/components/searchbar/SearchBar";
 import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from "react-native-reanimated";
 import { router } from 'expo-router';
-import { Friend } from '../src/values/types';
-import { defaultFriend } from '../src/values/defaults';
-import LiveListItem from '../components/lists/ListItems/FriendsListItem';
-import { downloadImageFromFirebase } from '../hooks/firebaseFunctions';
+import { Friend } from '../../src/values/types';
+import { defaultFriend } from '../../src/values/defaults';
+import LiveListItem from '../../src/components/lists/list_items/FriendsListItem';
+import { downloadImageFromFirebase } from '@/src/hooks/firebaseFunctions';
 import icons from '@/constants/icons';
 
 // TODO: Add loading icon for friends list
@@ -156,7 +156,7 @@ const Friends = () => {
   // Add User to Friends List in Firebase
   const addFriend = async (user: Friend) => {
     router.push({
-      pathname: "/screens/friendProfile",
+      pathname: "/(tabs)/profile/friendProfile",
       params: {
         friend: JSON.stringify(user),
         active: JSON.stringify(user.active)
@@ -218,7 +218,7 @@ const Friends = () => {
     }
     else{
       router.push({
-        pathname: "/screens/friendProfile",
+        pathname: "/(tabs)/profile/friendProfile",
         params: {
           friend: JSON.stringify(friend),
         }

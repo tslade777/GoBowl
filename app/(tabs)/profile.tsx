@@ -1,20 +1,19 @@
 import { View, Text,  TouchableOpacity, Image, Dimensions, ActivityIndicator } from 'react-native';
 import React, { Suspense, useEffect, useState } from 'react';
-import "../../global.css";
 import { FIREBASE_AUTH, db } from '@/firebase.config';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { router} from 'expo-router';
 import { icons } from '@/constants';
-import { checkIfImageExists, getLocalImagePath, handleImageSelection } from '../hooks/ImageFunctions';
-import { SeriesStats, UserData } from '../src/values/types';
-import { getFromStorage } from '../hooks/userDataFunctions';
-import getAllStats from '../hooks/allStats';
-import { defaultSeriesStats } from '../src/values/defaults';
-import ProfileBio from '../components/Tabs/profileBio';
-import ProfileStats from '../components/Tabs/profileStats';
+import { checkIfImageExists, getLocalImagePath, handleImageSelection } from '@/src/hooks/ImageFunctions';
+import { SeriesStats, UserData } from '../../src/values/types';
+import { getFromStorage } from '@/src/hooks/userDataFunctions';
+import getAllStats from '@/src/hooks/allStats';
+import { defaultSeriesStats } from '@/src/values/defaults';
+import ProfileBio from '@/src/components/tabs/profileBio';
+import ProfileStats from '@/src/components/tabs/profileStats';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import { fetchUserDataByID } from '../hooks/firebaseFunctions';
+import { fetchUserDataByID } from '@/src/hooks/firebaseFunctions';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const Tab = createMaterialTopTabNavigator();

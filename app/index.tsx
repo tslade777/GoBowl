@@ -3,18 +3,16 @@ import { ScrollView, Text, View, Image } from "react-native";
 import {  router } from "expo-router";
 import "../global.css";
 import { images } from '../constants'
-import CustomButton from "./components/buttons/CustomButton";
+import CustomButton from "@/src/components/buttons/CustomButton";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {onAuthStateChanged, User} from "firebase/auth"
 import { useEffect, useState } from "react";
 import { FIREBASE_AUTH } from "@/firebase.config";
-import { fetchUserData } from "./hooks/firebaseFunctions";
-
+import { fetchUserData } from "@/src/hooks/firebaseFunctions";
 import { enableScreens } from "react-native-screens";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import useGameStore from "./src/zustandStore/store";
-import Toast from 'react-native-toast-message';
-import toastConfig from '@/toastConfig';
+import useGameStore from "../src/zustandStore/store";
+
 
 enableScreens();
 

@@ -3,9 +3,9 @@ import React from 'react'
 import "../../global.css";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
-import { SESSIONS } from '../src/config/constants';
+import { SESSIONS } from '../../src/config/constants';
 import images from '@/constants/images';
-import StatsButton from '../components/buttons/StatsButton';
+import StatsButton from '@/src/components/buttons/StatsButton';
 
 const Stats = () => {
   return (
@@ -20,26 +20,26 @@ const Stats = () => {
               title={"Practice"}
               image={images.practice}
               handlePress={() => 
-                router.push({pathname:"/screens/statsScreen", params: {type: SESSIONS.practice}})
+                router.push({pathname:"/(tabs)/stats/statsScreen", params: {type: SESSIONS.practice}})
               }
             />
         <StatsButton
               className='rounded-xl w-[45%] m-1 mb-5 justify-center items-center align-middle'
               title={"Open"}
               image={images.practice}
-              handlePress={() => router.push({pathname:"/screens/statsScreen", params: {type: SESSIONS.open}})}
+              handlePress={() => router.push({pathname:"/(tabs)/stats/statsScreen", params: {type: SESSIONS.open}})}
             />
         <StatsButton
               className='rounded-xl w-[45%] m-1 mb-5 justify-center items-center align-middle'
               title={"League"}
               image={images.practice}
-              handlePress={() => router.push("/screens/leagueStats")}
+              handlePress={() => router.push("/(tabs)/stats/leagueStats")}
             />
         <StatsButton
               className='rounded-xl w-[45%] m-1 mb-5 justify-center items-center align-middle'
               title={"Tournament"}
               image={images.practice}
-              handlePress={() => router.push({pathname:"/screens/statsScreen", params: {type: SESSIONS.tournament}})}
+              handlePress={() => router.push({pathname:"/(tabs)/stats/statsScreen", params: {type: SESSIONS.tournament}})}
             />
       </View>
     </SafeAreaView>

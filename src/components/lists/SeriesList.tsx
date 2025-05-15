@@ -1,6 +1,6 @@
-import { View, Text, FlatList, TouchableOpacity, Pressable } from 'react-native';
+import { View, Text, FlatList, Pressable } from 'react-native';
 import React from 'react';
-import parseSessionStats from '@/app/hooks/parseSessionStats';
+import parseSessionStats from '@/src/hooks/parseSessionStats';
 import { Series } from '@/src/values/types';
 
 

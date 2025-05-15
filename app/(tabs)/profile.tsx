@@ -4,7 +4,7 @@ import { FIREBASE_AUTH, db } from '@/firebase.config';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { doc, getDoc, updateDoc } from 'firebase/firestore';
 import { router} from 'expo-router';
-import { icons } from '@/constants';
+import { icons } from '@/src/constants';
 import { checkIfImageExists, getLocalImagePath, handleImageSelection } from '@/src/hooks/ImageFunctions';
 import { SeriesStats, UserData } from '../../src/values/types';
 import { getFromStorage } from '@/src/hooks/userDataFunctions';

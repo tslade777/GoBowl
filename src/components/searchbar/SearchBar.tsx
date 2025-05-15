@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, TextInput, FlatList,Image, Text, TouchableOpacity, Keyboard } from "react-native";
-import { Friend } from "../../src/values/types";
-import icons from "@/constants/icons";
+import { Friend } from "@/src/values/types";
+import icons from "@/src/constants/icons";
 
 
 interface SearchBarProps {

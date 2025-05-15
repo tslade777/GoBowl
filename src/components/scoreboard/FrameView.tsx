@@ -3,7 +3,7 @@ import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 're
 
 import Frame from './Frame';
 import TenthFrame from './TenthFrame';
-import icons from '@/constants/icons';
+import icons from '@/src/constants/icons';
 import { tGame } from '@/src/values/types';
 import useGameViewStore from '@/src/zustandStore/gameStore';
 import game from '@/src/screens/game';
@@ -136,38 +136,51 @@ const FrameView = forwardRef<GameRef, ChildComponentProps>(
   function tenthFramePinToggle(index: number){
     if (isHistory) return;
     let updatedPins = [...pins];
+    let tenth = frames[9];
 
-    if (selectedShot == 1){
-      updatedPins[index] = !updatedPins[index];
-
-      // Count the number of pins knocked down
-      setPins(updatedPins);
-    }
-    else{
-      if(!frames[9].isStrike && selectedShot != 3){
-        const firstPins = frames[9].firstBallPins
-        if (firstPins[index]) return;
-        else{
-          updatedPins[index] = !updatedPins[index];
-          setPins(updatedPins)
-        }
+    switch(selectedShot){
+      case 1:{
+        updatedPins[index] = !updatedPins[index];
+        // Count the number of pins knocked down
+        setPins(updatedPins);
+        break;
       }
-      // first shot of tenth is strike.
-      else{
-        // second shot
-        if (selectedShot != 3 && frames[9].roll2 != 10 && !frames[9].isSpare){
-          const secondPins = frames[9].secondBallPins
-          if (secondPins[index]) return;
+      case 2:{
+        // first ball is not strike.
+        if(tenth.roll1 != 10){
+          const firstPins = tenth.firstBallPins
+          if (firstPins[index]) return;
           else{
             updatedPins[index] = !updatedPins[index];
             setPins(updatedPins)
           }
         }
-        // Need to adjust this. bug is here
+        // first ball is a strike
         else{
           updatedPins[index] = !updatedPins[index];
+          // Count the number of pins knocked down
           setPins(updatedPins);
         }
+        break;
+      }
+      case 3:{
+        // need to restrict 3rd ball pins to only pins left standing after second shot.
+        // X | 6 | ?
+        if(tenth.roll2 != 10 && tenth.roll1 == 10){
+          const pinsHIt = tenth.secondBallPins
+          if (pinsHIt[index]) return;
+          else{
+            updatedPins[index] = !updatedPins[index];
+            setPins(updatedPins)
+          }
+        }
+        // X | X | ? or 9 | / | ?
+        else{
+          updatedPins[index] = !updatedPins[index];
+          // Count the number of pins knocked down
+          setPins(updatedPins);
+        }
+        break;
       }
     }
   }

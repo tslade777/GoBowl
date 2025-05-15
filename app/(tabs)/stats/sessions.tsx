@@ -1,13 +1,12 @@
 import { View, Text, TouchableOpacity, Image, SafeAreaView, Platform, ActionSheetIOS, Modal, TouchableWithoutFeedback } from 'react-native';
 import React, {  useState } from 'react';
-import SeriesList from '../../../src/components/lists/SeriesList';
+import SeriesList from '@/src/components/lists/SeriesList';
 import { Game, Series } from '@/src/values/types';
-import GameList from '../../../src/components/lists/GameList';
+import GameList from '@/src/components/lists/GameList';
 import { router } from 'expo-router';
 import { ArrowLeft } from "lucide-react-native";
-import { removeSession } from '@/app/hooks/firebaseFunctions';
+import { removeSession } from '@/src/hooks/firebaseFunctions';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring, withTiming } from "react-native-reanimated";
-import { defaultSession } from '@/src/values/defaults';
 
 interface StatsTabProps {
     sessionsData: Series[];
@@ -49,14 +48,14 @@ interface StatsTabProps {
 
     const handleGamePress = (game: Game, gameNum: number) => {
       console.log("Clicked game:", sessionsData);
-        router.push({pathname:"/screens/previousGame",
+        router.push({pathname:"/(tabs)/stats/previousGame",
             params: {gameData: JSON.stringify(game), gameNumber: gameNum}
         })
     }
 
     const handleViewStats = (series:Series)=>{
       router.push({
-          pathname: "/screens/historySessionStats",
+          pathname: "/(tabs)/stats/historySessionStats",
           params: {
             seriesStats: JSON.stringify(series.stats),
             title: series.title

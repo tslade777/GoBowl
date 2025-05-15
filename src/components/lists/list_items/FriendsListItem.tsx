@@ -1,5 +1,5 @@
 import { View, Text, TouchableOpacity, Image } from "react-native";
-import icons from '../../../../constants/icons'
+import icons from '@/src/constants/icons'
 import { checkIfImageExists, getLocalImagePath } from "@/src/hooks/ImageFunctions";
 import { useState } from "react";
 

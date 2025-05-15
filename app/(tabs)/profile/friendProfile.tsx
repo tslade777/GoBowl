@@ -1,16 +1,15 @@
 import { View, Text, TouchableOpacity, Image, Dimensions } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import "../../global.css";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { useLocalSearchParams } from 'expo-router';
-import { icons } from '@/constants';
-import { checkIfImageExists, getLocalImagePath, handleImageSelection } from '../hooks/ImageFunctions';
-import { Friend, UserData } from '../values/types';
-import { fetchUserDataByID } from '../hooks/firebaseFunctions';
+import { icons } from '@/src/constants';
+import { checkIfImageExists, getLocalImagePath, handleImageSelection } from '@/src/hooks/ImageFunctions';
+import { Friend, UserData } from '@/src/values/types';
+import { fetchUserDataByID } from '@/src/hooks/firebaseFunctions';
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
-import Bio from '../components/Tabs/bio';
-import StatComparison from '../components/Tabs/statComparison';
-import { defaultFriend } from '../values/defaults';
+import Bio from '@/src/components/tabs/bio';
+import StatComparison from '@/src/components/tabs/statComparison';
+import { defaultFriend } from '@/src/values/defaults';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { db, FIREBASE_AUTH } from '@/firebase.config';
 

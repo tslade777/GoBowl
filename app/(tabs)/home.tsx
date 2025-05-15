@@ -5,7 +5,7 @@ import { collection, getDoc, getDocs, doc } from 'firebase/firestore';
 import { getAuth } from 'firebase/auth';
 import { db, storage } from '@/firebase.config';
 import { listAll, getDownloadURL, ref } from 'firebase/storage';
-import GameStatTile from '../../src/gamestattile';
+import GameStatTile from '@/src/gamestattile';
 
 interface Game {
   sessionID: string;

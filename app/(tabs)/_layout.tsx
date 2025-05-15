@@ -1,12 +1,9 @@
 import { View, Image, Keyboard } from 'react-native'
 import React, { useEffect, useState } from 'react'
-import "../../global.css";
 import { Tabs,  Stack} from 'expo-router'
-import {icons} from '../../constants'
-import { checkIfImageExists, getLocalImagePath } from '../hooks/ImageFunctions';
-import { getFromStorage } from '../hooks/userDataFunctions';
-import Toast from 'react-native-toast-message';
-import toastConfig from '@/toastConfig';
+import {icons} from '@/src/constants'
+import { checkIfImageExists, getLocalImagePath } from '@/src/hooks/ImageFunctions';
+import { getFromStorage } from '@/src/hooks/userDataFunctions';
 
 const TabIcon = ({icon, color, focused}:{icon:any, color?:any, focused:any}) => {
   return (

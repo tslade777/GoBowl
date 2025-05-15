@@ -1,11 +1,11 @@
 import { View, Text, TouchableOpacity, TextInput, Image, Animated, ActivityIndicator  } from 'react-native';
 import { forwardRef, useEffect, useImperativeHandle, useRef, useState } from 'react';
-import Frame from '../scoreboard/Frame';
-import TenthFrame from '../scoreboard/TenthFrame';
-import { db } from '../../../firebase.config'
+import Frame from '@/src/components/scoreboard/Frame';
+import TenthFrame from '@/src/components/scoreboard/TenthFrame';
+import { db } from '@/firebase.config'
 import { doc, onSnapshot } from 'firebase/firestore';
 import { Game, tFrame, tGame } from '@/src/values/types';
-import icons from '@/constants/icons';
+import icons from '@/src/constants/icons';
 import { defaultFrame } from '@/src/values/defaults';
 import Toast from 'react-native-toast-message';
 

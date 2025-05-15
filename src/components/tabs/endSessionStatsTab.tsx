@@ -1,8 +1,8 @@
 import { View, Text, ScrollView } from 'react-native'
 import React from 'react'
-import { Game, SeriesData, SeriesStats } from '@/src/values/types';
-import StatDisplay from '../../../src/components/stats/StatText';
-import DonutChart from '../../../src/components/stats/DonutChart';
+import {SeriesStats } from '@/src/values/types';
+import StatDisplay from '@/src/components/stats/StatText';
+import DonutChart from '@/src/components/stats/DonutChart';
 
 interface StatsTabProps {
   sessionData: SeriesStats;

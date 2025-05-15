@@ -1,9 +1,9 @@
 import { View, Text, Animated, TextInput, TouchableOpacity, SafeAreaView, Modal, ActivityIndicator, Alert } from 'react-native'
 import React, { useEffect, useRef, useState } from 'react'
 import { router, useLocalSearchParams } from 'expo-router';
-import LeagueList from '../components/lists/LeagueList';
-import { League } from '../values/types';
-import subscribeToLeagues from '../hooks/GetLeaguesByID';
+import LeagueList from '@/src/components/lists/LeagueList';
+import { League } from '@/src/values/types';
+import subscribeToLeagues from '@/src/hooks/GetLeaguesByID';
 
 
 
@@ -33,7 +33,7 @@ const LeagueStats = () => {
    * @param item League that was clicked
    */
   function handleLeaguePress(item: any): void {
-    router.push({pathname:"/screens/statsScreenLeagues", params: {
+    router.push({pathname:"/(tabs)/stats/statsScreenLeagues", params: {
         leagueID: item.leagueID,
         leagueName: item.title
     }})

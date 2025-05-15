@@ -1,15 +1,12 @@
 import { View, Text, ScrollView, Image, ActivityIndicator } from 'react-native'
 import React, { useState } from 'react'
-import "../../global.css";
 import { SafeAreaView } from 'react-native-safe-area-context';
-import {images} from '../../constants'
-import FormField from "@/src/components/froms/FormField";
+import {images} from '@/src/constants'
+import FormField from "@/src/components/forms/FormField";
 import CustomButton from '@/src/components/buttons/CustomButton';
 import { Link, router } from 'expo-router';
 import { signInWithEmailAndPassword } from 'firebase/auth';
 import { FIREBASE_AUTH } from '@/firebase.config';
-
-
 
 
 const SignIn = () => {
@@ -26,7 +23,7 @@ const Submit = async () => {
   try{
     const response = await signInWithEmailAndPassword(FIREBASE_AUTH, form.email, form.password)
     setSubmitting(false)
-    router.replace('/home')
+    router.replace('/(tabs)/home')
   } catch (error){
     setFailed(true)
     setSubmitting(false)

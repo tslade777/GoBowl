@@ -2,9 +2,9 @@ import { View, ScrollView } from 'react-native'
 import React from 'react'
 import { Series } from '@/src/values/types';
 
-import parseTotalSessionStats from '../../hooks/parseTotalSessionStats';
-import DonutChart from '../../../src/components/stats/DonutChart';
-import StatDisplay from '../../../src/components/stats/StatText';
+import parseTotalSessionStats from '@/src/hooks/parseTotalSessionStats';
+import DonutChart from '@/src/components/stats/DonutChart';
+import StatDisplay from '@/src/components/stats/StatText';
 
 interface StatsTabProps {
   sessionData: Series[];

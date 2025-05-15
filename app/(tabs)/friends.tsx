@@ -12,7 +12,7 @@ import { Friend } from '../../src/values/types';
 import { defaultFriend } from '../../src/values/defaults';
 import LiveListItem from '../../src/components/lists/list_items/FriendsListItem';
 import { downloadImageFromFirebase } from '@/src/hooks/firebaseFunctions';
-import icons from '@/constants/icons';
+import icons from '@/src/constants/icons';
 
 // TODO: Add loading icon for friends list
 const Friends = () => {

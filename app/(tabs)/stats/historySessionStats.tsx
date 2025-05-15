@@ -1,8 +1,8 @@
 import { View, Text, TouchableOpacity, SafeAreaView } from 'react-native'
 import React, { useEffect } from 'react'
-import EndSessionStatsTab from '../components/Tabs/endSessionStatsTab'
+import EndSessionStatsTab from '@/src/components/tabs/endSessionStatsTab'
 import { useLocalSearchParams, useNavigation, useRouter } from 'expo-router';
-import { SeriesData, SeriesStats } from '../values/types';
+import { SeriesData, SeriesStats } from '@/src/values/types';
 
 const HistorySessionStats = () => {
 

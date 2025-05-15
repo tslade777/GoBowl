@@ -7,7 +7,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useAnimatedStyle, useSharedValue, withSpring, withTiming } from 'react-native-reanimated';
 import {startFirebaseSession} from "@/src/hooks/firebaseFunctions"
 import { ACTIVESESSION,  SESSIONS, SESSIONSTARTED } from '../../src/config/constants';
-import { images } from '@/constants';
+import { images } from '@/src/constants';
 import useSessionStore from '../../src/zustandStore/sessionStore';
 
 

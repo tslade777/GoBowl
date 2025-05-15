@@ -2,7 +2,7 @@ import { StatusBar } from "expo-status-bar";
 import { ScrollView, Text, View, Image } from "react-native";
 import {  router } from "expo-router";
 import "../global.css";
-import { images } from '../constants'
+import { images } from '@/src/constants'
 import CustomButton from "@/src/components/buttons/CustomButton";
 import { SafeAreaView } from "react-native-safe-area-context";
 import {onAuthStateChanged, User} from "firebase/auth"
@@ -16,7 +16,7 @@ import useGameStore from "../src/zustandStore/store";
 
 enableScreens();
 
-export default function RootLayout() {
+export default function Index() {
   const [user, setUser] = useState<User | null>(null);
     
   useEffect(() =>{

@@ -3,7 +3,7 @@ import {useEffect, useState } from 'react';
 import Frame from './Frame';
 import TenthFrame from './TenthFrame';
 import { Game } from '@/src/values/types';
-import icons from '@/constants/icons';
+import icons from '@/src/constants/icons';
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 type GameInfo = {

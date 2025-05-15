@@ -2,8 +2,8 @@ import { View, Text, ScrollView } from 'react-native'
 import React, { useEffect, useState } from 'react'
 import { LinearGradient } from "expo-linear-gradient";
 import { SeriesStats } from '@/src/values/types';
-import getAllStats from '@/app/hooks/allStats';
-import getAllStatsByID from '@/app/hooks/allStatsByID';
+import getAllStats from '@/src/hooks/allStats';
+import getAllStatsByID from '@/src/hooks/allStatsByID';
 import { defaultSeriesStats } from '@/src/values/defaults';
 
 const StatComparison = ({friendID}:{friendID:string}) => {

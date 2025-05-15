@@ -1,8 +1,8 @@
 import { View, Text, SafeAreaView } from 'react-native'
 import React from 'react'
-import EmptyGame from '../components/scoreboard/EmptyGame'
+import EmptyGame from '@/src/components/scoreboard/EmptyGame'
 import { useLocalSearchParams } from 'expo-router'
-import { Game } from '../values/types'
+import { Game } from '@/src/values/types'
 
 
 const previousGame = () => {

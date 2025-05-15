@@ -1,9 +1,9 @@
 import { View, Text, FlatList, TouchableOpacity } from 'react-native';
 import React, { useEffect, useState } from 'react';
-import parseSessionStats from '@/app/hooks/parseSessionStats';
-import parseTotalSessionStats from '@/app/hooks/parseTotalSessionStats';
+import parseSessionStats from '@/src/hooks/parseSessionStats';
+import parseTotalSessionStats from '@/src/hooks/parseTotalSessionStats';
 import { League, Series, SeriesStats } from '@/src/values/types';
-import { getLeagueSessions } from '@/app/hooks/firebaseFunctions';
+import { getLeagueSessions } from '@/src/hooks/firebaseFunctions';
 import { defaultSeriesStats } from '@/src/values/defaults';
 
 

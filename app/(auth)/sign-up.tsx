@@ -1,17 +1,16 @@
 import { View, Text, ScrollView, Image, ActivityIndicator } from 'react-native'
 import React, { useState } from 'react'
-import "../../global.css";
 import { SafeAreaView } from 'react-native-safe-area-context';
-import {images} from '../../constants'
-import FormField from '../components/FormField';
-import CustomButton from '../components/buttons/CustomButton';
+import {images} from '@/src/constants'
+import FormField from '@/src/components/forms/FormField';
+import CustomButton from '@/src/components/buttons/CustomButton';
 import { Link, router } from 'expo-router';
 import { FIREBASE_AUTH, db } from '../../firebase.config'
 import { createUserWithEmailAndPassword} from 'firebase/auth';
 import { doc, setDoc} from "firebase/firestore"
 
 
-const SignUP = () => {
+const SignUp = () => {
   const [form, setForm] = useState({
     email: '',
     password: '',
@@ -40,7 +39,7 @@ const Submit = async () => {
       active: false,
       currentGame: gameState
     });
-    router.replace('/create')
+    router.replace('/(tabs)/create')
   } catch (error){
     setSubmitting(false)
     console.log(`Failed to log in. Error: ${error}`)
@@ -104,4 +103,4 @@ const Submit = async () => {
   )
 }
 
-export default SignUP
+export default SignUp

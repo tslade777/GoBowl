@@ -2,11 +2,11 @@ import React, { useEffect, useState } from "react";
 import { createMaterialTopTabNavigator } from "@react-navigation/material-top-tabs";
 import { View, Text, SafeAreaView, ActivityIndicator } from "react-native";
 import { useLocalSearchParams } from "expo-router";
-import StatsTab from "../components/Tabs/stats";
-import SessionsTab from "../components/Tabs/sessions";
+import StatsTab from "@/src/components/tabs/stats";
+import SessionsTab from "@/app/(tabs)/stats/sessions";
 import { Series } from "@/src/values/types";
-import {getSessions} from "../hooks/firebaseFunctions";
-import { SESSIONS } from "../config/constants";
+import {getSessions} from "@/src/hooks/firebaseFunctions";
+
 
 const Tab = createMaterialTopTabNavigator();
 

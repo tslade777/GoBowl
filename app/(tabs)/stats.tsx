@@ -4,7 +4,7 @@ import "../../global.css";
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { router } from 'expo-router';
 import { SESSIONS } from '../../src/config/constants';
-import images from '@/constants/images';
+import images from '@/src/constants/images';
 import StatsButton from '@/src/components/buttons/StatsButton';
 
 const Stats = () => {
